@@ -13,205 +13,205 @@ Manual testing plan covering all functionality defined in SPEC.md v0.4.
 ## 1. Application Lifecycle
 
 ### 1.1 Launch
-- [ ] `python -m meetings_countdown_pro` starts without errors
-- [ ] `python main.py` starts without errors
-- [ ] Menu bar icon appears in the system tray
-- [ ] App does not appear in the Dock (background process)
-- [ ] Console shows INFO-level log messages at startup (calendar access, initial poll)
+- [X] `python -m meetings_countdown_pro` starts without errors
+- [X] `python main.py` starts without errors
+- [X] Menu bar icon appears in the system tray
+- [X] App does not appear in the Dock (background process)
+- [X] Console shows INFO-level log messages at startup (calendar access, initial poll)
 
 ### 1.2 Debug Mode
-- [ ] `python -m meetings_countdown_pro --debug` starts with DEBUG-level output
-- [ ] Debug output includes EventKit query parameters, raw event counts, per-event details
+- [X] `python -m meetings_countdown_pro --debug` starts with DEBUG-level output
+- [X] Debug output includes EventKit query parameters, raw event counts, per-event details
 
 ### 1.3 Quit
-- [ ] Quit from menu bar exits cleanly (no segfault)
-- [ ] Quit after audio playback exits cleanly (no segfault)
-- [ ] Quit during active countdown exits cleanly (no segfault)
-- [ ] Quit with no audio file configured exits cleanly
+- [X] Quit from menu bar exits cleanly (no segfault)
+- [X] Quit after audio playback exits cleanly (no segfault)
+- [X] Quit during active countdown exits cleanly (no segfault)
+- [X] Quit with no audio file configured exits cleanly
 
 ---
 
 ## 2. Calendar Access & Permissions
 
 ### 2.1 First Launch (No Permission)
-- [ ] App prompts for calendar access via macOS permission dialog
-- [ ] Granting access: calendar polling begins, events appear in menu bar
-- [ ] Denying access: menu bar shows "⚠ Calendar access required"
+- [X] App prompts for calendar access via macOS permission dialog (reset with `tccutil reset Calendar org.python.python` to re-test)
+- [X] Granting access: calendar polling begins, events appear in menu bar
+- [X] Denying access: menu bar shows "⚠ Calendar access required"
 
 ### 2.2 Permission Revoked
-- [ ] If permission is revoked in System Settings → Privacy → Calendars, menu bar reflects the denied state on next poll
+- [X] If permission is revoked in System Settings → Privacy → Calendars, menu bar reflects the denied state on next poll
 
 ### 2.3 Calendar Enumeration
-- [ ] Settings → Calendars tab shows all accounts and calendars from macOS Calendar
-- [ ] Calendars grouped by account name (iCloud, Google, Exchange, etc.)
-- [ ] Calendar colors displayed correctly
+- [X] Settings → Calendars tab shows all accounts and calendars from macOS Calendar
+- [X] Calendars grouped by account name (iCloud, Google, Exchange, etc.)
+- [X] Calendar colors displayed correctly
 
 ---
 
 ## 3. Menu Bar
 
 ### 3.1 Next Meeting Display
-- [ ] Shows next meeting title, time, and relative time (e.g., "in 23 min")
-- [ ] Title truncated with ellipsis if longer than ~28 characters
-- [ ] Relative time shows minutes when < 60 min away
-- [ ] Relative time shows hours + minutes when >= 60 min away
-- [ ] Shows "(now)" when meeting is starting
-- [ ] Shows "No more meetings today" when no remaining meetings
-- [ ] Updates on each 30-second poll cycle
-- [ ] Detects meetings across the entire day, not just the next few minutes
+- [X] Shows next meeting title, time, and relative time (e.g., "in 23 min")
+- [X] Title truncated with ellipsis if longer than ~28 characters
+- [X] Relative time shows minutes when < 60 min away
+- [X] Relative time shows hours + minutes when >= 60 min away
+- [X] Shows "(now)" when meeting is starting
+- [X] Shows "No more meetings today" when no remaining meetings
+- [X] Updates on each 30-second poll cycle
+- [X] Detects meetings across the entire day, not just the next few minutes
 
 ### 3.2 Mode Selection
-- [ ] Three radio options: Countdown + Music, Countdown (Silent), Off
-- [ ] Only one mode can be selected at a time
-- [ ] Selected mode persists across app restarts
-- [ ] Changing mode updates `settings.json`
+- [X] Three radio options: Countdown + Music, Countdown (Silent), Off
+- [X] Only one mode can be selected at a time
+- [X] Selected mode persists across app restarts
+- [X] Changing mode updates `settings.json`
 
 ### 3.3 Menu Actions
-- [ ] "Settings..." opens the Settings window
-- [ ] "Quit Meetings Countdown Pro" exits the app
+- [X] "Settings..." opens the Settings window
+- [X] "Quit Meetings Countdown Pro" exits the app
 
 ---
 
 ## 4. Calendar Polling & Event Detection
 
 ### 4.1 Basic Detection
-- [ ] Events from all enabled calendars are detected
-- [ ] Events from disabled calendars are not detected
-- [ ] Poll runs every 30 seconds
-- [ ] Query window spans from now to end of local day
+- [X] Events from all enabled calendars are detected
+- [X] Events from disabled calendars are not detected
+- [X] Poll runs every 30 seconds
+- [X] Query window spans from now to end of local day
 
 ### 4.2 Attendee Handling
-- [ ] Organizer (event sender) included in attendee list
-- [ ] Regular attendees included in attendee list
+- [X] Organizer (event sender) included in attendee list
+- [X] Regular attendees included in attendee list
 - [ ] Duplicate attendees deduplicated by email (case-insensitive)
-- [ ] Organizer who also appears in attendees list shown only once
-- [ ] Display name parsed from `"Name" <email>` format
-- [ ] Bare email addresses shown as-is when no display name available
+- [X] Organizer who also appears in attendees list shown only once
+- [X] Display name parsed from `"Name" <email>` format
+- [X] Bare email addresses shown as-is when no display name available
 
 ### 4.3 Filters
-- [ ] Declined events are always excluded
-- [ ] Tentative events excluded when "Include Tentative" is off
-- [ ] Tentative events included when "Include Tentative" is on
-- [ ] All-day events excluded when "Include All-Day Events" is off
-- [ ] All-day events included when "Include All-Day Events" is on
-- [ ] "Video Calls Only" filter: only events with Zoom/Meet/Teams links trigger countdown
-- [ ] "Video Calls Only" off: all eligible events trigger countdown
+- [X] Declined events are always excluded
+- [X] Tentative events excluded when "Include Tentative" is off
+- [X] Tentative events included when "Include Tentative" is on
+- [X] All-day events excluded when "Include All-Day Events" is off
+- [X] All-day events included when "Include All-Day Events" is on
+- [X] "Video Calls Only" filter: only events with Zoom/Meet/Teams links trigger countdown
+- [X] "Video Calls Only" off: all eligible events trigger countdown
 
 ### 4.4 Calendar Selection
-- [ ] Selecting specific calendars in Settings only monitors those calendars
-- [ ] Deselecting all calendars falls back to monitoring all calendars
-- [ ] Changes take effect on next poll cycle after saving settings
+- [X] Selecting specific calendars in Settings only monitors those calendars
+- [X] Deselecting all calendars falls back to monitoring all calendars
+- [X] Changes take effect on next poll cycle after saving settings
 
 ---
 
 ## 5. Countdown Window
 
 ### 5.1 Window Appearance & Behavior
-- [ ] Window appears in upper-right corner of primary display, inset ~20px
-- [ ] Frameless window with rounded corners and drop shadow
-- [ ] Dark background theme (broadcast aesthetic)
-- [ ] Slides in from right edge (~300ms animation)
-- [ ] Floats above regular windows but below system dialogs
-- [ ] Escape key closes the window
-- [ ] Close button (X) closes the window
-- [ ] Closing stops audio playback
-- [ ] Meeting is marked as notified after window is closed (no repeat)
+- [X] Window appears in upper-right corner of primary display, inset ~20px
+- [X] Frameless window with rounded corners and drop shadow
+- [X] Dark background theme (broadcast aesthetic)
+- [X] Slides in from right edge (~300ms animation)
+- [X] Floats above regular windows but below system dialogs
+- [X] Escape key closes the window
+- [X] Close button (X) closes the window
+- [X] Closing stops audio playback
+- [X] Meeting is marked as notified after window is closed (no repeat)
 
 ### 5.2 Countdown Display
-- [ ] Large, bold, proportional sans-serif font (Helvetica Neue / SF Pro)
-- [ ] Shows seconds only (e.g., `90`, `47`, `3`) — no MM:SS format
-- [ ] Ticks every 1 second
-- [ ] Countdown reaches 0 at the meeting start time
+- [X] Large, bold, proportional sans-serif font (Helvetica Neue / SF Pro)
+- [X] Shows seconds only (e.g., `90`, `47`, `3`) — no MM:SS format
+- [X] Ticks every 1 second
+- [X] Countdown transitions to ACTION! phase at T-2s, then LIVE at T=0
 
 ### 5.3 Meeting Info Panel
-- [ ] Meeting title displayed in bold
-- [ ] Long titles truncated with ellipsis
-- [ ] Start – End time shown in local timezone
-- [ ] Attendee summary line: "{N} attendees · {X} internal · {Y} external from {Z} orgs"
-- [ ] Internal attendees listed under "INTERNAL" header, sorted alphabetically
-- [ ] External attendees listed under "EXTERNAL" header, grouped by domain
-- [ ] Each domain group shows favicon + domain name
-- [ ] Attendees within each domain group sorted alphabetically
-- [ ] Domain groups sorted alphabetically by domain name
-- [ ] Left pane scrollable when attendee list is long
+- [X] Meeting title displayed in bold
+- [X] Long titles truncated with ellipsis
+- [X] Start – End time shown in local timezone
+- [X] Attendee summary line: "{N} attendees · {X} internal · {Y} external from {Z} orgs"
+- [X] Internal attendees listed under "INTERNAL" header, sorted alphabetically
+- [X] External attendees listed under "EXTERNAL" header, grouped by domain
+- [X] Each domain group shows favicon + domain name
+- [X] Attendees within each domain group sorted alphabetically
+- [X] Domain groups sorted alphabetically by domain name
+- [X] Left pane scrollable when attendee list is long
 
 ### 5.4 Video Link Detection
-- [ ] Zoom links detected (`https://...zoom.us/j/...`, `https://...zoom.us/my/...`)
+- [X] Zoom links detected (`https://...zoom.us/j/...`, `https://...zoom.us/my/...`)
 - [ ] Google Meet links detected (`https://meet.google.com/...`)
-- [ ] Microsoft Teams links detected (`https://teams.microsoft.com/l/meetup-join/...`)
-- [ ] Links detected in URL field, location field, and notes/body
-- [ ] Priority order: URL field > location > notes (first match wins)
-- [ ] "Join Now" button shown only when video link is detected
-- [ ] "Join Now" opens link in system default browser
-- [ ] No "Join Now" button when no video link found
+- [X] Microsoft Teams links detected (`https://teams.microsoft.com/l/meetup-join/...`)
+- [X] Links detected in URL field, location field, and notes/body
+- [X] Priority order: URL field > location > notes (first match wins)
+- [X] "Join Now" button shown only when video link is detected
+- [X] "Join Now" opens link in system default browser
+- [X] No "Join Now" button when no video link found
 
 ### 5.5 Simultaneous Meetings
-- [ ] When 2+ meetings start at the same time, all shown in left pane
-- [ ] Each meeting has its own title, time, attendees, and individual Join button
-- [ ] Right-side Join Now button is hidden (individual buttons only)
-- [ ] Auto-join is disabled for simultaneous meetings
-- [ ] Countdown still counts down to the shared start time
+- [X] When 2+ meetings start at the same time, all shown in left pane
+- [X] Each meeting has its own title, time, attendees, and individual Join button
+- [X] Right-side Join Now button is hidden (individual buttons only)
+- [X] Auto-join is disabled for simultaneous meetings
+- [X] Countdown still counts down to the shared start time
 
 ### 5.6 Favicon Handling
-- [ ] Favicons fetched and displayed for external attendee domains
-- [ ] Failed favicon fetch shows generic globe icon (no error to user)
-- [ ] Favicon fetch does not block window rendering
-- [ ] Favicons cached in memory and on disk (`~/.config/.../favicon-cache/`)
+- [X] Favicons fetched and displayed for external attendee domains
+- [X] Failed favicon fetch shows generic globe icon (no error to user)
+- [X] Favicon fetch does not block window rendering
+- [X] Favicons cached in memory and on disk (`~/.config/.../favicon-cache/`)
 
 ---
 
 ## 6. Countdown End Animation
 
-### 6.1 Phase 1 — "ACTION!" (~2 seconds)
-- [ ] Countdown area transitions to clapperboard SVG graphic
-- [ ] "ACTION!" text displayed
-- [ ] Clapperboard top bar animates a clap (rotation animation)
+### 6.1 Phase 1 — "ACTION!" (~2 seconds before meeting start)
+- [X] Countdown area transitions to clapperboard SVG graphic
+- [X] "ACTION!" text displayed
+- [X] Clapperboard top bar animates a clap (rotation animation) — re-test after fix
 
-### 6.2 Phase 2 — "LIVE" (persists)
-- [ ] Transitions to red pulsing "LIVE" badge
-- [ ] Red dot pulsates (opacity animation)
-- [ ] Window stays visible until user closes it
-- [ ] Join button remains functional during LIVE phase
+### 6.2 Phase 2 — "LIVE" (at meeting start, persists)
+- [X] Transitions to red pulsing "LIVE" badge
+- [X] Red dot pulsates (opacity animation)
+- [X] Window stays visible until user closes it
+- [X] Join button remains functional during LIVE phase
 
 ---
 
 ## 7. Audio Playback
 
 ### 7.1 Format Support
-- [ ] MP3 files play correctly
+- [X] MP3 files play correctly
 - [ ] WAV files play correctly
 - [ ] AAC/M4A files play correctly
 - [ ] FLAC files play correctly (if macOS codec available)
 
 ### 7.2 Sync Logic
-- [ ] Audio longer than countdown (`D > C`): audio starts at position `D - C`, plays to end at T=0
-- [ ] Audio equal to countdown (`D == C`): plays from beginning, ends at T=0
-- [ ] Audio shorter than countdown (`D < C`): countdown starts silent, audio begins at `C - D` seconds in
+- [X] Audio longer than countdown (`D > C`): audio starts at position `D - C`, plays to end at T=0
+- [X] Audio equal to countdown (`D == C`): plays from beginning, ends at T=0
+- [X] Audio shorter than countdown (`D < C`): countdown starts silent, audio begins at `C - D` seconds in
 
 ### 7.3 Clock Offset
-- [ ] Offset 0ms: visual ticks aligned with real seconds
-- [ ] Positive offset: visual ticks delayed by configured ms
-- [ ] Negative offset: visual ticks advanced by configured ms
-- [ ] Offset range enforced: -2000 to +2000 ms
+- [X] Offset 0ms: visual ticks aligned with real seconds
+- [X] Positive offset: visual ticks delayed by configured ms
+- [X] Negative offset: visual ticks advanced by configured ms
+- [X] Offset range enforced: -2000 to +2000 ms
 
 ### 7.4 Audio Duration Detection
-- [ ] Duration auto-detected when sound file is selected in Settings
-- [ ] Detected duration displayed in Settings
-- [ ] Manual duration override accepted
+- [X] Duration auto-detected when sound file is selected in Settings
+- [X] Detected duration displayed in Settings
+- [X] Manual duration override accepted
 
 ### 7.5 Mute Toggle
-- [ ] Speaker icon visible in lower-right of countdown window when audio is playing
-- [ ] Clicking toggles mute (audio silenced, playback continues for timing)
-- [ ] Icon changes between speaker and speaker-muted states
-- [ ] Mute toggle hidden in Silent mode
-- [ ] Mute toggle hidden when no sound file configured
+- [X] Speaker icon visible in lower-right of countdown window when audio is playing
+- [X] Clicking toggles mute (audio silenced, playback continues for timing)
+- [X] Icon changes between speaker and speaker-muted states
+- [X] Mute toggle hidden in Silent mode
+- [X] Mute toggle hidden when no sound file configured
 
 ### 7.6 Volume & Output Device
-- [ ] Volume slider in settings controls playback volume (0–100%)
-- [ ] Audio output device selector lists available devices
-- [ ] Selecting a specific device routes audio to that device
-- [ ] "System Default" follows macOS system output
-- [ ] Device preference persists if device is temporarily unavailable (falls back to default)
+- [X] Volume slider in settings controls playback volume (0–100%)
+- [X] Audio output device selector lists available devices
+- [X] Selecting a specific device routes audio to that device
+- [X] "System Default" follows macOS system output
+- [X] Device preference persists if device is temporarily unavailable (falls back to default)
 
 ---
 
@@ -221,25 +221,26 @@ Manual testing plan covering all functionality defined in SPEC.md v0.4.
 - [ ] Audio start position adjusted: `max(0, D - R)` so audio ends at meeting time
 - [ ] Meeting < 5 seconds away: countdown skipped entirely, marked as notified
 - [ ] Meeting already started (`R ≤ 0`): no countdown, marked as notified
+- [ ] App launch during countdown window triggers countdown on main thread (no crash)
 
 ---
 
 ## 9. No-Repeat Notification State
 
 ### 9.1 Normal Dedup
-- [ ] Countdown fires once per meeting; re-poll does not trigger again
-- [ ] `notified.json` updated with composite key on countdown trigger
+- [X] Countdown fires once per meeting; re-poll does not trigger again
+- [X] `notified.json` updated with composite key on countdown trigger
 
 ### 9.2 Recurring Meetings
-- [ ] Each occurrence of a recurring meeting gets its own countdown (different start time = different key)
-- [ ] Past occurrences don't block future ones
+- [X] Each occurrence of a recurring meeting gets its own countdown (different start time = different key)
+- [X] Past occurrences don't block future ones
 
 ### 9.3 Rescheduled Meetings
-- [ ] Moving a meeting to a new time triggers a new countdown (same UID + new start time = new key)
-- [ ] Original time slot does not fire again
+- [X] Moving a meeting to a new time triggers a new countdown (same UID + new start time = new key)
+- [X] Original time slot does not fire again
 
 ### 9.4 Pruning
-- [ ] Entries older than 48 hours pruned on app launch
+- [ ] Entries older than 24 hours pruned on app launch
 - [ ] `notified.json` does not grow unbounded over days of use
 
 ---
@@ -247,9 +248,9 @@ Manual testing plan covering all functionality defined in SPEC.md v0.4.
 ## 10. Back-to-Back Meeting Handling
 
 ### 10.1 One Countdown at a Time
-- [ ] Second countdown skipped while first is still open
-- [ ] Skipped meeting marked as notified (no repeat)
-- [ ] Test Countdown button ignored while countdown is active
+- [X] Second countdown skipped while first is still open
+- [X] Skipped meeting marked as notified (no repeat)
+- [X] Test Countdown button ignored while countdown is active
 
 ### 10.2 Back-to-Back Behavior
 - [ ] Setting "Countdown + Music": full countdown during in-progress meeting
@@ -261,81 +262,82 @@ Manual testing plan covering all functionality defined in SPEC.md v0.4.
 ## 11. Settings Window
 
 ### 11.1 General Tab
-- [ ] Launch at Login toggle creates/removes LaunchAgent plist
-- [ ] LaunchAgent plist at `~/Library/LaunchAgents/com.axeltech.meetingscountdownpro.plist`
-- [ ] Countdown Duration spin box: range 10–300 seconds
-- [ ] Video Calls Only toggle
-- [ ] Include Tentative toggle
-- [ ] Include All-Day Events toggle
-- [ ] Back-to-Back Handling dropdown (3 options)
-- [ ] Auto-Join at Countdown End toggle
-- [ ] Internal Email Domain text field
-- [ ] Clock Offset input: range -2000 to +2000 ms
+- [X] Launch at Login toggle creates/removes LaunchAgent plist
+- [X] LaunchAgent plist at `~/Library/LaunchAgents/com.axeltech.meetingscountdownpro.plist`
+- [X] Countdown Duration spin box: range 10–300 seconds
+- [X] Video Calls Only toggle
+- [X] Include Tentative toggle
+- [X] Include All-Day Events toggle
+- [X] Back-to-Back Handling dropdown (3 options)
+- [X] Auto-Join at Countdown End toggle
+- [X] Internal Email Domain text field
+- [X] Clock Offset input: range -2000 to +2000 ms
 
 ### 11.2 Calendars Tab
-- [ ] Lists all accounts with nested calendars
-- [ ] Checkboxes for individual calendar selection
-- [ ] Select All / Deselect All functionality (if implemented)
-- [ ] Reflects current macOS Calendar accounts
+- [X] Lists all accounts with nested calendars
+- [X] Checkboxes for individual calendar selection
+- [X] Select All / Deselect All functionality (if implemented)
+- [X] Reflects current macOS Calendar accounts
 
 ### 11.3 Audio Tab
-- [ ] Sound file picker (accepts MP3, WAV, FLAC, AAC)
-- [ ] Clear button removes selected sound file
-- [ ] File name and detected duration displayed when file selected
-- [ ] Preview button plays first 10 seconds of selected file
-- [ ] Preview stops when toggled off or after 10 seconds
-- [ ] Volume slider (0–100%)
-- [ ] Audio output device dropdown
-- [ ] Device list refreshed when dropdown opened
+- [X] Sound file picker (accepts MP3, WAV, FLAC, AAC)
+- [X] Clear button removes selected sound file
+- [X] File name and detected duration displayed when file selected
+- [X] Preview button plays first 10 seconds of selected file
+- [X] Preview stops when toggled off or after 10 seconds
+- [X] Volume slider (0–100%)
+- [X] Audio output device dropdown
+- [X] Device list refreshed when dropdown opened
 
 ### 11.4 Test Mode
-- [ ] "Test Countdown" button launches full countdown with mock data
-- [ ] Mock meeting has sample subject, attendees (internal + external)
-- [ ] Uses current settings (duration, sound file, offset)
-- [ ] Runs in real-time with full animation sequence
-- [ ] "Quick Test" (10-second) countdown available
-- [ ] Test countdown button disabled while countdown is active
+- [X] "Test Countdown" button launches full countdown with mock data
+- [X] Mock meeting has sample subject, attendees (internal + external)
+- [X] Uses current settings (duration, sound file, offset)
+- [X] Runs in real-time with full animation sequence
+- [X] "Quick Test" (10-second) countdown available
+- [X] Test countdown button disabled while countdown is active
+- [X] Repeated test countdowns play audio reliably
 
 ### 11.5 Persistence
-- [ ] All settings saved to `~/.config/meetings-countdown-pro/settings.json`
-- [ ] Settings loaded correctly on app restart
-- [ ] Changes applied on save
+- [X] All settings saved to `~/.config/meetings-countdown-pro/settings.json`
+- [X] Settings loaded correctly on app restart
+- [X] Changes applied on save
 
 ---
 
 ## 12. Error Handling
 
-- [ ] Calendar permission denied: clear message in menu bar
+- [X] Calendar permission denied: clear message in menu bar
 - [ ] Sound file missing/moved: countdown proceeds silently
 - [ ] Sound file corrupt/unreadable: countdown proceeds silently
 - [ ] Favicon fetch failure: globe icon placeholder, no user-visible error
-- [ ] EventKit query failure: logged, retry on next 30s poll
-- [ ] App crash recovery: `notified.json` prevents re-firing already-notified meetings
+- [X] EventKit query failure: logged, retry on next 30s poll
+- [X] App crash recovery: `notified.json` prevents re-firing already-notified meetings
 
 ---
 
 ## 13. macOS Integration
 
-- [ ] Calendar permission prompt on first launch
-- [ ] LaunchAgent plist correctly formatted and functional
+- [X] Calendar permission prompt on first launch
+- [X] LaunchAgent plist correctly formatted and functional (will need update for PyInstaller packaging)
 - [ ] App launches at login when LaunchAgent enabled
 - [ ] App does not launch at login when LaunchAgent removed
-- [ ] No Dock icon (background/agent app)
-- [ ] Config stored only in `~/.config/meetings-countdown-pro/`
-- [ ] No root access required
-- [ ] Clean exit with no segfault after audio playback
+- [X] No Dock icon (background/agent app)
+- [X] Config stored only in `~/.config/meetings-countdown-pro/`
+- [X] No root access required
+- [X] Clean exit with no segfault after audio playback
 
 ---
 
 ## 14. Edge Cases
 
 - [ ] No calendars configured on macOS: graceful handling
-- [ ] Empty calendar (no events today): "No more meetings today"
+- [X] Empty calendar (no events today): "No more meetings today"
 - [ ] Meeting with no attendees: countdown shows meeting info without attendee section
 - [ ] Meeting with no title: shows "Untitled"
-- [ ] Meeting with very long title: truncated with ellipsis
+- [X] Meeting with very long title: truncated with ellipsis
 - [ ] Meeting with 50+ attendees: left pane scrolls without performance issues
 - [ ] Organizer sends invite to themselves: shown once (deduplicated by email)
-- [ ] Multiple calendar providers (iCloud + Google + Exchange): all detected
+- [X] Multiple calendar providers (iCloud + Google + Exchange): all detected
 - [ ] Timezone changes: times display in local timezone
 - [ ] App running overnight: next day's meetings detected after midnight

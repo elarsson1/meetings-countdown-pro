@@ -165,10 +165,13 @@ class App:
     def _on_calendar_access(self, granted: bool) -> None:
         if granted:
             log.info("Calendar access granted")
-            self._poll()
+            # EventKit callback may arrive on a non-main thread.
+            # Marshal to the main Qt thread to avoid creating UI
+            # objects (NSWindow) from a background thread.
+            QTimer.singleShot(0, self._poll)
         else:
             log.warning("Calendar access denied")
-            self._update_next_meeting_display()
+            QTimer.singleShot(0, self._update_next_meeting_display)
 
     def _poll(self) -> None:
         """Poll for upcoming meetings and schedule the next countdown."""

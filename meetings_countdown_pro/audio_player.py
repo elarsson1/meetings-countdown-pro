@@ -129,13 +129,20 @@ class AudioPlayer(QObject):
         - D == C: play from start
         - D < C: return delay = C-D (caller waits this long before calling play_now)
         """
+        log.debug(
+            "start_countdown_playback: file=%s, countdown=%.1fs, override=%s, detected=%s, player_state=%s",
+            self._sound_file, countdown_seconds, duration_override, self._detected_duration,
+            self._player.playbackState(),
+        )
         if not self._sound_file or not Path(self._sound_file).is_file():
+            log.debug("No sound file or file missing — skipping audio")
             return 0.0
 
         duration = duration_override or self._detected_duration
 
         if not duration or duration <= 0:
             # Duration unknown — play from start, no sync
+            log.debug("Duration unknown — playing from start without sync")
             self._pending_seek = 0
             self._ensure_source_and_play()
             return 0.0
@@ -143,38 +150,40 @@ class AudioPlayer(QObject):
         if duration >= countdown_seconds:
             # Audio is longer than or equal to countdown — seek into it
             self._pending_seek = int((duration - countdown_seconds) * 1000)
+            log.debug("Audio longer than countdown — seeking to %dms", self._pending_seek)
             self._ensure_source_and_play()
             return 0.0
         else:
             # Audio is shorter — delay playback
             self._pending_seek = 0
             delay = countdown_seconds - duration
+            log.debug("Audio shorter than countdown — delaying %.1fs", delay)
             return delay
 
     def _ensure_source_and_play(self) -> None:
         """Set source if needed and play once media is loaded."""
-        # Re-resolve audio device in case it was disconnected/reconnected
-        self._apply_output_device()
         current_source = self._player.source().toLocalFile()
-        if current_source == self._sound_file:
-            # Source already loaded — seek and play directly
-            if self._pending_seek:
-                self._player.setPosition(self._pending_seek)
-            else:
-                self._player.setPosition(0)
-            self._player.play()
-        else:
-            # Need to load source first — play will start in _on_media_status
-            self._play_on_load = True
-            self._player.setSource(QUrl.fromLocalFile(self._sound_file))
+        log.debug(
+            "_ensure_source_and_play: current_source=%s, wanted=%s, media_status=%s, playback_state=%s",
+            current_source, self._sound_file, self._player.mediaStatus(), self._player.playbackState(),
+        )
+        # Always force a source reload to avoid QMediaPlayer quirk where
+        # setPosition + play on a previously-completed source (EndOfMedia)
+        # goes to BufferedMedia but produces no audio output.
+        log.debug("Reloading source and deferring play until LoadedMedia")
+        self._play_on_load = True
+        self._player.setSource(QUrl())
+        self._player.setSource(QUrl.fromLocalFile(self._sound_file))
 
     def play_now(self) -> None:
         """Start playback from the beginning (used after a delay)."""
+        log.debug("play_now called: file=%s, player_state=%s", self._sound_file, self._player.playbackState())
         if self._sound_file and Path(self._sound_file).is_file():
             self._pending_seek = 0
             self._ensure_source_and_play()
 
     def stop(self) -> None:
+        log.debug("stop called: player_state=%s", self._player.playbackState())
         self._player.stop()
 
     def cleanup(self) -> None:
@@ -213,6 +222,7 @@ class AudioPlayer(QObject):
     # ------------------------------------------------------------------
 
     def _on_media_status(self, status: QMediaPlayer.MediaStatus) -> None:
+        log.debug("Media status changed: %s (play_on_load=%s)", status, self._play_on_load)
         if status == QMediaPlayer.MediaStatus.LoadedMedia:
             dur_ms = self._player.duration()
             if dur_ms > 0:
@@ -227,6 +237,10 @@ class AudioPlayer(QObject):
                     self._player.setPosition(self._pending_seek)
                 self._player.play()
                 log.info("Deferred playback started at position %dms", self._pending_seek)
+            else:
+                log.debug("LoadedMedia but play_on_load is False — not auto-playing")
+        elif status == QMediaPlayer.MediaStatus.EndOfMedia:
+            log.debug("Audio playback reached end of media")
 
     def _on_error(self, error: QMediaPlayer.Error, message: str) -> None:
         log.warning("Audio player error: %s — %s", error, message)

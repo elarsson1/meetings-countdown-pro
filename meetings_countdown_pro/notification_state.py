@@ -9,7 +9,7 @@ from pathlib import Path
 from meetings_countdown_pro.settings import CONFIG_DIR
 
 NOTIFIED_FILE = CONFIG_DIR / "notified.json"
-PRUNE_AGE_SECONDS = 48 * 3600  # 48 hours
+PRUNE_AGE_SECONDS = 24 * 3600  # 24 hours
 
 
 class NotificationState:
@@ -45,7 +45,7 @@ class NotificationState:
         self._save()
 
     def prune(self) -> None:
-        """Remove entries older than 48 hours."""
+        """Remove entries older than 24 hours."""
         cutoff = time.time() - PRUNE_AGE_SECONDS
         before = len(self._state)
         self._state = {k: v for k, v in self._state.items() if v > cutoff}

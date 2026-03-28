@@ -333,7 +333,7 @@ The sound file picker includes a **"Preview"** button that plays the first 10 se
 
 ### 9.2 Pruning
 
-- On each app launch, entries older than **48 hours** are pruned.
+- On each app launch, entries older than **24 hours** are pruned.
 - This prevents unbounded file growth while still covering edge cases like overnight/weekend meetings.
 
 ### 9.3 Edge Cases

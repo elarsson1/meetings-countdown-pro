@@ -73,10 +73,12 @@ class ClapperboardWidget(QWidget):
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
         self.setFixedSize(110, 90)
-        self._clap_angle = 0.0
+        self._clap_angle = -30.0  # Start in the open position
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        self._anim: Optional[QPropertyAnimation] = None
 
-        # Animate the top bar clapping down
+    def start_animation(self) -> None:
+        """Start the clap animation. Call when the widget becomes visible."""
         self._anim = QPropertyAnimation(self, b"clapAngle")
         self._anim.setDuration(600)
         self._anim.setStartValue(-30.0)
@@ -414,10 +416,10 @@ class CountdownWindow(QWidget):
             QPushButton {
                 background: transparent;
                 border: none;
-                color: #6a6a8a;
+                color: #b0b0c8;
                 font-size: 18px;
             }
-            QPushButton:hover { color: #aaa; }
+            QPushButton:hover { color: #ddd; }
             """
         )
         self._update_mute_icon()
@@ -650,7 +652,7 @@ class CountdownWindow(QWidget):
         remaining = (self._target_time - now).total_seconds()
         self._seconds_remaining = max(0, int(math.ceil(remaining)))
 
-        if self._seconds_remaining <= 0 and self._phase == "countdown":
+        if self._seconds_remaining <= 2 and self._phase == "countdown":
             self._enter_action_phase()
         else:
             self._update_display()
@@ -675,22 +677,27 @@ class CountdownWindow(QWidget):
         )
 
     def _enter_action_phase(self) -> None:
-        """Transition to ACTION! clapperboard phase."""
+        """Transition to ACTION! clapperboard phase (~2s before meeting start)."""
         self._phase = "action"
         self._tick_timer.stop()
         self._countdown_label.hide()
         self._action_widget.show()
+        self._clapperboard.start_animation()
 
-        # Auto-join if enabled and single meeting
+        # Calculate time remaining until meeting start for LIVE transition
+        now = datetime.now(timezone.utc)
+        remaining_ms = max(0, int((self._target_time - now).total_seconds() * 1000))
+
+        # Schedule auto-join at T=0
         if (
             self._settings.auto_join
             and not self._is_multi
             and self._meetings[0].video_link
         ):
-            QDesktopServices.openUrl(QUrl(self._meetings[0].video_link))
+            QTimer.singleShot(remaining_ms, lambda: QDesktopServices.openUrl(QUrl(self._meetings[0].video_link)))
 
-        # Transition to LIVE after 2 seconds
-        QTimer.singleShot(2000, self._enter_live_phase)
+        # Transition to LIVE at T=0 (meeting start)
+        QTimer.singleShot(remaining_ms, self._enter_live_phase)
 
     def _enter_live_phase(self) -> None:
         """Transition to LIVE indicator."""
