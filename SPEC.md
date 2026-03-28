@@ -61,7 +61,7 @@ The application runs as a background process with a macOS menu bar presence, pol
 ### 3.2 Calendar Polling
 
 - A `QTimer` fires every **30 seconds** to query macOS EventKit for calendar events.
-- Query window: now → now + (configured countdown lead time + 5 minutes buffer).
+- Query window: now → end of local day (23:59:59). This ensures the menu bar always shows the next upcoming meeting regardless of how far away it is.
 - Results are filtered per user configuration (calendar selection, video-only, tentative/accepted, all-day exclusion).
 - The next eligible meeting is identified and a one-shot `QTimer` is scheduled to trigger the countdown window at exactly `meeting_start - countdown_seconds`.
 
@@ -470,6 +470,18 @@ meetings-countdown-pro/
 | `requests` | Favicon HTTP fetches |
 | `pyinstaller` | macOS .app packaging (dev dependency) |
 
+### 13.5 Logging & Diagnostics
+
+- **Default (INFO):** High-level operational messages — calendar access status, number of meetings found per poll, next meeting selected, countdown scheduling/trigger events.
+- **Debug (`--debug`):** Verbose per-event detail — EventKit query parameters, raw event counts, individual meeting details (title, time, attendee count), filter exclusion reasons, notification-state skip reasons.
+- **CLI usage:**
+  ```bash
+  python -m meetings_countdown_pro           # INFO level (default)
+  python -m meetings_countdown_pro --debug   # DEBUG level
+  ```
+- **Format:** `%(asctime)s [%(name)s] %(levelname)s: %(message)s` — timestamps, module name, and severity for all log lines.
+- **Output:** stderr (standard Python logging). No log files by default.
+
 ---
 
 ## 14. Out of Scope (v1)
@@ -536,7 +548,7 @@ All major questions have been resolved. The following are implementation details
 ```
 Every 30 seconds:
   │
-  ├─ Query EventKit for events in [now, now + countdown_duration + 5min]
+  ├─ Query EventKit for events in [now, end of local day]
   │
   ├─ Filter by:
   │   ├─ Selected calendar accounts/calendars

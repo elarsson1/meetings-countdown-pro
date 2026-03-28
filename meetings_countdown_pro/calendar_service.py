@@ -37,9 +37,11 @@ class CalendarService:
 
     def request_access(self, callback: Optional[callable] = None) -> None:
         """Request calendar access. Calls callback(granted: bool) when done."""
+        log.info("Requesting calendar access...")
 
         def _handler(granted: bool, error: objc.objc_object) -> None:
             self._authorized = granted
+            log.info("Calendar access %s", "granted" if granted else "DENIED")
             if error:
                 log.error("Calendar access error: %s", error)
             if callback:
@@ -102,26 +104,40 @@ class CalendarService:
         Query window: now → now + countdown_duration + 5 min buffer.
         """
         if not self.is_authorized:
+            log.warning("Calendar not authorized — skipping fetch")
             return []
 
         now = datetime.now(timezone.utc)
-        window_end = now + timedelta(seconds=settings.countdown_duration + 300)
+        # Look ahead to end of local day so menu bar always shows the next meeting
+        local_now = datetime.now().astimezone()
+        end_of_day = local_now.replace(hour=23, minute=59, second=59)
+        window_end = end_of_day.astimezone(timezone.utc)
 
         ns_start = NSDate.dateWithTimeIntervalSince1970_(now.timestamp())
         ns_end = NSDate.dateWithTimeIntervalSince1970_(window_end.timestamp())
 
         # Build calendar filter
         calendars = self._resolve_calendars(settings)
+        log.debug("Querying EventKit: %s → %s (%s calendars)",
+                  local_now.strftime("%H:%M:%S"),
+                  end_of_day.strftime("%H:%M:%S"),
+                  len(calendars) if calendars else "all")
         predicate = self._store.predicateForEventsWithStartDate_endDate_calendars_(
             ns_start, ns_end, calendars
         )
         ek_events = self._store.eventsMatchingPredicate_(predicate) or []
+        log.debug("EventKit returned %d raw event(s)", len(ek_events))
 
         meetings: list[Meeting] = []
         for ev in ek_events:
             meeting = self._convert_event(ev)
-            if meeting and self._passes_filters(meeting, settings):
+            if not meeting:
+                continue
+            if self._passes_filters(meeting, settings):
                 meetings.append(meeting)
+            else:
+                log.debug("Filtered out: %s (status=%s, all_day=%s)",
+                          meeting.title, meeting.acceptance_status, meeting.is_all_day)
 
         meetings.sort(key=lambda m: m.start)
         return meetings
@@ -167,17 +183,33 @@ class CalendarService:
                     int(c.blueComponent() * 255),
                 )
 
-            # Attendees
+            # Attendees — merge organizer + attendees, dedupe by email
+            seen_emails: set[str] = set()
             attendees = []
+
+            # Include organizer first (EventKit exposes them separately)
+            org = ev.organizer()
+            if org:
+                url = org.URL()
+                email = str(url.resourceSpecifier()) if url else ""
+                if email.startswith("//"):
+                    email = email[2:]
+                if email:
+                    seen_emails.add(email.lower())
+                    name = str(org.name() or "")
+                    attendees.append(Attendee.from_raw(name, email, is_organizer=True))
+
             ek_attendees = ev.attendees() or []
             for att in ek_attendees:
                 url = att.URL()
                 email = str(url.resourceSpecifier()) if url else ""
                 if email.startswith("//"):
                     email = email[2:]
+                if email.lower() in seen_emails:
+                    continue  # Skip duplicate (e.g. organizer invited themselves)
+                seen_emails.add(email.lower())
                 name = str(att.name() or "")
-                is_org = bool(att.isCurrentUser()) if hasattr(att, "isCurrentUser") else False
-                attendees.append(Attendee.from_raw(name, email, is_organizer=is_org))
+                attendees.append(Attendee.from_raw(name, email, is_organizer=False))
 
             # Acceptance status
             acceptance = "accepted"

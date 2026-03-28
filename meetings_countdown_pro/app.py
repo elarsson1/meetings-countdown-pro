@@ -54,6 +54,9 @@ class App:
         self._setup_tray()
         self._setup_polling()
 
+        # Clean up audio on quit to prevent segfault
+        self._qapp.aboutToQuit.connect(self._cleanup)
+
         # Request calendar access
         self._calendar.request_access(self._on_calendar_access)
 
@@ -169,12 +172,16 @@ class App:
 
     def _poll(self) -> None:
         """Poll for upcoming meetings and schedule the next countdown."""
+        log.debug("Polling for upcoming meetings (mode=%s)", self._settings.mode)
         if self._settings.mode == "off":
             self._next_meeting = None
             self._update_next_meeting_display()
             return
 
         meetings = self._calendar.fetch_upcoming(self._settings)
+        log.info("Poll: %d meeting(s) found today", len(meetings))
+        for m in meetings:
+            log.debug("  %s at %s (%d attendees)", m.title, m.start.astimezone().strftime("%H:%M"), len(m.attendees))
         if not meetings:
             self._next_meeting = None
             self._update_next_meeting_display()
@@ -185,14 +192,17 @@ class App:
         eligible: list[Meeting] = []
         for m in meetings:
             if self._notified.is_notified(m.notification_key):
+                log.debug("  Skipping (already notified): %s", m.title)
                 continue
             if m.start <= now + timedelta(seconds=MIN_COUNTDOWN_SECONDS):
                 # Meeting already started or too close — mark as notified, skip
+                log.debug("  Skipping (already started): %s", m.title)
                 self._notified.mark_notified(m.notification_key)
                 continue
             eligible.append(m)
 
         if not eligible:
+            log.debug("No eligible meetings remaining")
             self._next_meeting = None
             self._update_next_meeting_display()
             return
@@ -202,6 +212,7 @@ class App:
         simultaneous = [m for m in eligible if m.start == primary.start]
         self._next_meeting = primary
         self._update_next_meeting_display()
+        log.info("Next meeting: %s at %s", primary.title, primary.start.astimezone().strftime("%H:%M"))
 
         # Calculate trigger time
         trigger_time = primary.start - timedelta(seconds=self._settings.countdown_duration)
@@ -209,9 +220,11 @@ class App:
 
         if delay_ms <= 0:
             # Late start — trigger immediately with reduced countdown
+            log.info("Triggering countdown immediately (late start)")
             self._trigger_countdown(simultaneous)
         else:
             # Schedule trigger
+            log.info("Countdown scheduled in %.0fs", delay_ms / 1000)
             if self._trigger_timer:
                 self._trigger_timer.stop()
             self._trigger_timer = QTimer()
@@ -273,6 +286,10 @@ class App:
         self._countdown_window = None
         # Trigger a fresh poll to pick up the next meeting
         self._poll()
+
+    def _cleanup(self) -> None:
+        """Release audio resources before quit to prevent segfault."""
+        self._audio.cleanup()
 
     # ------------------------------------------------------------------
     # Settings
@@ -409,12 +426,18 @@ class App:
 
 def main() -> int:
     """Application entry point."""
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Meetings Countdown Pro")
+    parser.add_argument("--debug", action="store_true", help="Enable debug logging")
+    args, qt_args = parser.parse_known_args()
+
     logging.basicConfig(
-        level=logging.INFO,
+        level=logging.DEBUG if args.debug else logging.INFO,
         format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
     )
 
-    qapp = QApplication(sys.argv)
+    qapp = QApplication(sys.argv[:1] + qt_args)
     qapp.setQuitOnLastWindowClosed(False)  # Keep running as menu bar app
     qapp.setApplicationName("Meetings Countdown Pro")
 

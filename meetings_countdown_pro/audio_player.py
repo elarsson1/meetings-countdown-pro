@@ -76,6 +76,8 @@ class AudioPlayer(QObject):
         volume = self._audio_output.volume()
         muted = self._audio_output.isMuted()
 
+        old_output = self._audio_output
+
         if self._preferred_device_id:
             for dev in QMediaDevices.audioOutputs():
                 if dev.id().data().decode() == self._preferred_device_id:
@@ -91,6 +93,10 @@ class AudioPlayer(QObject):
         self._audio_output.setVolume(volume)
         self._audio_output.setMuted(muted)
         self._player.setAudioOutput(self._audio_output)
+
+        # Clean up the old output now that it's detached from the player
+        if old_output is not self._audio_output:
+            old_output.deleteLater()
 
     @staticmethod
     def available_output_devices() -> list[dict[str, str]]:
@@ -170,6 +176,14 @@ class AudioPlayer(QObject):
 
     def stop(self) -> None:
         self._player.stop()
+
+    def cleanup(self) -> None:
+        """Release all native resources. Call before application exit."""
+        self._player.stop()
+        self._player.setSource(QUrl())
+        self._player.setAudioOutput(None)
+        self._audio_output.deleteLater()
+        self._player.deleteLater()
 
     @property
     def detected_duration(self) -> Optional[float]:
