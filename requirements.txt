@@ -1,0 +1,5 @@
+PyQt6>=6.6,<7
+PyQt6-Qt6>=6.6,<7
+pyobjc-core>=10.0
+pyobjc-framework-EventKit>=10.0
+requests>=2.31,<3

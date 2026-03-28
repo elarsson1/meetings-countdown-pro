@@ -282,16 +282,16 @@ A standard macOS-style preferences window with organized sections (tabs or scrol
 
 | # | Setting | Type | Default | Description |
 |---|---|---|---|---|
-| 1 | Launch at Login | Toggle | Off | Creates/removes a macOS LaunchAgent plist at `~/Library/LaunchAgents/com.meetingscountdownpro.plist` |
+| 1 | Launch at Login | Toggle | Off | Creates/removes a macOS LaunchAgent plist at `~/Library/LaunchAgents/com.axeltech.meetingscountdownpro.plist` |
 | 2 | Calendar Accounts | Multi-select checklist | All | Select which macOS Calendar accounts to monitor. Shows account names with their calendars nested below as individually toggleable. |
 | 3 | Video Calls Only | Toggle | Off | When on, only fires countdown for events containing a detected video call link (Zoom, Meet, Teams). When off, fires for all eligible meetings. |
-| 4 | Countdown Duration | Slider + numeric input | 60 seconds | Range: 10–300 seconds. How far before the meeting the countdown window appears. |
+| 4 | Countdown Duration | Numeric input (spin box) | 60 seconds | Range: 10–300 seconds. How far before the meeting the countdown window appears. |
 | 5 | Sound File | File picker + Clear button | None | Accepts MP3, WAV, FLAC, AAC files. Shows file name and detected duration when set. |
 | 6 | Sound Duration | Read-only (auto-detected) + manual override | Auto | Detected when sound file is selected. Manual override available. |
 | 7 | Clock Offset | Numeric input (ms) | 0 ms | Milliseconds to delay the visual countdown tick after audio begins. Range: -2000 to +2000 ms. |
 | 8 | Internal Email Domain | Text field | Empty | e.g., `example.com`. Used to classify attendees as internal vs. external. If empty, all attendees shown in a single list (no internal/external split). |
 | 9 | Include Tentative | Toggle | No | Whether to include meetings the user has tentatively accepted. |
-| 10 | Exclude All-Day Events | Toggle | Yes | Whether to skip all-day/multi-day events. |
+| 10 | Include All-Day Events | Toggle | No | Whether to include all-day/multi-day events in countdown triggers. Off by default (all-day events are skipped). |
 | 11 | Back-to-Back Handling | Dropdown | Countdown + Music | What to do when the previous meeting is still in progress at notification time. Options: "Countdown + Music", "Silent Countdown", "Skip Countdown". |
 | 12 | Auto-Join at Countdown End | Toggle | Off | When enabled and a video meeting link is detected, automatically open the meeting link when the countdown reaches zero. |
 | 13 | Volume | Slider | 100% | Master volume for countdown audio playback. Range: 0–100%. |
@@ -343,6 +343,17 @@ The sound file picker includes a **"Preview"** button that plays the first 10 se
 ---
 
 ## 10. Back-to-Back Meeting Handling
+
+### 10.1 One Countdown at a Time
+
+Only one countdown window can be active at a time. If a new countdown would trigger while one is already showing:
+
+- **Overlapping meetings (not simultaneous):** The second meeting's countdown is skipped (marked as notified). The user must close the current countdown window before a new one can appear.
+- **Test Countdown from Settings:** The button is ignored while a countdown is running. The user must close the countdown window first.
+
+This avoids audio/UI conflicts. A future enhancement may merge overlapping meetings into the existing countdown's left pane.
+
+### 10.2 Back-to-Back with In-Progress Meeting
 
 When the countdown for Meeting B would fire while Meeting A is still in progress:
 

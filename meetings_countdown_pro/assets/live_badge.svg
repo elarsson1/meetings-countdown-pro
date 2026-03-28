@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="48" viewBox="0 0 120 48">
+  <!-- LIVE badge background -->
+  <rect x="1" y="1" width="118" height="46" rx="10" fill="rgba(239,68,68,0.15)" stroke="#ef4444" stroke-width="2"/>
+  <!-- Pulsing dot -->
+  <circle cx="24" cy="24" r="7" fill="#ef4444" opacity="0.9"/>
+  <!-- LIVE text -->
+  <text x="72" y="30" text-anchor="middle" font-family="Helvetica Neue, SF Pro Display, sans-serif" font-size="24" font-weight="900" fill="#ef4444" letter-spacing="4">LIVE</text>
+</svg>

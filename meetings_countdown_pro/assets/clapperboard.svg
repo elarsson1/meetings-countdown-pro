@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="80" viewBox="0 0 100 80">
+  <!-- Clapperboard body -->
+  <rect x="2" y="24" width="96" height="54" rx="3" fill="#1a1a2e" stroke="#ffffff" stroke-width="2.5"/>
+  <!-- Diagonal stripes on top bar -->
+  <defs>
+    <clipPath id="topClip">
+      <rect x="2" y="2" width="96" height="22" rx="3"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#topClip)">
+    <rect x="2" y="2" width="96" height="22" fill="#ffffff"/>
+    <g fill="#1a1a2e">
+      <rect x="-5" y="2" width="12" height="22" transform="skewX(-30)"/>
+      <rect x="11" y="2" width="12" height="22" transform="skewX(-30)"/>
+      <rect x="27" y="2" width="12" height="22" transform="skewX(-30)"/>
+      <rect x="43" y="2" width="12" height="22" transform="skewX(-30)"/>
+      <rect x="59" y="2" width="12" height="22" transform="skewX(-30)"/>
+      <rect x="75" y="2" width="12" height="22" transform="skewX(-30)"/>
+      <rect x="91" y="2" width="12" height="22" transform="skewX(-30)"/>
+    </g>
+  </g>
+  <!-- Hinge circle -->
+  <circle cx="10" cy="24" r="3" fill="#555"/>
+  <!-- Body text -->
+  <text x="50" y="56" text-anchor="middle" font-family="Helvetica Neue, sans-serif" font-size="9" fill="#666" letter-spacing="1">SCENE 1 · TAKE 1</text>
+</svg>
