@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meetings Countdown Pro — Countdown Window Mockups</title>
+<style>
+  /* ── Reset & Page ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+    background: #1a1a2e;
+    color: #e0e0e0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    gap: 60px;
+  }
+  h1 {
+    font-size: 14px;
+    font-weight: 500;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  .mockup-label {
+    font-size: 13px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+  .mockup-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  /* ── Countdown Window ── */
+  .countdown-window {
+    width: 640px;
+    min-height: 320px;
+    background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow:
+      0 25px 60px rgba(0,0,0,0.6),
+      0 0 0 1px rgba(255,255,255,0.05),
+      inset 0 1px 0 rgba(255,255,255,0.05);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  /* Subtle animated gradient border glow */
+  .countdown-window::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: -1px; right: -1px; bottom: -1px;
+    border-radius: 15px;
+    background: linear-gradient(45deg,
+      rgba(59,130,246,0.15),
+      rgba(139,92,246,0.1),
+      rgba(59,130,246,0.05),
+      transparent);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ── Close Button ── */
+  .close-btn {
+    position: absolute;
+    top: 12px;
+    left: 14px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #ff5f57;
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+    transition: opacity 0.15s;
+  }
+  .close-btn:hover { opacity: 0.8; }
+  .close-btn::after {
+    content: '×';
+    position: absolute;
+    top: -1px;
+    left: 3px;
+    font-size: 11px;
+    color: rgba(0,0,0,0.0);
+    font-weight: bold;
+    transition: color 0.15s;
+  }
+  .close-btn:hover::after { color: rgba(0,0,0,0.6); }
+
+  /* ── Main Content Area ── */
+  .window-content {
+    display: flex;
+    flex: 1;
+    padding: 20px 24px 16px;
+    gap: 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Left Pane (Meeting Info) ── */
+  .left-pane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow-y: auto;
+    padding-right: 8px;
+  }
+  .left-pane::-webkit-scrollbar { width: 4px; }
+  .left-pane::-webkit-scrollbar-track { background: transparent; }
+  .left-pane::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+  .meeting-subject {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 4px;
+    line-height: 1.3;
+  }
+  .meeting-time {
+    font-size: 13px;
+    color: #8888aa;
+    margin-bottom: 4px;
+  }
+  .attendee-summary {
+    font-size: 12px;
+    color: #6a6a8a;
+    margin-bottom: 16px;
+  }
+
+  .section-header {
+    font-size: 10px;
+    font-weight: 700;
+    color: #5a7aff;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 6px;
+    margin-top: 4px;
+  }
+  .section-header.external {
+    color: #8b5cf6;
+    margin-top: 14px;
+  }
+
+  .attendee-list {
+    list-style: none;
+    margin-bottom: 4px;
+  }
+  .attendee-list li {
+    font-size: 13px;
+    color: #c8c8e0;
+    padding: 2px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .attendee-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #5a7aff;
+    flex-shrink: 0;
+  }
+  .attendee-dot.external { background: #8b5cf6; }
+
+  .domain-group {
+    margin-bottom: 8px;
+  }
+  .domain-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+    margin-top: 6px;
+  }
+  .domain-favicon {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    background: #2a2a4a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    color: #8b5cf6;
+    flex-shrink: 0;
+  }
+  .domain-name {
+    font-size: 12px;
+    color: #9a8adf;
+    font-weight: 600;
+  }
+  .domain-group .attendee-list li {
+    padding-left: 20px;
+  }
+
+  /* ── Right Pane (Countdown + Controls) ── */
+  .right-pane {
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    gap: 16px;
+  }
+
+  .countdown-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+  }
+  .countdown-number {
+    font-family: "Helvetica Neue", "SF Pro Display", -apple-system, sans-serif;
+    font-size: 96px;
+    font-weight: 800;
+    color: #ffffff;
+    text-shadow: 0 0 40px rgba(90,122,255,0.3), 0 0 80px rgba(90,122,255,0.1);
+    line-height: 1;
+    letter-spacing: -2px;
+  }
+  .countdown-number.warning {
+    color: #f59e0b;
+    text-shadow: 0 0 40px rgba(245,158,11,0.4), 0 0 80px rgba(245,158,11,0.15);
+  }
+  .countdown-number.critical {
+    color: #ef4444;
+    text-shadow: 0 0 40px rgba(239,68,68,0.5), 0 0 80px rgba(239,68,68,0.2);
+  }
+
+  .join-btn {
+    width: 100%;
+    padding: 10px 16px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.15s;
+    box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+  }
+  .join-btn:hover {
+    background: linear-gradient(135deg, #34d399, #10b981);
+    box-shadow: 0 4px 20px rgba(16,185,129,0.4);
+    transform: translateY(-1px);
+  }
+
+  .mute-btn {
+    align-self: flex-end;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #6a6a8a;
+    font-size: 18px;
+    padding: 4px;
+    transition: color 0.15s;
+  }
+  .mute-btn:hover { color: #aaa; }
+
+  /* ── LIVE State ── */
+  .live-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex: 1;
+  }
+  .live-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(239,68,68,0.15);
+    border: 2px solid #ef4444;
+    border-radius: 10px;
+    padding: 12px 28px;
+  }
+  .live-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #ef4444;
+    animation: pulse-live 1.5s ease-in-out infinite;
+    box-shadow: 0 0 12px rgba(239,68,68,0.6);
+  }
+  @keyframes pulse-live {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.85); }
+  }
+  .live-text {
+    font-family: "Helvetica Neue", "SF Pro Display", -apple-system, sans-serif;
+    font-size: 36px;
+    font-weight: 900;
+    color: #ef4444;
+    letter-spacing: 6px;
+  }
+
+  /* ── Action State ── */
+  .action-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex: 1;
+  }
+  .clapperboard {
+    width: 100px;
+    height: 80px;
+    position: relative;
+  }
+  .clapper-body {
+    width: 100px;
+    height: 60px;
+    background: #1a1a2e;
+    border: 3px solid #ffffff;
+    border-radius: 4px;
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .clapper-body-text {
+    font-size: 10px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .clapper-top {
+    width: 100px;
+    height: 24px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: visible;
+  }
+  .clapper-stripe {
+    width: 100px;
+    height: 24px;
+    background: repeating-linear-gradient(
+      -45deg,
+      #ffffff,
+      #ffffff 8px,
+      #1a1a2e 8px,
+      #1a1a2e 16px
+    );
+    border-radius: 3px 3px 0 0;
+    transform-origin: left bottom;
+    animation: clap 0.6s ease-in-out;
+  }
+  @keyframes clap {
+    0% { transform: rotate(-25deg); }
+    40% { transform: rotate(0deg); }
+    100% { transform: rotate(0deg); }
+  }
+  .action-text {
+    font-family: "Helvetica Neue", "SF Pro Display", -apple-system, sans-serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: #f59e0b;
+    letter-spacing: 4px;
+    text-shadow: 0 0 20px rgba(245,158,11,0.4);
+  }
+
+  /* ── Multi-meeting variant ── */
+  .meeting-separator {
+    border: none;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    margin: 16px 0;
+  }
+  .inline-join-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 12px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: all 0.15s;
+  }
+  .inline-join-btn:hover {
+    background: linear-gradient(135deg, #34d399, #10b981);
+  }
+</style>
+</head>
+<body>
+
+<h1>Meetings Countdown Pro — Window Mockups</h1>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- STATE 1: Normal Countdown (mid-countdown)       -->
+<!-- ════════════════════════════════════════════════ -->
+<div class="mockup-group">
+  <div class="mockup-label">State 1 — Counting Down (47 seconds remaining)</div>
+  <div class="countdown-window">
+    <button class="close-btn"></button>
+    <div class="window-content">
+      <div class="left-pane">
+        <div class="meeting-subject">Q1 Pipeline Review with Acme Corp</div>
+        <div class="meeting-time">2:00 PM – 2:30 PM</div>
+        <div class="attendee-summary">8 attendees · 3 internal, 5 external from 2 orgs</div>
+
+        <div class="section-header">Internal</div>
+        <ul class="attendee-list">
+          <li><span class="attendee-dot"></span> Alice Chen</li>
+          <li><span class="attendee-dot"></span> Bob Martinez</li>
+          <li><span class="attendee-dot"></span> Sarah Kim</li>
+        </ul>
+
+        <div class="section-header external">External</div>
+
+        <div class="domain-group">
+          <div class="domain-header">
+            <div class="domain-favicon">A</div>
+            <span class="domain-name">acme.com</span>
+          </div>
+          <ul class="attendee-list">
+            <li><span class="attendee-dot external"></span> Carol White</li>
+            <li><span class="attendee-dot external"></span> Dave Johnson</li>
+            <li><span class="attendee-dot external"></span> Frank Lee</li>
+          </ul>
+        </div>
+
+        <div class="domain-group">
+          <div class="domain-header">
+            <div class="domain-favicon">G</div>
+            <span class="domain-name">globex.net</span>
+          </div>
+          <ul class="attendee-list">
+            <li><span class="attendee-dot external"></span> Eve Parker</li>
+            <li><span class="attendee-dot external"></span> Grace Nakamura</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="right-pane">
+        <div class="countdown-display">
+          <span class="countdown-number">47</span>
+        </div>
+        <button class="join-btn">Join Now</button>
+        <button class="mute-btn" title="Mute">🔊</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- STATE 2: Warning (under 10 seconds)             -->
+<!-- ════════════════════════════════════════════════ -->
+<div class="mockup-group">
+  <div class="mockup-label">State 2 — Final Seconds (amber warning at 8s)</div>
+  <div class="countdown-window">
+    <button class="close-btn"></button>
+    <div class="window-content">
+      <div class="left-pane">
+        <div class="meeting-subject">Q1 Pipeline Review with Acme Corp</div>
+        <div class="meeting-time">2:00 PM – 2:30 PM</div>
+        <div class="attendee-summary">8 attendees · 3 internal, 5 external from 2 orgs</div>
+
+        <div class="section-header">Internal</div>
+        <ul class="attendee-list">
+          <li><span class="attendee-dot"></span> Alice Chen</li>
+          <li><span class="attendee-dot"></span> Bob Martinez</li>
+          <li><span class="attendee-dot"></span> Sarah Kim</li>
+        </ul>
+
+        <div class="section-header external">External</div>
+        <div class="domain-group">
+          <div class="domain-header">
+            <div class="domain-favicon">A</div>
+            <span class="domain-name">acme.com</span>
+          </div>
+          <ul class="attendee-list">
+            <li><span class="attendee-dot external"></span> Carol White</li>
+            <li><span class="attendee-dot external"></span> Dave Johnson</li>
+            <li><span class="attendee-dot external"></span> Frank Lee</li>
+          </ul>
+        </div>
+        <div class="domain-group">
+          <div class="domain-header">
+            <div class="domain-favicon">G</div>
+            <span class="domain-name">globex.net</span>
+          </div>
+          <ul class="attendee-list">
+            <li><span class="attendee-dot external"></span> Eve Parker</li>
+            <li><span class="attendee-dot external"></span> Grace Nakamura</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="right-pane">
+        <div class="countdown-display">
+          <span class="countdown-number warning">8</span>
+        </div>
+        <button class="join-btn">Join Now</button>
+        <button class="mute-btn" title="Mute">🔊</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- STATE 3: Critical (3 seconds — red)             -->
+<!-- ════════════════════════════════════════════════ -->
+<div class="mockup-group">
+  <div class="mockup-label">State 3 — Critical (red at 3s)</div>
+  <div class="countdown-window">
+    <button class="close-btn"></button>
+    <div class="window-content">
+      <div class="left-pane">
+        <div class="meeting-subject">Q1 Pipeline Review with Acme Corp</div>
+        <div class="meeting-time">2:00 PM – 2:30 PM</div>
+        <div class="attendee-summary">8 attendees · 3 internal, 5 external from 2 orgs</div>
+
+        <div class="section-header">Internal</div>
+        <ul class="attendee-list">
+          <li><span class="attendee-dot"></span> Alice Chen</li>
+          <li><span class="attendee-dot"></span> Bob Martinez</li>
+          <li><span class="attendee-dot"></span> Sarah Kim</li>
+        </ul>
+
+        <div class="section-header external">External</div>
+        <div class="domain-group">
+          <div class="domain-header">
+            <div class="domain-favicon">A</div>
+            <span class="domain-name">acme.com</span>
+          </div>
+          <ul class="attendee-list">
+            <li><span class="attendee-dot external"></span> Carol White</li>
+            <li><span class="attendee-dot external"></span> Dave Johnson</li>
+            <li><span class="attendee-dot external"></span> Frank Lee</li>
+          </ul>
+        </div>
+        <div class="domain-group">
+          <div class="domain-header">
+            <div class="domain-favicon">G</div>
+            <span class="domain-name">globex.net</span>
+          </div>
+          <ul class="attendee-list">
+            <li><span class="attendee-dot external"></span> Eve Parker</li>
+            <li><span class="attendee-dot external"></span> Grace Nakamura</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="right-pane">
+        <div class="countdown-display">
+          <span class="countdown-number critical">3</span>
+        </div>
+        <button class="join-btn">Join Now</button>
+        <button class="mute-btn" title="Muted">🔇</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- STATE 4: ACTION! (clapperboard, ~2 seconds)     -->
+<!-- ════════════════════════════════════════════════ -->
+<div class="mockup-group">
+  <div class="mockup-label">State 4 — "ACTION!" Clapperboard (T=0, first 2 seconds)</div>
+  <div class="countdown-window">
+    <button class="close-btn"></button>
+    <div class="window-content">
+      <div class="left-pane">
+        <div class="meeting-subject">Q1 Pipeline Review with Acme Corp</div>
+        <div class="meeting-time">2:00 PM – 2:30 PM</div>
+        <div class="attendee-summary">8 attendees · 3 internal, 5 external from 2 orgs</div>
+
+        <div class="section-header">Internal</div>
+        <ul class="attendee-list">
+          <li><span class="attendee-dot"></span> Alice Chen</li>
+          <li><span class="attendee-dot"></span> Bob Martinez</li>
+          <li><span class="attendee-dot"></span> Sarah Kim</li>
+        </ul>
+
+        <div class="section-header external">External</div>
+        <div class="domain-group">
+          <div class="domain-header">
+            <div class="domain-favicon">A</div>
+            <span class="domain-name">acme.com</span>
+          </div>
+          <ul class="attendee-list">
+            <li><span class="attendee-dot external"></span> Carol White</li>
+            <li><span class="attendee-dot external"></span> Dave Johnson</li>
+            <li><span class="attendee-dot external"></span> Frank Lee</li>
+          </ul>
+        </div>
+        <div class="domain-group">
+          <div class="domain-header">
+            <div class="domain-favicon">G</div>
+            <span class="domain-name">globex.net</span>
+          </div>
+          <ul class="attendee-list">
+            <li><span class="attendee-dot external"></span> Eve Parker</li>
+            <li><span class="attendee-dot external"></span> Grace Nakamura</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="right-pane">
+        <div class="action-display">
+          <div class="clapperboard">
+            <div class="clapper-top">
+              <div class="clapper-stripe"></div>
+            </div>
+            <div class="clapper-body">
+              <span class="clapper-body-text">Scene 1 · Take 1</span>
+            </div>
+          </div>
+          <div class="action-text">ACTION!</div>
+        </div>
+        <button class="join-btn">Join Now</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- STATE 5: LIVE (persistent until close)          -->
+<!-- ════════════════════════════════════════════════ -->
+<div class="mockup-group">
+  <div class="mockup-label">State 5 — LIVE (persists until window is closed)</div>
+  <div class="countdown-window">
+    <button class="close-btn"></button>
+    <div class="window-content">
+      <div class="left-pane">
+        <div class="meeting-subject">Q1 Pipeline Review with Acme Corp</div>
+        <div class="meeting-time">2:00 PM – 2:30 PM</div>
+        <div class="attendee-summary">8 attendees · 3 internal, 5 external from 2 orgs</div>
+
+        <div class="section-header">Internal</div>
+        <ul class="attendee-list">
+          <li><span class="attendee-dot"></span> Alice Chen</li>
+          <li><span class="attendee-dot"></span> Bob Martinez</li>
+          <li><span class="attendee-dot"></span> Sarah Kim</li>
+        </ul>
+
+        <div class="section-header external">External</div>
+        <div class="domain-group">
+          <div class="domain-header">
+            <div class="domain-favicon">A</div>
+            <span class="domain-name">acme.com</span>
+          </div>
+          <ul class="attendee-list">
+            <li><span class="attendee-dot external"></span> Carol White</li>
+            <li><span class="attendee-dot external"></span> Dave Johnson</li>
+            <li><span class="attendee-dot external"></span> Frank Lee</li>
+          </ul>
+        </div>
+        <div class="domain-group">
+          <div class="domain-header">
+            <div class="domain-favicon">G</div>
+            <span class="domain-name">globex.net</span>
+          </div>
+          <ul class="attendee-list">
+            <li><span class="attendee-dot external"></span> Eve Parker</li>
+            <li><span class="attendee-dot external"></span> Grace Nakamura</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="right-pane">
+        <div class="live-display">
+          <div class="live-badge">
+            <div class="live-dot"></div>
+            <span class="live-text">LIVE</span>
+          </div>
+        </div>
+        <button class="join-btn">Join Now</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- STATE 6: Multiple Simultaneous Meetings         -->
+<!-- ════════════════════════════════════════════════ -->
+<div class="mockup-group">
+  <div class="mockup-label">State 6 — Multiple Simultaneous Meetings (scrollable left pane)</div>
+  <div class="countdown-window" style="min-height: 360px;">
+    <button class="close-btn"></button>
+    <div class="window-content">
+      <div class="left-pane" style="max-height: 310px;">
+
+        <!-- Meeting 1 -->
+        <div class="meeting-subject">Q1 Pipeline Review with Acme Corp</div>
+        <div class="meeting-time">2:00 PM – 2:30 PM</div>
+        <div class="attendee-summary">8 attendees · 3 internal, 5 external from 2 orgs</div>
+
+        <div class="section-header">Internal</div>
+        <ul class="attendee-list">
+          <li><span class="attendee-dot"></span> Alice Chen</li>
+          <li><span class="attendee-dot"></span> Bob Martinez</li>
+          <li><span class="attendee-dot"></span> Sarah Kim</li>
+        </ul>
+
+        <div class="section-header external">External</div>
+        <div class="domain-group">
+          <div class="domain-header">
+            <div class="domain-favicon">A</div>
+            <span class="domain-name">acme.com</span>
+          </div>
+          <ul class="attendee-list">
+            <li><span class="attendee-dot external"></span> Carol White</li>
+            <li><span class="attendee-dot external"></span> Dave Johnson</li>
+          </ul>
+        </div>
+        <button class="inline-join-btn">▶ Join Zoom Meeting</button>
+
+        <hr class="meeting-separator">
+
+        <!-- Meeting 2 -->
+        <div class="meeting-subject">Engineering Standup</div>
+        <div class="meeting-time">2:00 PM – 2:15 PM</div>
+        <div class="attendee-summary">4 attendees · 4 internal</div>
+
+        <div class="section-header">Internal</div>
+        <ul class="attendee-list">
+          <li><span class="attendee-dot"></span> Alice Chen</li>
+          <li><span class="attendee-dot"></span> Derek Patel</li>
+          <li><span class="attendee-dot"></span> Lisa Wong</li>
+          <li><span class="attendee-dot"></span> Marcus Reed</li>
+        </ul>
+        <button class="inline-join-btn">▶ Join Google Meet</button>
+
+      </div>
+
+      <div class="right-pane">
+        <div class="countdown-display">
+          <span class="countdown-number">47</span>
+        </div>
+        <!-- No Join Now button on right side for multi-meeting -->
+        <button class="mute-btn" title="Mute">🔊</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- STATE 7: Silent Mode (no mute toggle)           -->
+<!-- ════════════════════════════════════════════════ -->
+<div class="mockup-group">
+  <div class="mockup-label">State 7 — Silent Mode (no mute toggle visible)</div>
+  <div class="countdown-window">
+    <button class="close-btn"></button>
+    <div class="window-content">
+      <div class="left-pane">
+        <div class="meeting-subject">Weekly Team Sync</div>
+        <div class="meeting-time">3:00 PM – 3:30 PM</div>
+        <div class="attendee-summary">5 attendees · 5 internal</div>
+
+        <div class="section-header">Internal</div>
+        <ul class="attendee-list">
+          <li><span class="attendee-dot"></span> Alice Chen</li>
+          <li><span class="attendee-dot"></span> Bob Martinez</li>
+          <li><span class="attendee-dot"></span> Derek Patel</li>
+          <li><span class="attendee-dot"></span> Lisa Wong</li>
+          <li><span class="attendee-dot"></span> Sarah Kim</li>
+        </ul>
+      </div>
+
+      <div class="right-pane">
+        <div class="countdown-display">
+          <span class="countdown-number">32</span>
+        </div>
+        <button class="join-btn">Join Now</button>
+        <!-- No mute button in silent mode -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- STATE 8: No video link, no domain configured    -->
+<!-- ════════════════════════════════════════════════ -->
+<div class="mockup-group">
+  <div class="mockup-label">State 8 — No video link, no internal domain configured (flat attendee list)</div>
+  <div class="countdown-window">
+    <button class="close-btn"></button>
+    <div class="window-content">
+      <div class="left-pane">
+        <div class="meeting-subject">Lunch with Jamie</div>
+        <div class="meeting-time">12:00 PM – 1:00 PM</div>
+        <div class="attendee-summary">2 attendees</div>
+
+        <div class="section-header" style="color: #8888aa;">Attendees</div>
+        <ul class="attendee-list">
+          <li><span class="attendee-dot" style="background:#8888aa"></span> Alice Chen</li>
+          <li><span class="attendee-dot" style="background:#8888aa"></span> jamie.ross@gmail.com</li>
+        </ul>
+      </div>
+
+      <div class="right-pane">
+        <div class="countdown-display">
+          <span class="countdown-number">55</span>
+        </div>
+        <!-- No Join button (no video link detected) -->
+        <button class="mute-btn" title="Mute">🔊</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
