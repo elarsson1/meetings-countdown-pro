@@ -143,6 +143,46 @@ class Meeting:
     def attendee_count(self) -> int:
         return len(self.attendees)
 
+    def to_json_data(self, internal_domain: str) -> dict:
+        """Serialize meeting to a dict suitable for JSON output to the AI agent.
+
+        Includes title, date, times, calendar, video link, and classified attendees.
+        """
+        attendees_data = []
+        if internal_domain:
+            internal, external_by_domain = self.classify_attendees(internal_domain)
+            for att in internal:
+                attendees_data.append({
+                    "name": att.effective_name,
+                    "email": att.email,
+                    "type": "internal",
+                })
+            for domain, atts in external_by_domain.items():
+                for att in atts:
+                    attendees_data.append({
+                        "name": att.effective_name,
+                        "email": att.email,
+                        "type": "external",
+                        "org": domain,
+                    })
+        else:
+            for att in sorted(self.attendees, key=lambda a: a.effective_name.lower()):
+                attendees_data.append({
+                    "name": att.effective_name,
+                    "email": att.email,
+                    "type": "attendee",
+                })
+
+        return {
+            "title": self.title,
+            "date": self.start.astimezone().strftime("%Y-%m-%d"),
+            "start_time": self.start.astimezone().strftime("%-I:%M %p"),
+            "end_time": self.end.astimezone().strftime("%-I:%M %p"),
+            "calendar": self.calendar_name,
+            "video_link": self.video_link,
+            "attendees": attendees_data,
+        }
+
     def attendee_summary(self, internal_domain: str) -> str:
         """Generate summary like '8 attendees · 3 internal, 5 external from 2 orgs'."""
         total = self.attendee_count

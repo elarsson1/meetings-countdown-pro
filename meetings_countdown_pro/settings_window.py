@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Optional
 
@@ -17,6 +18,7 @@ from PyQt6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLineEdit,
+    QPlainTextEdit,
     QPushButton,
     QSlider,
     QSpinBox,
@@ -31,7 +33,7 @@ from meetings_countdown_pro.settings import Settings
 
 
 class SettingsWindow(QDialog):
-    """3-tab settings dialog: General, Calendars, Audio."""
+    """4-tab settings dialog: General, Calendars, Audio, Agent."""
 
     settings_saved = pyqtSignal(Settings)
     test_countdown_requested = pyqtSignal(int)  # duration in seconds
@@ -126,10 +128,15 @@ class SettingsWindow(QDialog):
             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
         </svg>'''
 
+        ai_svg = '''<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5V5a1 1 0 0 0 1 1h1.5A2.5 2.5 0 0 1 17 8.5V9a1 1 0 0 1-1 1h-1"/><path d="M8 10H7a1 1 0 0 1-1-1V8.5A2.5 2.5 0 0 1 8.5 6H9"/><rect x="6" y="10" width="12" height="10" rx="2"/><circle cx="10" cy="15" r="1" fill="#555"/><circle cx="14" cy="15" r="1" fill="#555"/><path d="M10 18h4"/>
+        </svg>'''
+
         tab_pages = [
             ("General", gear_svg, self._build_general_tab()),
             ("Calendars", calendar_svg, self._build_calendars_tab()),
             ("Audio", speaker_svg, self._build_audio_tab()),
+            ("AI Integration", ai_svg, self._build_agent_tab()),
         ]
 
         for i, (label, svg, page) in enumerate(tab_pages):
@@ -369,6 +376,86 @@ class SettingsWindow(QDialog):
         return page
 
     # ------------------------------------------------------------------
+    # Agent tab
+    # ------------------------------------------------------------------
+
+    def _build_agent_tab(self) -> QWidget:
+        page = QWidget()
+        layout = QVBoxLayout(page)
+        layout.setContentsMargins(28, 24, 28, 24)
+        layout.setSpacing(16)
+
+        # Enable toggle
+        self._agent_enabled = QCheckBox("Enable AI Integration at countdown start")
+        layout.addWidget(self._agent_enabled)
+
+        # Terminal
+        group = QGroupBox("Terminal")
+        gl = QFormLayout(group)
+        self._agent_terminal = QComboBox()
+        self._agent_terminal.addItem("Terminal.app", "terminal")
+        self._agent_terminal.addItem("iTerm2", "iterm2")
+        gl.addRow("Application", self._agent_terminal)
+        layout.addWidget(group)
+
+        # Working Directory
+        group = QGroupBox("Working Directory")
+        gl = QFormLayout(group)
+        dir_row = QHBoxLayout()
+        self._agent_working_dir = QLineEdit()
+        self._agent_working_dir.setPlaceholderText("~/Documents/meeting-notes")
+        dir_row.addWidget(self._agent_working_dir, 1)
+        browse_btn = QPushButton("Browse...")
+        browse_btn.clicked.connect(self._browse_agent_dir)
+        dir_row.addWidget(browse_btn)
+        gl.addRow(dir_row)
+        layout.addWidget(group)
+
+        # Command Template
+        group = QGroupBox("Command Template")
+        gl = QFormLayout(group)
+        self._agent_command = QLineEdit()
+        self._agent_command.setPlaceholderText("claude {Prompt}")
+        gl.addRow(self._agent_command)
+        hint = QLabel("{Prompt} is replaced with the shell-escaped prompt text.")
+        hint.setStyleSheet("color: #888; font-size: 11px;")
+        gl.addRow(hint)
+        layout.addWidget(group)
+
+        # Prompt Template
+        group = QGroupBox("Prompt Template")
+        gl = QVBoxLayout(group)
+        self._agent_prompt = QPlainTextEdit()
+        self._agent_prompt.setMaximumHeight(100)
+        self._agent_prompt.setPlaceholderText(
+            "Please help me prep for this meeting: {MeetingData}"
+        )
+        gl.addWidget(self._agent_prompt)
+        hint = QLabel(
+            "{MeetingData} is replaced with a JSON object containing meeting "
+            "titles, times, attendees, video links, and calendar info."
+        )
+        hint.setWordWrap(True)
+        hint.setStyleSheet("color: #888; font-size: 11px;")
+        gl.addWidget(hint)
+        layout.addWidget(group)
+
+        layout.addStretch()
+        return page
+
+    def _browse_agent_dir(self) -> None:
+        current = self._agent_working_dir.text() or "~"
+        path = QFileDialog.getExistingDirectory(
+            self, "Select Working Directory", os.path.expanduser(current)
+        )
+        if path:
+            # Use ~ shorthand if under home dir
+            home = os.path.expanduser("~")
+            if path.startswith(home):
+                path = "~" + path[len(home):]
+            self._agent_working_dir.setText(path)
+
+    # ------------------------------------------------------------------
     # Load / Save
     # ------------------------------------------------------------------
 
@@ -412,6 +499,16 @@ class SettingsWindow(QDialog):
                 self._output_device.setCurrentIndex(i)
                 break
 
+        # Agent
+        self._agent_enabled.setChecked(s.agent_enabled)
+        for i in range(self._agent_terminal.count()):
+            if self._agent_terminal.itemData(i) == s.agent_terminal:
+                self._agent_terminal.setCurrentIndex(i)
+                break
+        self._agent_working_dir.setText(s.agent_working_dir)
+        self._agent_command.setText(s.agent_command_template)
+        self._agent_prompt.setPlainText(s.agent_prompt_template)
+
     def _save(self) -> None:
         s = self._settings
 
@@ -446,6 +543,13 @@ class SettingsWindow(QDialog):
         s.volume = self._volume_slider.value()
         s.clock_offset = self._clock_offset.value()
         s.audio_output_device = self._output_device.currentData() or ""
+
+        # Agent
+        s.agent_enabled = self._agent_enabled.isChecked()
+        s.agent_terminal = self._agent_terminal.currentData() or "terminal"
+        s.agent_working_dir = self._agent_working_dir.text().strip() or "~"
+        s.agent_command_template = self._agent_command.text().strip()
+        s.agent_prompt_template = self._agent_prompt.toPlainText().strip()
 
         s.validate()
         s.save()

@@ -1,7 +1,7 @@
 # Meetings Countdown Pro - Product Specification
 
-**Version:** 0.4 (Draft)
-**Date:** 2026-03-27
+**Version:** 0.5
+**Date:** 2026-03-28
 **Status:** Under Review
 
 ---
@@ -94,6 +94,8 @@ A small clock/countdown-themed icon in the macOS menu bar. The icon should have 
 │  ○ Countdown (Silent)               │
 │  ○ Off                              │
 │  ─────────────────────────────────── │
+│  ☑ Enable AI Integration            │
+│  ─────────────────────────────────── │
 │  Settings...                         │
 │  ─────────────────────────────────── │
 │  Quit Meetings Countdown Pro         │
@@ -105,6 +107,7 @@ A small clock/countdown-themed icon in the macOS menu bar. The icon should have 
   - **Countdown + Music** — full experience (default)
   - **Countdown (Silent)** — visual countdown only, no audio
   - **Off** — countdowns disabled entirely; app remains in menu bar for quick re-enable
+- **Enable AI Integration:** Checkbox toggle, synced with the AI Integration settings tab. See Section 7.
 - **Settings...** — opens the Settings window
 - **Quit** — exits the application
 
@@ -258,7 +261,93 @@ When the user selects a sound file in settings:
 
 ---
 
-## 7. Late Start Handling
+## 7. AI Integration
+
+### 7.1 Overview
+
+When a countdown triggers and AI Integration is enabled, the app launches a user-configured command (typically an AI coding agent like Claude Code or Kiro) in a new terminal window. The command receives meeting context via a prompt template, enabling AI-assisted meeting prep or any custom automation.
+
+Despite the "AI" branding, the feature is terminal-command-generic — users can hook it up to a shell script, a different agent, or anything that runs in a terminal.
+
+### 7.2 Behavior
+
+1. The app substitutes meeting data into the configured prompt template as a JSON structure.
+2. The assembled prompt is shell-escaped and inserted into the command template.
+3. The full command is written to a temporary launch script (`~/.config/meetings-countdown-pro/agent-launch.sh`).
+4. The configured terminal application is opened via AppleScript and executes the launch script.
+5. The terminal window appears alongside the countdown window. The user can interact with the agent session after the initial prompt is processed.
+
+The agent session persists after the countdown ends — it is a normal interactive terminal session. The app does not track or manage the terminal process.
+
+### 7.3 Configuration
+
+Configuration is in the **AI Integration** tab of the Settings window:
+
+| # | Setting | Type | Default | Description |
+|---|---|---|---|---|
+| 15 | Enable AI Integration | Checkbox | Off | Master toggle. Also controllable from the menu bar. |
+| 16 | Terminal Application | Dropdown | Terminal.app | "Terminal.app" or "iTerm2". Both use AppleScript for window creation. |
+| 17 | Working Directory | Directory picker + text field | `~` | The directory the agent starts in (e.g., where meeting notes are organized). |
+| 18 | Command Template | Text field | `claude {Prompt}` | Shell command to execute. `{Prompt}` is replaced with the shell-escaped prompt. Users should **not** add quotes around `{Prompt}`. |
+| 19 | Prompt Template | Multi-line text area | `Please help me prep for this meeting: {MeetingData}` | The prompt text. `{MeetingData}` is replaced with a JSON object containing meeting context. |
+
+### 7.4 The `{MeetingData}` Variable
+
+The prompt template supports a single variable: **`{MeetingData}`** — a compact JSON structure containing all meeting context from the countdown window. The agent (or script) parses the JSON to extract what it needs.
+
+**JSON structure:**
+
+```json
+{
+  "meetings": [
+    {
+      "title": "Q1 Pipeline Review with Acme Corp",
+      "date": "2026-03-28",
+      "start_time": "2:00 PM",
+      "end_time": "2:30 PM",
+      "calendar": "Work",
+      "video_link": "https://zoom.us/j/1234567890",
+      "attendees": [
+        {"name": "Alice Chen", "email": "alice@example.com", "type": "internal"},
+        {"name": "Carol White", "email": "carol@acme.com", "type": "external", "org": "acme.com"}
+      ]
+    }
+  ]
+}
+```
+
+- The `meetings` array contains one entry per meeting (multiple for simultaneous meetings).
+- Attendee `type` is `"internal"` or `"external"` based on the configured internal domain. If no domain is configured, all attendees have `"type": "attendee"`.
+- The `org` field is only present for external attendees.
+- `video_link` is `null` when no video link is detected.
+
+### 7.5 Shell Escaping
+
+Command assembly uses two escaping layers to prevent shell injection:
+
+1. **`json.dumps(ensure_ascii=True)`** escapes quotes and special characters within JSON string values. Unicode/emoji are escaped to `\uXXXX` sequences.
+2. **`shlex.quote()`** wraps the entire rendered prompt in single quotes for safe shell passing.
+
+### 7.6 Terminal Launch
+
+The assembled command is written to a launch script and executed via AppleScript:
+
+- **Terminal.app:** `do script "bash -l /path/to/script"` — runs the script in a new Terminal window.
+- **iTerm2:** `create window with default profile command "bash -l /path/to/script"` — creates a new iTerm2 window with the script as the session command.
+
+The `-l` flag ensures bash runs as a login shell, sourcing the user's profile so tools like `claude` are in PATH.
+
+### 7.7 Test Mode
+
+The "Test Countdown" button in Settings also triggers the AI Integration launch (if enabled), using mock meeting data. This allows users to verify their configuration without waiting for a real meeting.
+
+### 7.8 Simultaneous Meetings
+
+All simultaneous meetings are included in the `meetings` JSON array. Only one agent session is launched — not one per meeting.
+
+---
+
+## 8. Late Start Handling
 
 If the application triggers a countdown and the meeting start is **less than `C` seconds away** (e.g., laptop woke from sleep):
 
@@ -272,13 +361,13 @@ If the application triggers a countdown and the meeting start is **less than `C`
 
 ---
 
-## 8. Configuration (Settings Window)
+## 9. Configuration (Settings Window)
 
-### 8.1 Settings UI
+### 9.1 Settings UI
 
 A standard macOS-style preferences window with organized sections (tabs or scrollable form).
 
-### 8.2 Settings Reference
+### 9.2 Settings Reference
 
 | # | Setting | Type | Default | Description |
 |---|---|---|---|---|
@@ -297,7 +386,7 @@ A standard macOS-style preferences window with organized sections (tabs or scrol
 | 13 | Volume | Slider | 100% | Master volume for countdown audio playback. Range: 0–100%. |
 | 14 | Audio Output Device | Dropdown | System Default | Select audio output device. Options: "System Default" (follows macOS system output) or any currently available audio output device. List is refreshed when the dropdown is opened. |
 
-### 8.3 Test Mode
+### 9.3 Test Mode
 
 A **"Test Countdown"** button in the Settings window launches a full countdown using a dummy meeting event. This allows the user to:
 
@@ -306,13 +395,13 @@ A **"Test Countdown"** button in the Settings window launches a full countdown u
 - Calibrate the clock offset to align visual ticks with audio beats.
 - See the end-of-countdown animation sequence (clapperboard → LIVE).
 
-The test countdown uses the current settings (duration, sound file, clock offset) and runs in real-time. A shorter "Quick Test" option (10-second countdown) is also available for rapid offset tuning.
+The test countdown uses the current settings (duration, sound file, clock offset) and runs in real-time. A shorter "Quick Test" option (10-second countdown) is also available for rapid offset tuning. If AI Integration is enabled, the test countdown also triggers the agent launch with mock meeting data.
 
-### 8.4 Sound Preview
+### 9.4 Sound Preview
 
 The sound file picker includes a **"Preview"** button that plays the first 10 seconds of the selected audio file. Playback stops when the button is toggled off, or when the preview finishes.
 
-### 8.5 Persistence
+### 9.5 Persistence
 
 - All settings saved to `~/.config/meetings-countdown-pro/settings.json`.
 - Settings are loaded on app launch and applied immediately.
@@ -320,9 +409,9 @@ The sound file picker includes a **"Preview"** button that plays the first 10 se
 
 ---
 
-## 9. No-Repeat Notification State
+## 10. No-Repeat Notification State
 
-### 9.1 Tracking
+### 10.1 Tracking
 
 - **Composite key:** `calendarItemExternalIdentifier` + event start time (ISO 8601 string).
 - This naturally handles all cases:
@@ -331,20 +420,20 @@ The sound file picker includes a **"Preview"** button that plays the first 10 se
   - **Normal meetings:** Unique UID + start time → straightforward dedup.
 - When a countdown is triggered (window opened) or deliberately skipped (meeting already started, or mode is Off), the composite key is written to `~/.config/meetings-countdown-pro/notified.json` with a timestamp.
 
-### 9.2 Pruning
+### 10.2 Pruning
 
 - On each app launch, entries older than **24 hours** are pruned.
 - This prevents unbounded file growth while still covering edge cases like overnight/weekend meetings.
 
-### 9.3 Edge Cases
+### 10.3 Edge Cases
 
 - If the user manually closes the countdown window early, the meeting is still marked as notified.
 
 ---
 
-## 10. Back-to-Back Meeting Handling
+## 11. Back-to-Back Meeting Handling
 
-### 10.1 One Countdown at a Time
+### 11.1 One Countdown at a Time
 
 Only one countdown window can be active at a time. If a new countdown would trigger while one is already showing:
 
@@ -353,7 +442,7 @@ Only one countdown window can be active at a time. If a new countdown would trig
 
 This avoids audio/UI conflicts. A future enhancement may merge overlapping meetings into the existing countdown's left pane.
 
-### 10.2 Back-to-Back with In-Progress Meeting
+### 11.2 Back-to-Back with In-Progress Meeting
 
 When the countdown for Meeting B would fire while Meeting A is still in progress:
 
@@ -365,26 +454,26 @@ When the countdown for Meeting B would fire while Meeting A is still in progress
 
 ---
 
-## 11. macOS Integration
+## 12. macOS Integration
 
-### 11.1 Calendar Permissions
+### 12.1 Calendar Permissions
 
 - On first launch, the app must request calendar access permission via macOS's EventKit permission dialog.
 - If permission is denied, show a clear message in the menu bar drop-down and Settings window explaining how to grant access in System Settings > Privacy & Security > Calendars.
 
-### 11.2 LaunchAgent
+### 12.2 LaunchAgent
 
 - When "Launch at Login" is enabled, write a standard launchd plist to `~/Library/LaunchAgents/`.
 - When disabled, remove the plist file.
 - The plist should configure the app to launch after login with `RunAtLoad = true`.
 
-### 11.3 Notifications Permission
+### 12.3 Notifications Permission
 
 - **Not required.** This app uses its own custom window rather than macOS Notification Center. This is intentional — we want the rich, branded countdown experience rather than a system notification.
 
 ---
 
-## 12. Error Handling Summary
+## 13. Error Handling Summary
 
 | Scenario | Behavior |
 |---|---|
@@ -395,14 +484,16 @@ When the countdown for Meeting B would fire while Meeting A is still in progress
 | Sound file unreadable/corrupt | Same as missing — countdown proceeds silently with warning. |
 | EventKit query fails | Log error; retry on next poll cycle (30s). |
 | Meeting already started | Skip countdown; mark as notified. |
-| Multiple meetings at same time | Show all meetings in the left pane with individual Join buttons. Auto-join disabled. See Section 5.4. |
+| Multiple meetings at same time | Show all meetings in the left pane with individual Join buttons. Auto-join disabled. See Section 5.4. AI Integration receives all meetings in JSON array (Section 7.8). |
 | App crash recovery | On relaunch, check `notified.json` — don't re-fire countdowns for already-notified meetings. |
+| AI Integration terminal launch fails | Log warning; countdown proceeds normally without agent. |
+| AI Integration command not found (e.g., `claude` not in PATH) | Terminal session shows shell error; app is unaffected. |
 
 ---
 
-## 13. Development & Distribution
+## 14. Development & Distribution
 
-### 13.1 Development Environment
+### 14.1 Development Environment
 
 - **Python:** Python 3.11+ from the [python.org macOS framework installer](https://www.python.org/downloads/macos/). This provides a proper framework build (required for full macOS GUI integration via pyobjc), is actively maintained, and installs to `/Library/Frameworks/Python.framework/` without conflicting with system or Homebrew Python.
 - **Why not system Python:** macOS ships Python 3.9.6 via Xcode CLT, but it is EOL (October 2025), frozen in place, and `pyobjc` has dropped 3.9 support (requires >= 3.10). System Python is an Apple internal dependency, not intended for third-party development.
@@ -419,7 +510,7 @@ When the countdown for Meeting B would fire while Meeting A is still in progress
   python -m meetings_countdown_pro  # or: python main.py
   ```
 
-### 13.2 Project Structure (Source)
+### 14.2 Project Structure (Source)
 
 ```
 meetings-countdown-pro/
@@ -439,6 +530,7 @@ meetings-countdown-pro/
 │   ├── settings_window.py     # Settings UI
 │   ├── favicon_cache.py       # Async favicon fetching + caching
 │   ├── notification_state.py  # notified.json management
+│   ├── agent_launcher.py     # AI Integration: command assembly + terminal launch
 │   └── assets/                # SVG icons, placeholder images
 │       ├── menubar_icon.svg
 │       ├── clapperboard.svg
@@ -451,14 +543,14 @@ meetings-countdown-pro/
 └── .gitignore
 ```
 
-### 13.3 Distribution
+### 14.3 Distribution
 
 - **For developers / GitHub:** Install Python 3.11+ from python.org, clone, create venv, `pip install -r requirements.txt` (see 13.1).
 - **For end users:** PyInstaller bundles the application into a self-contained `Meetings Countdown Pro.app`. This includes the Python interpreter and all dependencies — end users do not need Python installed. The `.app` is code-signed (ad-hoc at minimum) and notarized for distribution.
 - **No system interference:** The app writes only to `~/.config/meetings-countdown-pro/` and optionally `~/Library/LaunchAgents/` (if Launch at Login is enabled). No root access required. No modifications to system Python or system-level directories.
 - **DMG distribution:** The `.app` bundle is packaged in a DMG for easy drag-to-Applications installation.
 
-### 13.4 Dependencies (Preliminary)
+### 14.4 Dependencies (Preliminary)
 
 | Package | Purpose |
 |---|---|
@@ -470,7 +562,7 @@ meetings-countdown-pro/
 | `requests` | Favicon HTTP fetches |
 | `pyinstaller` | macOS .app packaging (dev dependency) |
 
-### 13.5 Logging & Diagnostics
+### 14.5 Logging & Diagnostics
 
 - **Default (INFO):** High-level operational messages — calendar access status, number of meetings found per poll, next meeting selected, countdown scheduling/trigger events.
 - **Debug (`--debug`):** Verbose per-event detail — EventKit query parameters, raw event counts, individual meeting details (title, time, attendee count), filter exclusion reasons, notification-state skip reasons.
@@ -484,7 +576,7 @@ meetings-countdown-pro/
 
 ---
 
-## 14. Out of Scope (v1)
+## 15. Out of Scope (v1)
 
 The following are explicitly **not** in the initial version:
 
@@ -499,7 +591,7 @@ The following are explicitly **not** in the initial version:
 
 ---
 
-## 15. Resolved Decisions
+## 16. Resolved Decisions
 
 | # | Question | Resolution |
 |---|---|---|
@@ -516,10 +608,14 @@ The following are explicitly **not** in the initial version:
 | 11 | Display name parsing | Parse name from `"Name" <email>` format if present; show bare email as-is otherwise |
 | 12 | Python version | Python 3.11+ from python.org framework installer (system Python 3.9 is EOL and incompatible with pyobjc) |
 | 13 | Packaging tool | PyInstaller (over py2app) — better maintained, handles PyQt6 and code signing well |
+| 14 | AI Integration data format | Single `{MeetingData}` JSON variable — avoids many template variables, handles simultaneous meetings cleanly |
+| 15 | AI Integration terminal support | Terminal.app + iTerm2 only (AppleScript). No auto-detection of installed terminals. |
+| 16 | AI Integration command passing | Temp launch script (`agent-launch.sh`) executed via `bash -l` — avoids AppleScript escaping issues with long JSON payloads |
+| 17 | AI Integration command template | Flexible user-defined template (not an agent picker) — supports Claude Code, Kiro, shell scripts, or any terminal command |
 
 ---
 
-## 16. Open Questions
+## 17. Open Questions
 
 All major questions have been resolved. The following are implementation details to confirm during development:
 

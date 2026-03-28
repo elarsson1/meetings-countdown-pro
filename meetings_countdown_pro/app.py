@@ -12,6 +12,7 @@ from PyQt6.QtCore import QTimer, Qt
 from PyQt6.QtGui import QAction, QActionGroup, QIcon
 from PyQt6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
 
+from meetings_countdown_pro.agent_launcher import launch_agent
 from meetings_countdown_pro.audio_player import AudioPlayer
 from meetings_countdown_pro.calendar_service import CalendarService
 from meetings_countdown_pro.countdown_window import CountdownWindow
@@ -98,6 +99,15 @@ class App:
 
         self._menu.addSeparator()
 
+        # AI Agent toggle
+        self._agent_action = QAction("Enable AI Integration", self._menu)
+        self._agent_action.setCheckable(True)
+        self._agent_action.setChecked(self._settings.agent_enabled)
+        self._agent_action.triggered.connect(self._toggle_agent)
+        self._menu.addAction(self._agent_action)
+
+        self._menu.addSeparator()
+
         # Settings
         settings_action = QAction("Settings...", self._menu)
         settings_action.triggered.connect(self._open_settings)
@@ -116,6 +126,10 @@ class App:
     def _set_mode(self, mode: str) -> None:
         self._settings.mode = mode
         self._mode_actions[mode].setChecked(True)
+        self._settings.save()
+
+    def _toggle_agent(self, checked: bool) -> None:
+        self._settings.agent_enabled = checked
         self._settings.save()
 
     def _update_next_meeting_display(self) -> None:
@@ -285,6 +299,10 @@ class App:
         self._countdown_window.closed.connect(self._on_countdown_closed)
         self._countdown_window.show()
 
+        # Launch AI agent if enabled
+        if self._settings.agent_enabled:
+            launch_agent(meetings, self._settings)
+
     def _on_countdown_closed(self) -> None:
         self._countdown_window = None
         # Trigger a fresh poll to pick up the next meeting
@@ -323,6 +341,8 @@ class App:
         # Update mode radio buttons
         for key, action in self._mode_actions.items():
             action.setChecked(key == settings.mode)
+        # Sync agent toggle
+        self._agent_action.setChecked(settings.agent_enabled)
         self._poll()
 
     def _apply_audio_settings(self) -> None:
@@ -389,6 +409,10 @@ class App:
         )
         self._countdown_window.closed.connect(self._on_countdown_closed)
         self._countdown_window.show()
+
+        # Launch AI agent if enabled (test mode too, for config verification)
+        if test_settings.agent_enabled:
+            launch_agent(mock_meetings, test_settings)
 
     # ------------------------------------------------------------------
     # Launch agent

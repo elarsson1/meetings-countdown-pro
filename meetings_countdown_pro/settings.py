@@ -42,6 +42,13 @@ class Settings:
     # Calendar selection: {account_name: [calendar_names]} or empty = all
     selected_calendars: dict[str, list[str]] = field(default_factory=dict)
 
+    # AI Agent integration
+    agent_enabled: bool = False
+    agent_terminal: str = "terminal"  # terminal | iterm2
+    agent_working_dir: str = "~"
+    agent_command_template: str = "claude {Prompt}"
+    agent_prompt_template: str = "Please help me prep for this meeting: {MeetingData}"
+
     # Runtime mode (not persisted via settings window, controlled from menu bar)
     mode: str = "countdown_music"  # countdown_music | silent | off
 
@@ -76,3 +83,5 @@ class Settings:
             self.back_to_back = "countdown_music"
         if self.mode not in ("countdown_music", "silent", "off"):
             self.mode = "countdown_music"
+        if self.agent_terminal not in ("terminal", "iterm2"):
+            self.agent_terminal = "terminal"
