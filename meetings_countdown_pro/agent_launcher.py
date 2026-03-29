@@ -52,7 +52,7 @@ def _write_launch_script(command: str, working_dir: str) -> str:
     resolved_dir = os.path.expanduser(working_dir)
     script_path = CONFIG_DIR / "agent-launch.sh"
     CONFIG_DIR.mkdir(parents=True, exist_ok=True)
-    script_content = f"#!/bin/bash\ncd {shlex.quote(resolved_dir)} && {command}\n"
+    script_content = f"#!/bin/zsh\ncd {shlex.quote(resolved_dir)} && {command}\n"
     script_path.write_text(script_content)
     script_path.chmod(script_path.stat().st_mode | stat.S_IEXEC)
     log.debug("Launch script written: %s (%d bytes)", script_path, len(script_content))
@@ -66,7 +66,7 @@ def launch_in_terminal(command: str, working_dir: str, terminal: str) -> None:
     The command is written to a temp script to avoid AppleScript escaping issues.
     """
     script_file = _write_launch_script(command, working_dir)
-    bash_cmd = f"bash -l {shlex.quote(script_file)}"
+    zsh_cmd = f"zsh -l {shlex.quote(script_file)}"
 
     if terminal == "iterm2":
         # Use the 'command' parameter on create window — this runs the
@@ -75,7 +75,7 @@ def launch_in_terminal(command: str, working_dir: str, terminal: str) -> None:
         applescript = f'''
             tell application "iTerm2"
                 activate
-                create window with default profile command "{bash_cmd}"
+                create window with default profile command "{zsh_cmd}"
             end tell
         '''
     else:
@@ -83,12 +83,12 @@ def launch_in_terminal(command: str, working_dir: str, terminal: str) -> None:
         applescript = f'''
             tell application "Terminal"
                 activate
-                do script "{bash_cmd}"
+                do script "{zsh_cmd}"
             end tell
         '''
 
     log.info("Launching agent in %s (script: %s)", terminal, script_file)
-    log.debug("AppleScript command: %s", bash_cmd)
+    log.debug("AppleScript command: %s", zsh_cmd)
 
     try:
         proc = subprocess.Popen(
