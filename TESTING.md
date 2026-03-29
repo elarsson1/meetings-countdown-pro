@@ -1,6 +1,6 @@
 # Meetings Countdown Pro — Testing Plan
 
-Manual testing plan covering all functionality defined in SPEC.md v0.4.
+Manual testing plan covering all functionality defined in SPEC.md v0.5.
 
 **Prerequisites for all tests:**
 - Python 3.14+ from python.org (recommended), venv activated, dependencies installed
@@ -305,7 +305,59 @@ Manual testing plan covering all functionality defined in SPEC.md v0.4.
 
 ---
 
-## 12. Error Handling
+## 12. AI Integration
+
+### 12.1 Menu Bar Toggle
+- [ ] "Enable AI Integration" checkbox visible in menu bar dropdown
+- [ ] Checkbox reflects current `agent_enabled` setting
+- [ ] Toggling updates `settings.json` immediately
+- [ ] State syncs with AI Integration tab in Settings (change in one reflects in the other)
+
+### 12.2 Settings — AI Integration Tab
+- [ ] Fourth tab labeled "AI Integration" present in Settings window
+- [ ] Enable AI Integration checkbox
+- [ ] Terminal Application dropdown: "Terminal.app" and "iTerm2" options
+- [ ] Working Directory text field with Browse button
+- [ ] Browse button opens directory picker, selected path populates the field
+- [ ] Command Template text field (default: `claude {Prompt}`)
+- [ ] Prompt Template multi-line text area (default: `Please help me prep for this meeting: {MeetingData}`)
+- [ ] All AI Integration settings persist across app restarts
+
+### 12.3 Agent Launch — Real Countdown
+- [ ] AI enabled + real countdown triggers: terminal window opens with agent command
+- [ ] Terminal.app: new window created via AppleScript with `zsh -l` login shell
+- [ ] iTerm2: new window created via AppleScript with `zsh -l` login shell
+- [ ] Working directory is respected (agent starts in configured directory)
+- [ ] `{MeetingData}` replaced with JSON containing meeting title, date, times, calendar, video_link, attendees
+- [ ] `{Prompt}` replaced with shell-escaped rendered prompt
+- [ ] Agent session persists after countdown ends (normal interactive terminal)
+- [ ] AI disabled: no terminal window opened on countdown
+
+### 12.4 Agent Launch — Test Mode
+- [ ] Test Countdown with AI enabled: agent launches with mock meeting data
+- [ ] Quick Test (10s) with AI enabled: agent launches with mock meeting data
+- [ ] Mock data includes sample internal + external attendees
+- [ ] AI disabled: Test Countdown does not launch agent
+
+### 12.5 Simultaneous Meetings
+- [ ] All simultaneous meetings included in `{MeetingData}` JSON `meetings` array
+- [ ] Only one agent session launched (not one per meeting)
+
+### 12.6 Shell Escaping & Safety
+- [ ] Meeting titles with special characters (quotes, $, backticks) do not break the command
+- [ ] JSON values use `ensure_ascii=True` (unicode/emoji escaped to `\uXXXX`)
+- [ ] Rendered prompt wrapped with `shlex.quote()` for safe shell passing
+- [ ] Launch script written to `~/.config/meetings-countdown-pro/agent-launch.sh`
+- [ ] Launch script is executable
+
+### 12.7 Error Handling
+- [ ] Terminal launch failure (e.g., iTerm2 not installed): logged as warning, countdown proceeds normally
+- [ ] Empty command template with AI enabled: agent launch skipped with log warning
+- [ ] Working directory does not exist: shell reports error in terminal, app unaffected
+
+---
+
+## 13. Error Handling
 
 - [X] Calendar permission denied: clear message in menu bar
 - [ ] Sound file missing/moved: countdown proceeds silently
@@ -313,10 +365,12 @@ Manual testing plan covering all functionality defined in SPEC.md v0.4.
 - [ ] Favicon fetch failure: globe icon placeholder, no user-visible error
 - [X] EventKit query failure: logged, retry on next 30s poll
 - [X] App crash recovery: `notified.json` prevents re-firing already-notified meetings
+- [ ] AI Integration terminal launch fails: logged, countdown proceeds normally
+- [ ] AI Integration command not found (e.g., `claude` not in PATH): terminal shows shell error, app unaffected
 
 ---
 
-## 13. macOS Integration
+## 14. macOS Integration
 
 - [X] Calendar permission prompt on first launch
 - [X] LaunchAgent plist correctly formatted and functional (will need update for PyInstaller packaging)
@@ -329,7 +383,7 @@ Manual testing plan covering all functionality defined in SPEC.md v0.4.
 
 ---
 
-## 14. Edge Cases
+## 15. Edge Cases
 
 - [ ] No calendars configured on macOS: graceful handling
 - [X] Empty calendar (no events today): "No more meetings today"

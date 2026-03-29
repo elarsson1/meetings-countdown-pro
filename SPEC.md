@@ -118,7 +118,7 @@ A small clock/countdown-themed icon in the macOS menu bar. The icon should have 
 ### 5.1 Window Behavior
 
 - **Position:** Upper-right corner of the primary display, inset ~20px from screen edges.
-- **Size:** Approximately 600×300pt (to be refined in mockups).
+- **Size:** 640×320pt.
 - **Window level:** Floating window (always on top of regular windows, but below system dialogs).
 - **Appearance:** Frameless (no title bar), with rounded corners and a subtle drop shadow. Dark background theme for a broadcast/studio aesthetic.
 - **Animation:** Slides in from the right edge of the screen over ~300ms.
@@ -171,8 +171,6 @@ The entire left pane is a single scrollable area containing meeting details and 
 - **Attendee list:**
   - **Internal Attendees:** Listed under an "Internal" header. Sorted alphabetically by display name. Attendees whose email domain matches the configured internal domain.
   - **External Attendees:** Listed under an "External" header. **Grouped by email domain**, each domain group headed by the domain's favicon (16×16) and the domain name. Within each domain group, sorted alphabetically by display name. Domain groups themselves are sorted alphabetically by domain name.
-- **Join Now button:** Shown inline at the bottom of the meeting details (in addition to the right-side button).
-
 **Multiple simultaneous meetings:**
 
 When two or more meetings start at the same time, all meetings are listed sequentially in the left pane, each with their own subject, time, attendee summary, attendee list, and individual Join Now button. The user scrolls to see all meetings. In this scenario:
@@ -332,10 +330,10 @@ Command assembly uses two escaping layers to prevent shell injection:
 
 The assembled command is written to a launch script and executed via AppleScript:
 
-- **Terminal.app:** `do script "bash -l /path/to/script"` — runs the script in a new Terminal window.
-- **iTerm2:** `create window with default profile command "bash -l /path/to/script"` — creates a new iTerm2 window with the script as the session command.
+- **Terminal.app:** `do script "zsh -l /path/to/script"` — runs the script in a new Terminal window.
+- **iTerm2:** `create window with default profile command "zsh -l /path/to/script"` — creates a new iTerm2 window with the script as the session command.
 
-The `-l` flag ensures bash runs as a login shell, sourcing the user's profile so tools like `claude` are in PATH.
+The `-l` flag ensures zsh runs as a login shell, sourcing the user's profile so tools like `claude` are in PATH.
 
 ### 7.7 Test Mode
 
@@ -365,7 +363,7 @@ If the application triggers a countdown and the meeting start is **less than `C`
 
 ### 9.1 Settings UI
 
-A standard macOS-style preferences window with organized sections (tabs or scrollable form).
+A macOS System Preferences-style window with a centered icon toolbar at the top. Four pane-selector buttons (General, Calendars, Audio, AI Integration) each display an SVG icon above a label. The active pane is highlighted. Content within each pane is organized into bordered group boxes (`QGroupBox`) with form layouts.
 
 ### 9.2 Settings Reference
 
@@ -405,7 +403,7 @@ The sound file picker includes a **"Preview"** button that plays the first 10 se
 
 - All settings saved to `~/.config/meetings-countdown-pro/settings.json`.
 - Settings are loaded on app launch and applied immediately.
-- Changes in the Settings window are applied on save (explicit "Save" button, or auto-save on window close with confirmation for unsaved changes).
+- Changes in the Settings window are applied on explicit "Save" button click. Closing the window without saving discards unsaved changes.
 
 ---
 
@@ -478,7 +476,7 @@ When the countdown for Meeting B would fire while Meeting A is still in progress
 | Scenario | Behavior |
 |---|---|
 | Calendar permission denied | Menu bar shows "Calendar access required" message with link to System Settings. |
-| No calendars found | Menu bar shows "No calendars configured." |
+| No calendars found | Treated the same as no upcoming meetings — menu bar shows "No more meetings today." |
 | Favicon fetch fails/times out | Generic globe icon used; no error shown to user. |
 | Sound file missing/moved | Countdown proceeds silently; menu bar shows brief warning. |
 | Sound file unreadable/corrupt | Same as missing — countdown proceeds silently with warning. |
@@ -537,7 +535,6 @@ meetings-countdown-pro/
 │       ├── speaker.svg
 │       ├── speaker_muted.svg
 │       └── globe_placeholder.svg
-├── tests/                     # Unit and integration tests
 ├── venv/                      # Virtual environment (gitignored)
 └── .gitignore
 ```
@@ -609,7 +606,7 @@ The following are explicitly **not** in the initial version:
 | 13 | Packaging tool | PyInstaller (over py2app) — better maintained, handles PyQt6 and code signing well |
 | 14 | AI Integration data format | Single `{MeetingData}` JSON variable — avoids many template variables, handles simultaneous meetings cleanly |
 | 15 | AI Integration terminal support | Terminal.app + iTerm2 only (AppleScript). No auto-detection of installed terminals. |
-| 16 | AI Integration command passing | Temp launch script (`agent-launch.sh`) executed via `bash -l` — avoids AppleScript escaping issues with long JSON payloads |
+| 16 | AI Integration command passing | Temp launch script (`agent-launch.sh`) executed via `zsh -l` — avoids AppleScript escaping issues with long JSON payloads |
 | 17 | AI Integration command template | Flexible user-defined template (not an agent picker) — supports Claude Code, Kiro, shell scripts, or any terminal command |
 
 ---
@@ -633,9 +630,9 @@ All major questions have been resolved. The following are implementation details
 ├── settings.json              # User configuration
 ├── notified.json              # Already-notified meeting UIDs
 └── favicon-cache/             # Cached favicons by domain
-    ├── acme.com.ico
-    ├── globex.net.ico
-    └── ...
+    ├── a1b2c3d4e5f6_acme.com.ico
+    ├── f7e8d9c0b1a2_globex.net.ico
+    └── ...                    # Format: {md5_prefix}_{domain}.ico
 ```
 
 ## Appendix B: Meeting Detection Flow
