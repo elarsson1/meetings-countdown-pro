@@ -40,7 +40,7 @@ Which terminal app to open for the agent session:
 | **Terminal.app** | Built-in macOS terminal. Always available. |
 | **iTerm2** | Popular third-party terminal. Must be installed separately. |
 
-The app uses AppleScript to create a new window in the selected terminal. The command runs as a login shell (`bash -l`), so your PATH and shell profile are loaded — tools like `claude` will be available if they're in your normal terminal environment.
+The app uses AppleScript to create a new window in the selected terminal. The command runs as a login shell (`zsh -l`), so your login profile is loaded. See [Troubleshooting](#iterm2-a-session-ended-very-soon-after-starting) if your agent CLI isn't found — there's a common gotcha with iTerm2 and where PATH is configured.
 
 **Default:** Terminal.app
 
@@ -210,7 +210,36 @@ See [Test Mode](test-mode.md) for details.
 | Problem | Solution |
 |---|---|
 | Terminal window doesn't open | Check that the selected terminal app (Terminal.app or iTerm2) is installed and can be controlled via AppleScript. For iTerm2, you may need to allow automation in **System Settings → Privacy & Security → Automation**. |
-| `command not found` in terminal | Your agent CLI tool (e.g., `claude`) isn't in your PATH. The launch script runs as a login shell (`bash -l`), so check that the tool is available in a new Terminal window. |
+| iTerm2: "A session ended very soon after starting" | See [iTerm2 PATH issue](#iterm2-a-session-ended-very-soon-after-starting) below. |
+| `command not found` in terminal | Your agent CLI tool (e.g., `claude`) isn't in your PATH for non-interactive shells. See [iTerm2 PATH issue](#iterm2-a-session-ended-very-soon-after-starting) below. |
 | Prompt looks wrong or is truncated | Make sure you're not wrapping `{Prompt}` in quotes in your command template. The app handles escaping automatically. |
 | Agent gets garbled meeting data | Check your prompt template — `{MeetingData}` should appear exactly once, spelled exactly as shown (case-sensitive, with curly braces). |
 | Nothing happens when countdown starts | Verify AI Integration is enabled — check both the Settings tab and the menu bar toggle. |
+
+### iTerm2: "A session ended very soon after starting"
+
+If you see this iTerm2 error:
+
+> *A session ended very soon after starting. Check that the command in profile "Default" is correct.*
+
+The underlying cause is `command not found` — your agent CLI (e.g., `claude`) isn't in the PATH. iTerm2 doesn't show you the shell error, which makes this hard to diagnose.
+
+**Why this happens:** The app launches the agent via `zsh -l /path/to/script.sh`. This is a login shell, but because it's running a script file it is **not interactive**. Zsh only reads `~/.zshrc` for interactive shells. If your PATH additions (like `export PATH=$HOME/.local/bin:$PATH`) are in `~/.zshrc`, they won't be applied, and tools like `claude` won't be found.
+
+Terminal.app isn't affected because its AppleScript integration (`do script`) runs commands inside an interactive shell session that has already sourced `~/.zshrc`. iTerm2's `create window with default profile command` runs the command directly with no interactive shell wrapper.
+
+**The fix:** Add your PATH additions to **`~/.zshenv`** or **`~/.zprofile`** — these are sourced for all login shells regardless of whether they are interactive. For example, if `claude` is installed at `~/.local/bin/claude`, add this line:
+
+```bash
+export PATH=$HOME/.local/bin:$PATH
+```
+
+To verify the fix works, run this from any terminal:
+
+```bash
+env -i HOME=$HOME zsh -l -c 'which claude'
+```
+
+If that prints the path to `claude`, you're all set. If it prints `claude not found`, your PATH addition isn't in the right file yet.
+
+For a deep dive into which zsh startup files are sourced under which conditions, see the [Zsh Startup Files documentation](https://zsh.sourceforge.io/Intro/intro_3.html).
