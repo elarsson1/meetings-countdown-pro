@@ -78,6 +78,16 @@ Popular choices: the BBC News Countdown, a dramatic orchestral piece, or the Jeo
 - At least one calendar account configured in macOS Calendar (iCloud, Google, Microsoft 365, Exchange, CalDAV — anything that syncs to Calendar.app)
 - An anchor desk for your home office is not a strict requirement, but imagine the possibilities. If you're on a budget, a broadcast studio virtual background will do in a pinch.
 
+## Documentation
+
+For detailed configuration, setup guides, and all the settings explained: **[User Guide](docs/README.md)**
+
+- [Quick Start](docs/quick-start.md) — get configured in 5 minutes
+- [Menu Bar](docs/menu-bar.md) — modes and quick toggles
+- [Countdown Window](docs/countdown-window.md) — the main event
+- Settings: [General](docs/settings-general.md) · [Calendars](docs/settings-calendars.md) · [Audio](docs/settings-audio.md) · [AI Integration](docs/ai-integration.md)
+- [Test Mode](docs/test-mode.md) — preview and calibrate without waiting for a meeting
+
 ## Contributing
 
 Pull requests are welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md) for development setup, build instructions, debugging, and how to submit changes.
