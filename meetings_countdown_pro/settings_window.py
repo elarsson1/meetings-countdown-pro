@@ -86,11 +86,11 @@ class SettingsWindow(QDialog):
                 min-width: 64px;
             }
             QToolButton:checked {
-                background: palette(midlight);
-                border: 1px solid palette(mid);
+                background: rgba(128,128,128,0.25);
+                border: 1px solid rgba(128,128,128,0.4);
             }
             QToolButton:hover:!checked {
-                background: rgba(0,0,0,0.04);
+                background: rgba(128,128,128,0.1);
             }
             """
         )

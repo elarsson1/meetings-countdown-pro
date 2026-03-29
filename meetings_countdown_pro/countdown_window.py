@@ -187,6 +187,7 @@ class CountdownWindow(QWidget):
         # State
         self._seconds_remaining = 0
         self._phase = "countdown"  # countdown | action | live
+        self._drag_pos: Optional[QPoint] = None
 
         # Window setup
         self.setWindowFlags(
@@ -359,6 +360,7 @@ class CountdownWindow(QWidget):
         self._live_dot.setStyleSheet(
             """
             background: #ef4444;
+            border: none;
             border-radius: 7px;
             """
         )
@@ -368,7 +370,7 @@ class CountdownWindow(QWidget):
         live_font = QFont("Helvetica Neue", 36)
         live_font.setWeight(QFont.Weight.Black)
         live_text.setFont(live_font)
-        live_text.setStyleSheet("color: #ef4444; background: transparent; letter-spacing: 6px;")
+        live_text.setStyleSheet("color: #ef4444; background: transparent; border: none; letter-spacing: 6px;")
         badge_layout.addWidget(live_text)
 
         live_layout.addWidget(live_badge, alignment=Qt.AlignmentFlag.AlignCenter)
@@ -763,6 +765,19 @@ class CountdownWindow(QWidget):
     # ------------------------------------------------------------------
     # Events
     # ------------------------------------------------------------------
+
+    def mousePressEvent(self, event) -> None:
+        if event.button() == Qt.MouseButton.LeftButton:
+            self._drag_pos = event.globalPosition().toPoint() - self.frameGeometry().topLeft()
+            event.accept()
+
+    def mouseMoveEvent(self, event) -> None:
+        if self._drag_pos is not None and event.buttons() & Qt.MouseButton.LeftButton:
+            self.move(event.globalPosition().toPoint() - self._drag_pos)
+            event.accept()
+
+    def mouseReleaseEvent(self, event) -> None:
+        self._drag_pos = None
 
     def keyPressEvent(self, event) -> None:
         if event.key() == Qt.Key.Key_Escape:
