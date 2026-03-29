@@ -26,7 +26,7 @@ The application runs as a background process with a macOS menu bar presence, pol
 | Favicon Retrieval | `requests` with aggressive timeouts; fallback to Google's favicon service |
 | Configuration | JSON file(s) in `~/.config/meetings-countdown-pro/` |
 | Packaging | PyInstaller for native macOS .app bundle (self-contained, no Python required by end user) |
-| Minimum macOS Version | macOS 13 (Ventura) — required for current EventKit APIs |
+| Minimum macOS Version | macOS 12 (Monterey) |
 
 ---
 
