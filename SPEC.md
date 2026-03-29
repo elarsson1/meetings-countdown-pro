@@ -18,7 +18,7 @@ The application runs as a background process with a macOS menu bar presence, pol
 
 | Component | Technology |
 |---|---|
-| Language | Python 3.11+ (python.org framework build; see Section 13.1) |
+| Language | Python 3.14+ (python.org framework build recommended; see Section 13.1) |
 | GUI Framework | PyQt6 |
 | Calendar Access | `pyobjc` (EventKit framework bindings) — accesses macOS Calendar.app data directly, supporting any provider synced to macOS Calendar (Google, Microsoft 365, iCloud, Exchange, CalDAV, etc.) |
 | Audio Playback | `QMediaPlayer` (PyQt6 multimedia) — leverages macOS native codecs via AVFoundation for MP3, WAV, FLAC, AAC support |
@@ -495,13 +495,12 @@ When the countdown for Meeting B would fire while Meeting A is still in progress
 
 ### 14.1 Development Environment
 
-- **Python:** Python 3.11+ from the [python.org macOS framework installer](https://www.python.org/downloads/macos/). This provides a proper framework build (required for full macOS GUI integration via pyobjc), is actively maintained, and installs to `/Library/Frameworks/Python.framework/` without conflicting with system or Homebrew Python.
-- **Why not system Python:** macOS ships Python 3.9.6 via Xcode CLT, but it is EOL (October 2025), frozen in place, and `pyobjc` has dropped 3.9 support (requires >= 3.10). System Python is an Apple internal dependency, not intended for third-party development.
-- **Why not Homebrew Python:** Homebrew's `brew upgrade` can silently break virtual environments. The python.org installer provides a stable, predictable base.
+- **Python:** Python 3.14+ from the [python.org macOS framework installer](https://www.python.org/downloads/macos/) (recommended). This provides a proper framework build (required for full macOS GUI integration via pyobjc), is actively maintained, and installs to `/Library/Frameworks/Python.framework/` without conflicting with system or Homebrew Python. Homebrew Python also works but `brew upgrade` can silently break virtual environments.
+- **Why not system Python:** macOS ships Python 3.9.6 via Xcode CLT, but it is EOL, frozen in place, and `pyobjc` has dropped 3.9 support. System Python is an Apple internal dependency, not intended for third-party development.
 - **Virtual environment:** A standard `venv` created from the python.org interpreter, stored in the project directory.
 - **Setup process for contributors:**
   ```bash
-  # Prerequisites: Install Python 3.11+ from https://www.python.org/downloads/macos/
+  # Prerequisites: Install Python 3.14+ from https://www.python.org/downloads/macos/
   git clone https://github.com/<org>/meetings-countdown-pro.git
   cd meetings-countdown-pro
   python3 -m venv venv
@@ -545,7 +544,7 @@ meetings-countdown-pro/
 
 ### 14.3 Distribution
 
-- **For developers / GitHub:** Install Python 3.11+ from python.org, clone, create venv, `pip install -r requirements.txt` (see 13.1).
+- **For developers / GitHub:** Install Python 3.14+ from python.org (recommended), clone, create venv, `pip install -r requirements.txt` (see 13.1).
 - **For end users:** PyInstaller bundles the application into a self-contained `Meetings Countdown Pro.app`. This includes the Python interpreter and all dependencies — end users do not need Python installed. The `.app` is code-signed (ad-hoc at minimum) and notarized for distribution.
 - **No system interference:** The app writes only to `~/.config/meetings-countdown-pro/` and optionally `~/Library/LaunchAgents/` (if Launch at Login is enabled). No root access required. No modifications to system Python or system-level directories.
 - **DMG distribution:** The `.app` bundle is packaged in a DMG for easy drag-to-Applications installation.
@@ -606,7 +605,7 @@ The following are explicitly **not** in the initial version:
 | 9 | Attendee count in menu bar | No — keep menu bar line simple |
 | 10 | Negative clock offset | Yes, allow -2000 to +2000 ms |
 | 11 | Display name parsing | Parse name from `"Name" <email>` format if present; show bare email as-is otherwise |
-| 12 | Python version | Python 3.11+ from python.org framework installer (system Python 3.9 is EOL and incompatible with pyobjc) |
+| 12 | Python version | Python 3.14+ from python.org framework installer recommended (system Python 3.9 is EOL and incompatible with pyobjc) |
 | 13 | Packaging tool | PyInstaller (over py2app) — better maintained, handles PyQt6 and code signing well |
 | 14 | AI Integration data format | Single `{MeetingData}` JSON variable — avoids many template variables, handles simultaneous meetings cleanly |
 | 15 | AI Integration terminal support | Terminal.app + iTerm2 only (AppleScript). No auto-detection of installed terminals. |

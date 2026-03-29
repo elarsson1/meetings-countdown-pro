@@ -3,7 +3,7 @@
 Manual testing plan covering all functionality defined in SPEC.md v0.4.
 
 **Prerequisites for all tests:**
-- Python 3.11+ from python.org, venv activated, dependencies installed
+- Python 3.14+ from python.org (recommended), venv activated, dependencies installed
 - At least one macOS Calendar account with events
 - A countdown audio file (e.g., BBC News Countdown, ~60–90s)
 - An internal domain configured in Settings (e.g., `axeltech.com`)

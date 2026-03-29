@@ -15,4 +15,4 @@ pip install -r requirements.txt
 python -m meetings_countdown_pro
 ```
 
-Requires Python 3.11+ (python.org framework build, not Homebrew).
+Requires Python 3.14+ (python.org framework build recommended, though Homebrew also works).
