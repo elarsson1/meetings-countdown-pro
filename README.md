@@ -41,30 +41,6 @@ The practical use case: many of us now use AI agents to organize meeting notes i
 
 **But let's be clear:** you do not have to connect this to anything AI-related. The "AI Integration" feature is really just "run a terminal command with meeting data." You could wire it up to a shell script that opens a folder, curls a weather API, or plays a second, even more dramatic soundtrack. We're still going to call it AI Integration, though. Because Marketing told us we had to. 
 
-## Installation
-
-### Download (recommended)
-
-1. Download the latest `.zip` from [Releases](https://github.com/elarsson1/meetings-countdown-pro/releases)
-2. Unzip it
-3. Drag **Meetings Countdown Pro.app** into your **Applications** folder
-4. **First launch — bypass Gatekeeper** (the app is ad-hoc signed but not notarized, because I am not yet paying the $99/year Apple Developer Tax. This may change if enough people use this, or if I win the lottery):
-   1. Double-click the app — macOS will block it and show a warning. Click **Done** (do not move it to Trash).
-   2. Open **System Settings → Privacy & Security**.
-   3. Scroll down to the Security section — you'll see a message that "Meetings Countdown Pro" was blocked. Click **Allow Anyway**.
-   4. Double-click the app again and click **Open** in the confirmation dialog.
-5. Grant calendar access when prompted
-
-## How It Works
-
-1. The app sits in your menu bar and polls your macOS Calendar for upcoming meetings
-2. When a meeting with a video link is approaching, a countdown window slides in from the right
-3. Your chosen audio plays in sync while the attendee panel shows who's on the call — internal vs. external, grouped by organization
-4. When the countdown hits zero: **ACTION!** (clapperboard animation) then **LIVE** (broadcast tally light)
-5. Click **Join Now** at any point, or let auto-join open the link when the countdown ends
-
-Start your meeting with gravitas!
-
 ## Audio
 
 The app does not ship with audio — you provide your own. Drop any MP3, WAV, FLAC, or AAC file into the Audio settings tab. The countdown will synchronize to your audio file's duration, or you can set a custom countdown length.
@@ -77,6 +53,18 @@ Popular choices: the BBC News Countdown, a dramatic orchestral piece, or the Jeo
 - Apple Silicon Mac
 - At least one calendar account configured in macOS Calendar (iCloud, Google, Microsoft 365, Exchange, CalDAV — anything that syncs to Calendar.app)
 - An anchor desk for your home office is not a strict requirement, but imagine the possibilities. If you're on a budget, a broadcast studio virtual background will do in a pinch.
+
+## Installation
+
+1. Download the latest `.zip` from [Releases](https://github.com/elarsson1/meetings-countdown-pro/releases)
+2. Unzip it
+3. Drag **Meetings Countdown Pro.app** into your **Applications** folder
+4. **First launch — bypass Gatekeeper** (the app is ad-hoc signed but not notarized, because I am not yet paying the $99/year Apple Developer Tax. This may change if enough people use this, or if I win the lottery):
+   1. Double-click the app — macOS will block it and show a warning. Click **Done** (do not move it to Trash).
+   2. Open **System Settings → Privacy & Security**.
+   3. Scroll down to the Security section — you'll see a message that "Meetings Countdown Pro" was blocked. Click **Allow Anyway**.
+   4. Double-click the app again and click **Open** in the confirmation dialog.
+5. Grant calendar access when prompted
 
 ## Documentation
 
