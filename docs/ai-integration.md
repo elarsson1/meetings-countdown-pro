@@ -69,7 +69,7 @@ claude {Prompt}
 | Command | What It Does |
 |---|---|
 | `claude {Prompt}` | Launches [Claude Code](https://claude.com/product/claude-code) with meeting context. |
-| `kiro {Prompt}` | Launches [Kiro](https://kiro.dev/) with meeting context. |
+| `kiro-cli chat {Prompt}` | Launches [Kiro](https://kiro.dev/) with meeting context. |
 | `bash -c {Prompt}` | Runs the prompt as a shell command (for custom scripts). |
 | `cat <<< {Prompt} && read` | Just prints the meeting data and waits. Useful for debugging your prompt template. |
 

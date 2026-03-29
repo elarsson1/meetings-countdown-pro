@@ -18,7 +18,7 @@ Despite the "AI" branding, the feature is terminal-command-generic — users can
 When a countdown triggers and the feature is enabled:
 
 1. The app substitutes meeting variables into the configured prompt template.
-2. The app constructs the full command line (e.g., `claude --prompt "..."` or `kiro --message "..."`).
+2. The app constructs the full command line (e.g., `claude "..."` or `kiro-cli chat "..."`).
 3. The app opens the user's configured terminal application with that command, in the configured working directory.
 4. The terminal window appears alongside the countdown window. The user can interact with the agent while the countdown runs.
 
