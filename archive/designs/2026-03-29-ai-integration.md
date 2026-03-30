@@ -1,7 +1,8 @@
 # Design: AI Agent Integration
 
-**Status:** Draft
+**Status:** Shipped
 **Date:** 2026-03-28
+**Shipped in:** commit `e1c13a7` · release `v0.1.0`
 
 ---
 

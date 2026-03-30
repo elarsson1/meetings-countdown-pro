@@ -213,6 +213,20 @@ Manual testing plan covering all functionality defined in SPEC.md v0.5.
 - [X] "System Default" follows macOS system output
 - [X] Device preference persists if device is temporarily unavailable (falls back to default)
 
+### 7.7 Device Switching & Hotplug
+- [X] Changing device in Settings → audio plays on new device on next countdown
+- [X] Switching from specific device back to System Default → audio plays immediately (no restart required)
+- [X] Repeated countdowns on a specific device → 100% reliable (no sporadic silent playback)
+- [X] Repeated countdowns on System Default → 100% reliable
+- [X] System Default tracks macOS default device: connecting headphones → audio switches to headphones
+- [X] System Default tracks macOS default device: disconnecting headphones → audio switches to speakers
+- [X] Specific device disconnected → next countdown falls back to system default
+- [X] Specific device disconnected then reconnected → next countdown returns to preferred device
+- [ ] Specific device disconnected during active countdown → current playback may be lost (known limitation), next countdown falls back
+- [X] Settings window with disconnected preferred device → shows device as "(disconnected)" in dropdown
+- [X] Saving settings with disconnected device → preference preserved (not silently reset to System Default)
+- [X] Test Countdown from Settings with disconnected device → fallback plays on system default, preference preserved
+
 ---
 
 ## 8. Late Start Handling

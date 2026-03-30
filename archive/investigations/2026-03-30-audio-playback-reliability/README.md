@@ -1,5 +1,9 @@
 # Audio Playback Reliability Investigation
 
+**Status:** Resolved
+**Date:** 2026-03-30
+**Fixed in:** commit `b37afa6` · release `v0.1.2`
+
 ## Problem Statement
 
 Sporadically, when a countdown window opens, no audio plays. Debug logs show no difference between success and failure — the player appears to be playing but produces no sound. Reproducible randomly by running repeated test countdowns. Other apps on the same Mac have stable audio.
