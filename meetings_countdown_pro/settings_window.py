@@ -493,11 +493,18 @@ class SettingsWindow(QDialog):
         self._volume_slider.setValue(s.volume)
         self._clock_offset.setValue(s.clock_offset)
 
-        # Output device
+        # Output device — if the saved device isn't in the list (disconnected),
+        # add a placeholder so _save() preserves the preference rather than
+        # silently resetting to System Default.
+        found_device = False
         for i in range(self._output_device.count()):
             if self._output_device.itemData(i) == s.audio_output_device:
                 self._output_device.setCurrentIndex(i)
+                found_device = True
                 break
+        if not found_device and s.audio_output_device:
+            self._output_device.addItem(f"{s.audio_output_device} (disconnected)", s.audio_output_device)
+            self._output_device.setCurrentIndex(self._output_device.count() - 1)
 
         # Agent
         self._agent_enabled.setChecked(s.agent_enabled)

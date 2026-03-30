@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Optional
 
 from PyQt6.QtCore import QUrl, pyqtSignal, QObject
-from PyQt6.QtMultimedia import QAudioOutput, QMediaPlayer
+from PyQt6.QtMultimedia import QAudioOutput, QMediaDevices, QMediaPlayer
 
 log = logging.getLogger(__name__)
 
@@ -19,18 +19,35 @@ class AudioPlayer(QObject):
 
     def __init__(self, parent: Optional[QObject] = None) -> None:
         super().__init__(parent)
-        self._player = QMediaPlayer(self)
-        self._audio_output = QAudioOutput(self)
-        self._player.setAudioOutput(self._audio_output)
-
-        self._player.mediaStatusChanged.connect(self._on_media_status)
-        self._player.errorOccurred.connect(self._on_error)
 
         self._detected_duration: Optional[float] = None
         self._sound_file: str = ""
         self._play_on_load: bool = False
         self._pending_seek: int = 0
         self._preferred_device_id: str = ""
+        self._active_real_device_id: Optional[str] = None  # actual device ID wired up
+        self._volume: float = 1.0
+        self._muted: bool = False
+
+        self._player, self._audio_output = self._create_player()
+
+        # Watch for device hotplug / default-device changes
+        self._media_devices = QMediaDevices(self)
+        self._media_devices.audioOutputsChanged.connect(self._on_devices_changed)
+
+    def _create_player(self, device: object = None) -> tuple[QMediaPlayer, QAudioOutput]:
+        """Create a fresh QMediaPlayer + QAudioOutput pair."""
+        player = QMediaPlayer(self)
+        if device is not None:
+            audio_output = QAudioOutput(device, self)
+        else:
+            audio_output = QAudioOutput(self)
+        player.setAudioOutput(audio_output)
+        audio_output.setVolume(self._volume)
+        audio_output.setMuted(self._muted)
+        player.mediaStatusChanged.connect(self._on_media_status)
+        player.errorOccurred.connect(self._on_error)
+        return player, audio_output
 
     # ------------------------------------------------------------------
     # Configuration
@@ -50,9 +67,11 @@ class AudioPlayer(QObject):
 
     def set_volume(self, percent: int) -> None:
         """Set volume 0–100."""
-        self._audio_output.setVolume(max(0.0, min(1.0, percent / 100.0)))
+        self._volume = max(0.0, min(1.0, percent / 100.0))
+        self._audio_output.setVolume(self._volume)
 
     def set_muted(self, muted: bool) -> None:
+        self._muted = muted
         self._audio_output.setMuted(muted)
 
     @property
@@ -69,40 +88,76 @@ class AudioPlayer(QObject):
         self._preferred_device_id = device_id
         self._apply_output_device()
 
-    def _apply_output_device(self) -> None:
-        """Apply the preferred device if available, otherwise system default."""
-        from PyQt6.QtMultimedia import QMediaDevices
+    def _resolve_device(self) -> tuple[str, object | None]:
+        """Resolve preferred device to an actual device.
 
-        volume = self._audio_output.volume()
-        muted = self._audio_output.isMuted()
-
-        old_output = self._audio_output
-
+        Returns (real_device_id, device_object).  When preferred is ""
+        (system default) or the preferred device is unavailable, returns
+        the current system default device.
+        """
         if self._preferred_device_id:
             for dev in QMediaDevices.audioOutputs():
                 if dev.id().data().decode() == self._preferred_device_id:
-                    self._audio_output = QAudioOutput(dev, self)
-                    log.info("Audio output: %s", dev.description())
-                    break
-            else:
-                log.info("Preferred audio device unavailable, falling back to system default")
-                self._audio_output = QAudioOutput(self)
+                    return self._preferred_device_id, dev
+            log.info("Preferred audio device unavailable, falling back to system default")
+
+        default = QMediaDevices.defaultAudioOutput()
+        return default.id().data().decode(), None  # None = use QAudioOutput() default ctor
+
+    def _apply_output_device(self) -> None:
+        """Apply the preferred device if available, otherwise system default.
+
+        Skips recreation when the resolved *real* device matches what's
+        already wired up. When the device genuinely changes, rebuilds the
+        entire QMediaPlayer + QAudioOutput pair — calling setAudioOutput()
+        on an existing player does not reliably rewire the FFmpeg backend's
+        audio pipeline.
+        """
+        resolved_real_id, resolved_dev = self._resolve_device()
+
+        # Skip recreation if the real device already matches
+        if self._active_real_device_id is not None and resolved_real_id == self._active_real_device_id:
+            log.debug("Audio output device unchanged (%s) — skipping recreation", resolved_real_id)
+            return
+
+        log.info("Audio device changing: %s → %s",
+                 self._active_real_device_id or "(none)",
+                 resolved_real_id)
+
+        # Tear down old player completely
+        old_player = self._player
+        old_output = self._audio_output
+        old_player.stop()
+        old_player.setSource(QUrl())
+        old_player.setAudioOutput(None)
+
+        # Build fresh player with the new device
+        self._player, self._audio_output = self._create_player(device=resolved_dev)
+        self._active_real_device_id = resolved_real_id
+
+        if resolved_dev:
+            log.info("Audio output: %s", resolved_dev.description())
         else:
-            self._audio_output = QAudioOutput(self)
+            log.info("Audio output: system default (%s)", resolved_real_id)
 
-        self._audio_output.setVolume(volume)
-        self._audio_output.setMuted(muted)
-        self._player.setAudioOutput(self._audio_output)
+        # Reload source on new player so duration detection carries over
+        if self._sound_file and Path(self._sound_file).is_file():
+            self._player.setSource(QUrl.fromLocalFile(self._sound_file))
 
-        # Clean up the old output now that it's detached from the player
-        if old_output is not self._audio_output:
-            old_output.deleteLater()
+        old_output.deleteLater()
+        old_player.deleteLater()
+
+    def _on_devices_changed(self) -> None:
+        """Called when audio devices are added, removed, or the default changes."""
+        resolved_real_id, _ = self._resolve_device()
+        if resolved_real_id != self._active_real_device_id:
+            log.info("Audio device landscape changed — re-evaluating (active=%s, resolved=%s)",
+                     self._active_real_device_id, resolved_real_id)
+            self._apply_output_device()
 
     @staticmethod
     def available_output_devices() -> list[dict[str, str]]:
         """Return list of available audio output devices."""
-        from PyQt6.QtMultimedia import QMediaDevices
-
         devices = []
         for dev in QMediaDevices.audioOutputs():
             devices.append(

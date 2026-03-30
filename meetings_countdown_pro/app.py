@@ -286,8 +286,7 @@ class App:
         if countdown_settings.mode == "countdown_music" and countdown_settings.sound_file:
             self._audio.set_sound_file(countdown_settings.sound_file)
             self._audio.set_volume(countdown_settings.volume)
-            if countdown_settings.audio_output_device:
-                self._audio.set_output_device(countdown_settings.audio_output_device)
+            self._audio.set_output_device(countdown_settings.audio_output_device)
         self._audio.set_muted(False)
 
         self._countdown_window = CountdownWindow(
@@ -349,8 +348,7 @@ class App:
         if self._settings.sound_file:
             self._audio.set_sound_file(self._settings.sound_file)
         self._audio.set_volume(self._settings.volume)
-        if self._settings.audio_output_device:
-            self._audio.set_output_device(self._settings.audio_output_device)
+        self._audio.set_output_device(self._settings.audio_output_device)
 
     # ------------------------------------------------------------------
     # Test countdown

@@ -2,7 +2,17 @@
 
 ## Problem Statement
 
-Sporadically, when a countdown window opens, no audio plays. Debug logs show no difference between success and failure — the player appears to be playing but produces no sound. Reproducible randomly by running repeated test countdowns. Not affected by audio device choice or other audio settings. Other apps on the same Mac have stable audio.
+Sporadically, when a countdown window opens, no audio plays. Debug logs show no difference between success and failure — the player appears to be playing but produces no sound. Reproducible randomly by running repeated test countdowns. Other apps on the same Mac have stable audio.
+
+### Updated Reproduction (2026-03-30)
+
+The issue is **device-selection dependent**:
+
+1. **"System Default" works consistently** — no sporadic failures observed.
+2. **Selecting a specific device** (any device) causes sporadic silent playback.
+3. **Switching back to "System Default"** after having selected a specific device causes **permanent silence** — no audio for any subsequent countdown until the app is fully restarted.
+
+This was reproduced on both the work laptop and personal laptop.
 
 ---
 
@@ -42,9 +52,18 @@ self._player.setSource(QUrl(...))    # Reload
 
 Both calls are asynchronous. It's possible that on some runs, the second `setSource` arrives before the first has fully cleared, or the `LoadedMedia` callback fires from the *clear* operation and consumes the `_play_on_load` flag before the real load completes.
 
-### H3: QAudioOutput Stale Reference After Device Switching (LOW probability)
+### H3: QAudioOutput Recreation Race Condition (HIGH probability — CONFIRMED as primary cause)
 
-When `_apply_output_device()` runs, it creates a new `QAudioOutput`, attaches it, and calls `deleteLater()` on the old one. If `deleteLater()` hasn't executed yet when playback starts, there could be a transient state where the player's audio output is in limbo. However, device switching only happens on settings change, not on every countdown, so this is less likely to be the primary cause.
+`_apply_output_device()` unconditionally creates a new `QAudioOutput`, attaches it to the player, and calls `deleteLater()` on the old one. This happens on **every countdown launch** (not just settings changes) because the app re-applies the device to handle hotplug scenarios (e.g., Bluetooth device disconnected between countdowns).
+
+The race: `_apply_output_device()` recreates `QAudioOutput`, then `_ensure_source_and_play()` immediately clears and reloads the source. The new `QAudioOutput` may not be fully wired up by the time `LoadedMedia` fires and `play()` is called. This explains the sporadic failures when a specific device is selected.
+
+**Additionally**, there is a bug in `app.py` lines 289-290 and 352-353:
+```python
+if countdown_settings.audio_output_device:
+    self._audio.set_output_device(countdown_settings.audio_output_device)
+```
+When the user switches back to "System Default", `audio_output_device` is `""`, so the `if` guard **skips the call entirely**. The player remains wired to the old specific-device `QAudioOutput`, which may now be stale or invalid. This causes permanent silence until restart.
 
 ### H4: PyQt6 GC Collecting Audio Objects (LOW probability)
 
@@ -313,7 +332,7 @@ Created `tests/audio_stress_test.py` — a configurable stress tester that:
 
 Also created `tests/run_audio_investigation.sh` — a runner that executes all 8 configurations and collects system info + logs into a timestamped directory.
 
-### Step 2: Establish baseline failure rate — IN PROGRESS
+### Step 2: Establish baseline failure rate — DONE
 
 **Personal laptop results** (MacBook, macOS Tahoe, PyQt6 6.10.2, Qt 6.10.0):
 
@@ -323,25 +342,58 @@ Also created `tests/run_audio_investigation.sh` — a runner that executes all 8
 | Headless, fresh player | FFmpeg (default) | 50 | 50 (100%) | 0 |
 | UI contention, reused player | FFmpeg (default) | 50 | 50 (100%) | 0 |
 
-**Conclusion**: Bug does not reproduce on personal laptop. Confirmed FFmpeg is the active backend (`qt.multimedia.ffmpeg: Using Qt multimedia with FFmpeg version 7.1.2`).
+**Work laptop results**: Test suite aborted early — all tests passing. The stress test harness does **not** exercise device selection, which is the actual trigger (see Updated Reproduction above).
 
-**Next**: Run the full 8-configuration matrix on the work laptop where the bug reproduces more frequently. See `tests/README.md` for instructions.
+**Conclusion**: The stress test doesn't reproduce the bug because it uses the system default device. The bug is specific to the device-selection code path.
 
-### Step 3: Test `QT_MEDIA_BACKEND=darwin`
-Included in the test matrix — will run on the work laptop alongside the default backend tests. If the failure rate drops to zero with darwin, this is our fix — one line of code.
+### Step 3: Fix QAudioOutput device-switching bugs — NEXT
 
-### Step 4: Test source reload variations
-If Step 3 doesn't fully resolve it, use the harness to test:
-- Small delay between clear and reload (50ms)
-- Fresh player per cycle vs reused player
-- `stop()` + `setPosition(0)` instead of source clear/reload
+Three issues to fix in `audio_player.py` and `app.py`:
+
+#### Fix 3a: Always call `set_output_device()` (fixes permanent silence on return to System Default)
+
+In `app.py`, the `if` guard around `set_output_device()` skips the call when `audio_output_device` is empty (System Default). This means after switching away from a specific device, the player stays wired to the old (now stale) `QAudioOutput`. Fix: always call `set_output_device()`, passing `""` for System Default.
+
+**Files**: `app.py` lines 289-290, 352-353 — remove the `if` guard.
+
+#### Fix 3b: Skip `QAudioOutput` recreation when device hasn't changed (fixes sporadic failures)
+
+`_apply_output_device()` unconditionally recreates `QAudioOutput` every time it's called, even when the device hasn't changed. This is the root cause of the race condition — the new `QAudioOutput` may not be ready when `play()` fires moments later.
+
+Fix: Track `_active_device_id` (what's actually wired up) separately from `_preferred_device_id` (what the user wants). Only recreate `QAudioOutput` when:
+- The preferred device ID has changed, OR
+- The preferred device is no longer available (hotplug fallback to System Default)
+
+When the active device already matches the preferred device, skip recreation entirely — just return.
+
+**File**: `audio_player.py` `_apply_output_device()` — add early return when device matches.
+
+#### Fix 3c: Preserve hotplug fallback behavior
+
+The per-countdown device check must remain so that if a Bluetooth speaker or docking station is disconnected between countdowns, the app falls back to System Default. The logic in Fix 3b handles this: if the preferred device is no longer in `QMediaDevices.audioOutputs()`, the active device ID won't match, so `QAudioOutput` will be recreated with the system default.
+
+**Sequence after all three fixes:**
+
+1. Countdown starts → `set_output_device("bluetooth-xyz")` called
+2. `_apply_output_device()` checks: is `_active_device_id` already `"bluetooth-xyz"`?
+   - **Yes** → no-op, return immediately (no race condition)
+   - **No** (first time, or device was unplugged and re-plugged) → recreate `QAudioOutput`, update `_active_device_id`
+3. If preferred device not found in available devices → fall back to System Default, set `_active_device_id = ""`
+4. `_ensure_source_and_play()` runs against a stable, already-wired `QAudioOutput`
+
+### Step 4: Validate fixes
+
+- Manually test: select a specific device, run 10+ countdowns → should be 100% reliable
+- Manually test: switch back to System Default → audio should work immediately
+- Manually test: select a Bluetooth device, disconnect it, trigger countdown → should fall back to System Default
+- Update the stress test harness to include a `--device` flag for automated device-selection testing
 
 ### Step 5: Decision point — fix or replace
 
 | If... | Then... |
 |-------|---------|
-| Steps 3-4 achieve 100% reliability | Apply the minimal fix, add the position-polling watchdog (Phase 3), ship it |
-| Failure rate drops but doesn't reach 0% | Consider combining fixes (backend + reload pattern) |
+| Step 3 fixes achieve 100% reliability | Ship it, add position-polling watchdog (Phase 3) for safety |
+| Sporadic failures persist even with no-op optimization | Investigate whether the race is in `_ensure_source_and_play` source reload pattern (H2) |
 | Nothing reliably fixes QMediaPlayer | Replace with PyObjC AVPlayer (Option A) |
 
 ### Step 6: If replacing — implement AVPlayer backend
@@ -354,9 +406,10 @@ If Step 3 doesn't fully resolve it, use the harness to test:
 
 ## Timeline Estimate
 
-- Step 1-2: Build harness + baseline — one session (**personal laptop done**, work laptop pending)
-- Step 3-4: Backend + reload experiments — data collected in Step 2 matrix
-- Step 5: Decision — after work laptop results
+- Step 1-2: Build harness + baseline — DONE (stress test doesn't cover device selection path)
+- Step 3: Fix device-switching bugs — NEXT session (small code change in `audio_player.py` + `app.py`)
+- Step 4: Manual validation — same session as Step 3
+- Step 5: Decision — after Step 4 results
 - Step 6 (if needed): AVPlayer rewrite — one session
 
 ---
@@ -377,7 +430,6 @@ Note: Qt 6.10.0 is very recent. Many of the QTBUG fixes landed in 6.6-6.8, but n
 ## Open Questions
 
 1. ~~**Is FFmpeg or darwin backend actually active?**~~ Confirmed FFmpeg 7.1.2 on personal laptop. Work laptop TBD.
-2. **Does the failure rate change over time?** (e.g., more failures after the player has been alive for minutes vs fresh start)
-3. **Does creating a fresh player per cycle change the failure rate?** No difference on personal laptop. Work laptop TBD.
-4. **Does the work laptop have different Qt/PyQt6 versions?** System info will be captured automatically.
-5. **Does UI contention matter?** No difference on personal laptop. Work laptop TBD — this is the most likely trigger if the hardware/driver is the variable.
+2. ~~**Why doesn't the stress test reproduce the bug?**~~ The stress test uses System Default device. The bug only triggers with explicit device selection.
+3. **Does the fix in Step 3b fully eliminate sporadic failures?** The theory is sound (avoid unnecessary `QAudioOutput` recreation) but needs validation with real-world testing.
+4. **Is there a secondary race in `_ensure_source_and_play`?** If sporadic failures persist after the device-switching fix, the `setSource(QUrl())` → `setSource(file)` pattern (H2) may also need attention.
