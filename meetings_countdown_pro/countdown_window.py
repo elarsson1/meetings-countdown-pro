@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -637,22 +638,32 @@ class CountdownWindow(QWidget):
                 QTimer.singleShot(int(delay * 1000), self._audio.play_now)
 
         # Tick timer — fires every second with offset
-        offset_ms = max(0, self._settings.clock_offset)
+        # Negative offsets wrap: -500ms → ticks 500ms earlier → 500ms delay from
+        # the previous whole-second boundary, equivalent to 1000 - 500 = 500ms.
+        offset_ms = self._settings.clock_offset % 1000
         if offset_ms > 0:
             QTimer.singleShot(offset_ms, self._start_tick_timer)
         else:
             self._start_tick_timer()
 
     def _start_tick_timer(self) -> None:
+        self._tick_epoch = time.monotonic()
+        self._tick_count = 0
         self._tick_timer = QTimer(self)
-        self._tick_timer.setInterval(1000)
+        self._tick_timer.setSingleShot(True)
         self._tick_timer.timeout.connect(self._tick)
-        self._tick_timer.start()
+        self._tick_timer.start(1000)
 
     def _tick(self) -> None:
         now = datetime.now(timezone.utc)
         remaining = (self._target_time - now).total_seconds()
         self._seconds_remaining = max(0, int(math.ceil(remaining)))
+
+        # Schedule next tick anchored to the epoch to prevent drift
+        self._tick_count += 1
+        next_tick_at = self._tick_epoch + self._tick_count * 1.0
+        delay_ms = max(1, int((next_tick_at - time.monotonic()) * 1000))
+        self._tick_timer.start(delay_ms)
 
         if self._seconds_remaining <= 2 and self._phase == "countdown":
             self._enter_action_phase()
