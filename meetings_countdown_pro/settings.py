@@ -31,7 +31,7 @@ class Settings:
     include_tentative: bool = False
     include_all_day: bool = False
     include_free: bool = False
-    back_to_back: str = "countdown_music"  # countdown_music | silent | skip
+    back_to_back: str = "default"  # default | silent | skip
 
     # Audio
     sound_file: str = ""  # absolute path to audio file
@@ -80,8 +80,8 @@ class Settings:
         self.countdown_duration = max(10, min(300, self.countdown_duration))
         self.clock_offset = max(-2000, min(2000, self.clock_offset))
         self.volume = max(0, min(100, self.volume))
-        if self.back_to_back not in ("countdown_music", "silent", "skip"):
-            self.back_to_back = "countdown_music"
+        if self.back_to_back not in ("default", "countdown_music", "silent", "skip"):
+            self.back_to_back = "default"
         if self.mode not in ("countdown_music", "silent", "off"):
             self.mode = "countdown_music"
         if self.agent_terminal not in ("terminal", "iterm2"):

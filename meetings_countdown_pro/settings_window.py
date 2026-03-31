@@ -247,7 +247,7 @@ class SettingsWindow(QDialog):
         gl.addRow(self._include_allday)
 
         self._back_to_back = QComboBox()
-        self._back_to_back.addItems(["Countdown + Music", "Silent Countdown", "Skip Countdown"])
+        self._back_to_back.addItems(["Use Default Behavior", "Silent Countdown", "Skip Countdown"])
         gl.addRow("Back-to-Back Meetings", self._back_to_back)
         layout.addWidget(group)
 
@@ -474,7 +474,7 @@ class SettingsWindow(QDialog):
         self._include_allday.setChecked(s.include_all_day)
         self._include_free.setChecked(s.include_free)
 
-        b2b_map = {"countdown_music": 0, "silent": 1, "skip": 2}
+        b2b_map = {"default": 0, "countdown_music": 0, "silent": 1, "skip": 2}
         self._back_to_back.setCurrentIndex(b2b_map.get(s.back_to_back, 0))
 
         # Calendars — check/uncheck based on selected_calendars
@@ -532,8 +532,8 @@ class SettingsWindow(QDialog):
         s.include_all_day = self._include_allday.isChecked()
         s.include_free = self._include_free.isChecked()
 
-        b2b_map = {0: "countdown_music", 1: "silent", 2: "skip"}
-        s.back_to_back = b2b_map.get(self._back_to_back.currentIndex(), "countdown_music")
+        b2b_map = {0: "default", 1: "silent", 2: "skip"}
+        s.back_to_back = b2b_map.get(self._back_to_back.currentIndex(), "default")
 
         # Calendars
         selected: dict[str, list[str]] = {}

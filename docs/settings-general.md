@@ -76,8 +76,8 @@ Controls what happens when a new meeting's countdown would fire while a previous
 
 | Option | Behavior |
 |---|---|
-| **Countdown + Music** | Full countdown with audio, same as any other meeting. |
+| **Use Default Behavior** | Use whatever your current countdown mode is (Countdown + Music, Silent, or Off) — no override. |
 | **Silent Countdown** | Countdown window appears but audio is suppressed — useful if you're already on a call. |
 | **Skip Countdown** | No countdown window at all. The meeting is still marked as notified. |
 
-**Default:** Countdown + Music
+**Default:** Use Default Behavior

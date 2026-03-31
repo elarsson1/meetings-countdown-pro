@@ -301,11 +301,11 @@ class CalendarService:
         events = self._store.eventsMatchingPredicate_(predicate) or []
 
         for ev in events:
-            if ev.isAllDay():
+            meeting = self._convert_event(ev)
+            if not meeting:
                 continue
-            start_ts = ev.startDate().timeIntervalSince1970()
-            end_ts = ev.endDate().timeIntervalSince1970()
-            now_ts = now.timestamp()
-            if start_ts <= now_ts < end_ts:
+            if not self._passes_filters(meeting, settings):
+                continue
+            if meeting.start <= now < meeting.end:
                 return True
         return False

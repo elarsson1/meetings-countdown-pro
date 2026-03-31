@@ -270,9 +270,10 @@ Manual testing plan covering all functionality defined in SPEC.md v0.5.
 - [X] Test Countdown button ignored while countdown is active
 
 ### 10.2 Back-to-Back Behavior
-- [ ] Setting "Countdown + Music": full countdown during in-progress meeting
+- [ ] Setting "Use Default Behavior": uses current countdown mode during in-progress meeting
 - [ ] Setting "Silent Countdown": visual countdown only, no audio
 - [ ] Setting "Skip Countdown": no window opened, meeting marked as notified
+- [ ] Back-to-back detection respects same filters as normal detection (video-only, declined, tentative, free, all-day)
 
 ---
 

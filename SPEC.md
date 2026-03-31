@@ -380,7 +380,7 @@ A macOS System Preferences-style window with a centered icon toolbar at the top.
 | 9 | Include Tentative | Toggle | No | Whether to include meetings the user has tentatively accepted. |
 | 10 | Include All-Day Events | Toggle | No | Whether to include all-day/multi-day events in countdown triggers. Off by default (all-day events are skipped). |
 | 11 | Include Free Events | Toggle | No | Whether to include events marked "Show As: Free" (focus time, OOO placeholders, FYI blocks). Off by default (free events are skipped). |
-| 12 | Back-to-Back Handling | Dropdown | Countdown + Music | What to do when the previous meeting is still in progress at notification time. Options: "Countdown + Music", "Silent Countdown", "Skip Countdown". |
+| 12 | Back-to-Back Handling | Dropdown | Use Default Behavior | What to do when the previous meeting is still in progress at notification time. Options: "Use Default Behavior", "Silent Countdown", "Skip Countdown". |
 | 13 | Auto-Join at Countdown End | Toggle | Off | When enabled and a video meeting link is detected, automatically open the meeting link when the countdown reaches zero. |
 | 14 | Volume | Slider | 100% | Master volume for countdown audio playback. Range: 0–100%. |
 | 15 | Audio Output Device | Dropdown | System Default | Select audio output device. Options: "System Default" (follows macOS system output) or any currently available audio output device. List is refreshed when the dropdown is opened. |
@@ -445,9 +445,9 @@ This avoids audio/UI conflicts. A future enhancement may merge overlapping meeti
 
 When the countdown for Meeting B would fire while Meeting A is still in progress:
 
-1. Check if any monitored meeting is currently in progress (start ≤ now < end).
+1. Check if any monitored meeting is currently in progress (start ≤ now < end). This check applies the same filters as the normal meeting detection (calendar selection, acceptance status, all-day, free, video-only) so that non-qualifying events do not trigger back-to-back behavior.
 2. If yes, apply the user's "Back-to-Back Handling" setting:
-   - **Countdown + Music:** Full countdown as normal.
+   - **Use Default Behavior:** Use the current countdown mode (Countdown + Music, Silent, or Off) — no override.
    - **Silent Countdown:** Open the countdown window but suppress audio.
    - **Skip Countdown:** Do not open the countdown window. Still mark the meeting as notified.
 
