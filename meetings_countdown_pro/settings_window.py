@@ -241,6 +241,8 @@ class SettingsWindow(QDialog):
         gl = QFormLayout(group)
         self._include_tentative = QCheckBox("Include Tentatively Accepted")
         gl.addRow(self._include_tentative)
+        self._include_free = QCheckBox("Include Free Events")
+        gl.addRow(self._include_free)
         self._include_allday = QCheckBox("Include All-Day Events")
         gl.addRow(self._include_allday)
 
@@ -470,6 +472,7 @@ class SettingsWindow(QDialog):
         self._internal_domain.setText(s.internal_domain)
         self._include_tentative.setChecked(s.include_tentative)
         self._include_allday.setChecked(s.include_all_day)
+        self._include_free.setChecked(s.include_free)
 
         b2b_map = {"countdown_music": 0, "silent": 1, "skip": 2}
         self._back_to_back.setCurrentIndex(b2b_map.get(s.back_to_back, 0))
@@ -527,6 +530,7 @@ class SettingsWindow(QDialog):
         s.internal_domain = self._internal_domain.text().strip()
         s.include_tentative = self._include_tentative.isChecked()
         s.include_all_day = self._include_allday.isChecked()
+        s.include_free = self._include_free.isChecked()
 
         b2b_map = {0: "countdown_music", 1: "silent", 2: "skip"}
         s.back_to_back = b2b_map.get(self._back_to_back.currentIndex(), "countdown_music")

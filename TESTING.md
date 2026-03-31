@@ -90,8 +90,11 @@ Manual testing plan covering all functionality defined in SPEC.md v0.5.
 
 ### 4.3 Filters
 - [X] Declined events are always excluded
-- [X] Tentative events excluded when "Include Tentative" is off
+- [X] Canceled events are always excluded
+- [X] Tentative events excluded when "Include Tentative" is off (acceptance RSVP or "Show As: Tentative")
 - [X] Tentative events included when "Include Tentative" is on
+- [X] Free events excluded when "Include Free Events" is off ("Show As: Free")
+- [X] Free events included when "Include Free Events" is on
 - [X] All-day events excluded when "Include All-Day Events" is off
 - [X] All-day events included when "Include All-Day Events" is on
 - [X] "Video Calls Only" filter: only events with Zoom/Meet/Teams links trigger countdown
@@ -281,6 +284,7 @@ Manual testing plan covering all functionality defined in SPEC.md v0.5.
 - [X] Countdown Duration spin box: range 10–300 seconds
 - [X] Video Calls Only toggle
 - [X] Include Tentative toggle
+- [X] Include Free Events toggle
 - [X] Include All-Day Events toggle
 - [X] Back-to-Back Handling dropdown (3 options)
 - [X] Auto-Join at Countdown End toggle

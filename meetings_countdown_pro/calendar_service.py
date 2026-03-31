@@ -136,8 +136,9 @@ class CalendarService:
             if self._passes_filters(meeting, settings):
                 meetings.append(meeting)
             else:
-                log.debug("Filtered out: %s (status=%s, all_day=%s)",
-                          meeting.title, meeting.acceptance_status, meeting.is_all_day)
+                log.debug("Filtered out: %s (status=%s, all_day=%s, availability=%s)",
+                          meeting.title, meeting.acceptance_status, meeting.is_all_day,
+                          meeting.availability)
 
         meetings.sort(key=lambda m: m.start)
         return meetings
@@ -211,6 +212,14 @@ class CalendarService:
                 name = str(att.name() or "")
                 attendees.append(Attendee.from_raw(name, email, is_organizer=False))
 
+            # Event status (EKEventStatus: 0=None, 1=Confirmed, 2=Tentative, 3=Canceled)
+            status_map = {0: "none", 1: "confirmed", 2: "tentative", 3: "canceled"}
+            event_status = status_map.get(ev.status(), "confirmed")
+
+            # Availability (EKEventAvailability: -1=NotSupported, 0=Busy, 1=Free, 2=Tentative, 3=Unavailable)
+            availability_map = {-1: "not_supported", 0: "busy", 1: "free", 2: "tentative", 3: "unavailable"}
+            availability = availability_map.get(ev.availability(), "busy")
+
             # Acceptance status
             acceptance = "accepted"
             if ev.respondsToSelector_("myStatus"):
@@ -238,6 +247,8 @@ class CalendarService:
                 is_all_day=bool(ev.isAllDay()),
                 is_recurring=bool(ev.hasRecurrenceRules()),
                 acceptance_status=acceptance,
+                availability=availability,
+                status=event_status,
             )
         except Exception:
             log.exception("Failed to convert calendar event")
@@ -245,16 +256,25 @@ class CalendarService:
 
     def _passes_filters(self, meeting: Meeting, settings: Settings) -> bool:
         """Check if a meeting passes the user's configured filters."""
+        # Always exclude canceled events
+        if meeting.status == "canceled":
+            return False
+
         # Always exclude declined
         if meeting.acceptance_status == "declined":
             return False
 
-        # Exclude tentative unless setting is on
-        if meeting.acceptance_status == "tentative" and not settings.include_tentative:
-            return False
+        # Exclude tentative unless setting is on (acceptance RSVP or availability "Show As")
+        if not settings.include_tentative:
+            if meeting.acceptance_status == "tentative" or meeting.availability == "tentative":
+                return False
 
         # Exclude all-day events if configured
         if meeting.is_all_day and not settings.include_all_day:
+            return False
+
+        # Exclude "free" events unless setting is on (availability "Show As: Free")
+        if meeting.availability == "free" and not settings.include_free:
             return False
 
         # Video calls only filter

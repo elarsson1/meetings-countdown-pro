@@ -62,7 +62,7 @@ The application runs as a background process with a macOS menu bar presence, pol
 
 - A `QTimer` fires every **30 seconds** to query macOS EventKit for calendar events.
 - Query window: now → end of local day (23:59:59). This ensures the menu bar always shows the next upcoming meeting regardless of how far away it is.
-- Results are filtered per user configuration (calendar selection, video-only, tentative/accepted, all-day exclusion).
+- Results are filtered per user configuration (calendar selection, video-only, tentative/accepted, all-day exclusion, free-event exclusion). Canceled events (EKEventStatusCanceled) are always excluded.
 - The next eligible meeting is identified and a one-shot `QTimer` is scheduled to trigger the countdown window at exactly `meeting_start - countdown_seconds`.
 
 ### 3.3 State Persistence
@@ -379,10 +379,11 @@ A macOS System Preferences-style window with a centered icon toolbar at the top.
 | 8 | Internal Email Domain | Text field | Empty | e.g., `example.com`. Used to classify attendees as internal vs. external. If empty, all attendees shown in a single list (no internal/external split). |
 | 9 | Include Tentative | Toggle | No | Whether to include meetings the user has tentatively accepted. |
 | 10 | Include All-Day Events | Toggle | No | Whether to include all-day/multi-day events in countdown triggers. Off by default (all-day events are skipped). |
-| 11 | Back-to-Back Handling | Dropdown | Countdown + Music | What to do when the previous meeting is still in progress at notification time. Options: "Countdown + Music", "Silent Countdown", "Skip Countdown". |
-| 12 | Auto-Join at Countdown End | Toggle | Off | When enabled and a video meeting link is detected, automatically open the meeting link when the countdown reaches zero. |
-| 13 | Volume | Slider | 100% | Master volume for countdown audio playback. Range: 0–100%. |
-| 14 | Audio Output Device | Dropdown | System Default | Select audio output device. Options: "System Default" (follows macOS system output) or any currently available audio output device. List is refreshed when the dropdown is opened. |
+| 11 | Include Free Events | Toggle | No | Whether to include events marked "Show As: Free" (focus time, OOO placeholders, FYI blocks). Off by default (free events are skipped). |
+| 12 | Back-to-Back Handling | Dropdown | Countdown + Music | What to do when the previous meeting is still in progress at notification time. Options: "Countdown + Music", "Silent Countdown", "Skip Countdown". |
+| 13 | Auto-Join at Countdown End | Toggle | Off | When enabled and a video meeting link is detected, automatically open the meeting link when the countdown reaches zero. |
+| 14 | Volume | Slider | 100% | Master volume for countdown audio playback. Range: 0–100%. |
+| 15 | Audio Output Device | Dropdown | System Default | Select audio output device. Options: "System Default" (follows macOS system output) or any currently available audio output device. List is refreshed when the dropdown is opened. |
 
 ### 9.3 Test Mode
 
@@ -643,10 +644,12 @@ Every 30 seconds:
   ├─ Query EventKit for events in [now, end of local day]
   │
   ├─ Filter by:
+  │   ├─ Exclude canceled events (always)
   │   ├─ Selected calendar accounts/calendars
   │   ├─ Acceptance status (accepted, optionally tentative)
   │   ├─ Exclude all-day events (if configured)
   │   ├─ Exclude declined events (always)
+  │   ├─ Exclude free events (if configured)
   │   └─ Video call links only (if configured)
   │
   ├─ Exclude already-notified events (check notified.json)

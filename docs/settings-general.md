@@ -54,7 +54,13 @@ The countdown window's attendee summary line (e.g., "8 attendees · 5 internal, 
 
 ### Include Tentatively Accepted
 
-When enabled, meetings you've tentatively accepted will trigger countdowns. When disabled, only meetings you've accepted are included.
+When enabled, meetings you've tentatively accepted — or marked "Show As: Tentative" — will trigger countdowns. When disabled, only confirmed/accepted meetings are included.
+
+**Default:** Off
+
+### Include Free Events
+
+When enabled, events marked "Show As: Free" in your calendar (focus time, OOO placeholders, FYI blocks) will trigger countdowns. When disabled, these events are silently skipped.
 
 **Default:** Off
 

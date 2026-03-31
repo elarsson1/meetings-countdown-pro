@@ -30,6 +30,7 @@ class Settings:
     # Meeting filters
     include_tentative: bool = False
     include_all_day: bool = False
+    include_free: bool = False
     back_to_back: str = "countdown_music"  # countdown_music | silent | skip
 
     # Audio

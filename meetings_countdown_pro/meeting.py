@@ -84,6 +84,8 @@ class Meeting:
     is_all_day: bool = False
     is_recurring: bool = False
     acceptance_status: str = "accepted"  # accepted, tentative, declined, none
+    availability: str = "busy"  # busy, free, tentative, unavailable, not_supported
+    status: str = "confirmed"  # none, confirmed, tentative, canceled
 
     @property
     def notification_key(self) -> str:
