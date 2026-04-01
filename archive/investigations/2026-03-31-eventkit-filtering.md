@@ -1,7 +1,8 @@
 # EventKit Filtering Investigation
 
-**Status:** Open
+**Status:** Resoled
 **Date:** 2026-03-31
+**Fixed In:*** commit '954a1e5' release '0.1.4' 
 
 ## Problem Statement
 

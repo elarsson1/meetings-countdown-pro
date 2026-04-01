@@ -1,7 +1,8 @@
 # Back-to-Back Meeting Handling Investigation
 
-**Status:** Open
+**Status:** Resolved
 **Date:** 2026-03-31
+**Fixed In:*** commit '35168d0' release '0.1.4'
 
 ## Problem Statement
 
