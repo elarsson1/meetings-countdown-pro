@@ -12,6 +12,20 @@ from PyQt6.QtMultimedia import QAudioOutput, QMediaDevices, QMediaPlayer
 log = logging.getLogger(__name__)
 
 
+def compute_audio_sync(
+    audio_duration: float | None, countdown_seconds: float
+) -> tuple[int, float]:
+    """Compute seek position and delay for syncing audio to countdown.
+
+    Returns (seek_position_ms, delay_seconds).
+    """
+    if not audio_duration or audio_duration <= 0:
+        return 0, 0.0
+    if audio_duration >= countdown_seconds:
+        return int((audio_duration - countdown_seconds) * 1000), 0.0
+    return 0, countdown_seconds - audio_duration
+
+
 class AudioPlayer(QObject):
     """Manages countdown audio playback with sync to countdown timing."""
 
@@ -194,26 +208,20 @@ class AudioPlayer(QObject):
             return 0.0
 
         duration = duration_override or self._detected_duration
+        seek_ms, delay = compute_audio_sync(duration, countdown_seconds)
 
-        if not duration or duration <= 0:
-            # Duration unknown — play from start, no sync
-            log.debug("Duration unknown — playing from start without sync")
+        if delay > 0:
             self._pending_seek = 0
-            self._ensure_source_and_play()
-            return 0.0
-
-        if duration >= countdown_seconds:
-            # Audio is longer than or equal to countdown — seek into it
-            self._pending_seek = int((duration - countdown_seconds) * 1000)
-            log.debug("Audio longer than countdown — seeking to %dms", self._pending_seek)
-            self._ensure_source_and_play()
-            return 0.0
-        else:
-            # Audio is shorter — delay playback
-            self._pending_seek = 0
-            delay = countdown_seconds - duration
             log.debug("Audio shorter than countdown — delaying %.1fs", delay)
             return delay
+
+        self._pending_seek = seek_ms
+        if seek_ms:
+            log.debug("Audio longer than countdown — seeking to %dms", seek_ms)
+        else:
+            log.debug("Duration unknown or equal — playing from start")
+        self._ensure_source_and_play()
+        return 0.0
 
     def _ensure_source_and_play(self) -> None:
         """Set source if needed and play once media is loaded."""

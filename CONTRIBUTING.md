@@ -58,10 +58,10 @@ meetings-countdown-pro/
 │   ├── agent_launcher.py          # AI Integration: terminal launch
 │   └── assets/                    # SVG icons
 ├── assets/                        # App icon (SVG source + .icns)
-├── tests/                         # Tests
+├── tests/                         # Automated test suite (pytest + pytest-qt)
 ├── mockups/                       # HTML/CSS design mockups
 ├── SPEC.md                        # Product specification
-└── TESTING.md                     # Manual test plan
+└── TESTING.md                     # Test plan (automated + manual)
 ```
 
 ## Logging and Debugging
@@ -177,13 +177,37 @@ print('Done')
 pyinstaller MeetingsCountdownPro.spec --noconfirm && codesign --force --deep -s - "dist/Meetings Countdown Pro.app"
 ```
 
+## Testing
+
+The project has an automated test suite (165 tests) and a manual test checklist. See [TESTING.md](./TESTING.md) for full details.
+
+### Running Automated Tests
+
+```bash
+pip install -r requirements-dev.txt   # first time only
+pytest -v
+```
+
+Tests cover business logic, event filters, audio sync math, countdown window state, and the App controller. They run in ~1 second with no external dependencies.
+
+### Test Expectations for Changes
+
+Any change to the codebase should include the corresponding test updates:
+
+- **Add or update automated tests** to cover the logic you changed. If you add a new feature with testable business logic, write tests for it. If you fix a bug, add a test that would have caught it.
+- **All automated tests must pass** before submitting a PR. Run `pytest -v` and confirm 0 failures.
+- **Update the manual checklist** in TESTING.md if your change adds new behavior that can only be verified manually (visual appearance, audio playback, macOS system integration, etc.).
+- **Verify related manual tests** before submitting. If your change touches audio playback, run through the audio section of the manual checklist. If it touches the countdown window, visually verify it with Test Countdown in Settings. You don't need to re-run the entire manual checklist — just the sections relevant to your change.
+
 ## Submitting Changes
 
 1. Fork the repository and create a feature branch from `main`.
 2. Make your changes. Try to keep commits focused and well-described.
 3. Test your changes:
+   - Run `pytest -v` and confirm all automated tests pass.
    - Run the app and verify the feature or fix works.
    - Use Test Countdown and Quick Test in Settings to exercise the countdown flow.
+   - Verify any manual test items from [TESTING.md](./TESTING.md) that relate to your change.
    - If you changed packaging or assets, do a full build and verify the `.app` launches.
 4. Open a pull request against `main` with a clear description of what changed and why.
 
@@ -198,5 +222,5 @@ rm -rf ~/.config/meetings-countdown-pro/
 ## Key References
 
 - [SPEC.md](./SPEC.md) — full product specification
-- [TESTING.md](./TESTING.md) — manual test plan
+- [TESTING.md](./TESTING.md) — test plan (automated + manual)
 - [mockups/](./mockups/) — HTML/CSS design mockups for all UI states

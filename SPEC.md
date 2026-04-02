@@ -513,7 +513,9 @@ When the countdown for Meeting B would fire while Meeting A is still in progress
 ```
 meetings-countdown-pro/
 ├── README.md
-├── requirements.txt           # Pinned dependencies
+├── requirements.txt           # Runtime dependencies
+├── requirements-dev.txt       # Dev dependencies (pytest, pytest-qt)
+├── pyproject.toml             # pytest configuration
 ├── meetings_countdown_pro.spec # PyInstaller spec for .app packaging
 ├── main.py                    # Entry point
 ├── meetings_countdown_pro/    # Main package
@@ -536,6 +538,7 @@ meetings-countdown-pro/
 │       ├── speaker.svg
 │       ├── speaker_muted.svg
 │       └── globe_placeholder.svg
+├── tests/                     # Automated test suite (pytest + pytest-qt)
 ├── venv/                      # Virtual environment (gitignored)
 └── .gitignore
 ```
@@ -558,6 +561,8 @@ meetings-countdown-pro/
 | `pyobjc-framework-EventKit` | Calendar access |
 | `requests` | Favicon HTTP fetches |
 | `pyinstaller` | macOS .app packaging (dev dependency) |
+| `pytest` | Automated test runner (dev dependency) |
+| `pytest-qt` | PyQt6 widget testing fixtures (dev dependency) |
 
 ### 14.5 Logging & Diagnostics
 
