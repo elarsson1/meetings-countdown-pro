@@ -53,7 +53,7 @@ Or, if you're impatient (understandable), click **Test Countdown** at the bottom
 
 ## 7. Join Your Meeting
 
-When the countdown appears, you'll see the meeting title, time, and attendee list on the left, with the countdown timer on the right. Click **Join Now** at any point, or enable **Auto-Join** in General settings to have the meeting link open automatically when the countdown ends.
+When the countdown appears, you'll see the meeting title, time, and attendee list on the left, with the countdown timer on the right. Click **Join Now** at any point to open the meeting link and close the countdown window. Or enable **Auto-Join** in General settings to have the link open automatically when the countdown ends. If you'd rather bring the drama with you into the meeting, enable **Continue countdown after joining** in **Settings** to keep the window open while you join.
 
 ![Countdown](images/countdown.png)
 

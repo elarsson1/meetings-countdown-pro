@@ -77,6 +77,7 @@ class TestPersistence:
             clock_offset=-500,
             agent_enabled=True,
             agent_terminal="iterm2",
+            continue_after_join=True,
             selected_calendars={"iCloud": ["Work", "Personal"]},
         )
         s.save()
@@ -89,6 +90,7 @@ class TestPersistence:
         assert loaded.clock_offset == -500
         assert loaded.agent_enabled is True
         assert loaded.agent_terminal == "iterm2"
+        assert loaded.continue_after_join is True
         assert loaded.selected_calendars == {"iCloud": ["Work", "Personal"]}
 
     def test_load_missing_file(self, config_dir):
@@ -113,3 +115,7 @@ class TestPersistence:
         loaded = Settings.load()
         assert loaded.countdown_duration == 90
         assert loaded.volume == 100  # default filled in
+
+    def test_continue_after_join_defaults_false(self):
+        s = Settings()
+        assert s.continue_after_join is False

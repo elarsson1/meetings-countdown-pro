@@ -166,6 +166,54 @@ class TestJoinButton:
 
 
 # ===================================================================
+# Join closes window (default) / continue_after_join
+# ===================================================================
+
+class TestJoinClosesWindow:
+    def test_join_closes_window_by_default(self, qtbot, monkeypatch):
+        monkeypatch.setattr("meetings_countdown_pro.countdown_window.QDesktopServices.openUrl", lambda url: True)
+        win, _ = _make_window(qtbot, [_meeting(video_link="https://zoom.us/j/123")])
+        with qtbot.waitSignal(win.closed, timeout=1000):
+            win._handle_join("https://zoom.us/j/123")
+
+    def test_join_keeps_window_when_continue_after_join(self, qtbot, monkeypatch):
+        monkeypatch.setattr("meetings_countdown_pro.countdown_window.QDesktopServices.openUrl", lambda url: True)
+        win, _ = _make_window(qtbot, [_meeting(video_link="https://zoom.us/j/123")], continue_after_join=True)
+        win._handle_join("https://zoom.us/j/123")
+        assert win.isVisible()
+
+    def test_join_opens_url(self, qtbot, monkeypatch):
+        opened_urls = []
+        monkeypatch.setattr("meetings_countdown_pro.countdown_window.QDesktopServices.openUrl", lambda url: opened_urls.append(url.toString()))
+        win, _ = _make_window(qtbot, [_meeting(video_link="https://zoom.us/j/123")])
+        win._handle_join("https://zoom.us/j/123")
+        assert len(opened_urls) == 1
+        assert "zoom.us" in opened_urls[0]
+
+    def test_multi_meeting_join_closes_window(self, qtbot, monkeypatch):
+        monkeypatch.setattr("meetings_countdown_pro.countdown_window.QDesktopServices.openUrl", lambda url: True)
+        now = datetime.now(timezone.utc) + timedelta(seconds=30)
+        m1 = Meeting(uid="a", title="A", start=now, end=now + timedelta(hours=1),
+                     calendar_name="Work", url="https://zoom.us/j/111")
+        m2 = Meeting(uid="b", title="B", start=now, end=now + timedelta(hours=1),
+                     calendar_name="Work", url="https://meet.google.com/abc-defg-hij")
+        win, _ = _make_window(qtbot, [m1, m2])
+        with qtbot.waitSignal(win.closed, timeout=1000):
+            win._handle_join("https://zoom.us/j/111")
+
+    def test_multi_meeting_join_keeps_window_when_continue(self, qtbot, monkeypatch):
+        monkeypatch.setattr("meetings_countdown_pro.countdown_window.QDesktopServices.openUrl", lambda url: True)
+        now = datetime.now(timezone.utc) + timedelta(seconds=30)
+        m1 = Meeting(uid="a", title="A", start=now, end=now + timedelta(hours=1),
+                     calendar_name="Work", url="https://zoom.us/j/111")
+        m2 = Meeting(uid="b", title="B", start=now, end=now + timedelta(hours=1),
+                     calendar_name="Work", url="https://meet.google.com/abc-defg-hij")
+        win, _ = _make_window(qtbot, [m1, m2], continue_after_join=True)
+        win._handle_join("https://zoom.us/j/111")
+        assert win.isVisible()
+
+
+# ===================================================================
 # Mute button visibility
 # ===================================================================
 

@@ -404,7 +404,7 @@ class CountdownWindow(QWidget):
         # Wire join button
         video_link = self._meetings[0].video_link if not self._is_multi else None
         if video_link:
-            self._join_btn.clicked.connect(lambda: QDesktopServices.openUrl(QUrl(video_link)))
+            self._join_btn.clicked.connect(lambda: self._handle_join(video_link))
         else:
             self._join_btn.hide()
         if self._is_multi:
@@ -532,10 +532,16 @@ class CountdownWindow(QWidget):
                     """
                 )
                 join_btn.setFixedWidth(180)
-                join_btn.clicked.connect(lambda _, url=link: QDesktopServices.openUrl(QUrl(url)))
+                join_btn.clicked.connect(lambda _, url=link: self._handle_join(url))
                 self._left_layout.addWidget(join_btn)
 
         self._left_layout.addStretch()
+
+    def _handle_join(self, url: str) -> None:
+        """Open meeting link and optionally close the countdown window."""
+        QDesktopServices.openUrl(QUrl(url))
+        if not self._settings.continue_after_join:
+            self.close()
 
     def _add_section_header(self, text: str, color: QColor, top_margin: int = 0) -> None:
         if top_margin:

@@ -23,6 +23,7 @@ class Settings:
     countdown_duration: int = 60  # seconds, 10–300
     video_calls_only: bool = False
     auto_join: bool = False
+    continue_after_join: bool = False
 
     # Organization
     internal_domain: str = ""

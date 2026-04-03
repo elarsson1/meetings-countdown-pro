@@ -200,7 +200,8 @@ When two or more meetings start at the same time, all meetings are listed sequen
   - **Google Meet:** `https://meet.google.com/...`
   - **Microsoft Teams:** `https://teams.microsoft.com/l/meetup-join/...`
 - If multiple links are found, use the first match (priority order: URL field > location > notes).
-- **Action:** Opens the meeting link in the system default browser via `QDesktopServices.openUrl()`.
+- **Action:** Opens the meeting link in the system default browser via `QDesktopServices.openUrl()` and closes the countdown window.
+- **Continue after join:** If the "Continue Countdown After Joining" setting is enabled, the countdown window remains open after clicking Join Now instead of closing.
 - **Auto-join option:** If the "Auto-Join at Countdown End" setting is enabled, the meeting link is automatically opened when the countdown reaches zero. The Join Now button remains available for manual use at any time during the countdown.
 - **Style:** Prominent, high-contrast button (e.g., green or blue).
 
@@ -382,6 +383,7 @@ A macOS System Preferences-style window with a centered icon toolbar at the top.
 | 11 | Include Free Events | Toggle | No | Whether to include events marked "Show As: Free" (focus time, OOO placeholders, FYI blocks). Off by default (free events are skipped). |
 | 12 | Back-to-Back Handling | Dropdown | Use Default Behavior | What to do when the previous meeting is still in progress at notification time. Options: "Use Default Behavior", "Silent Countdown", "Skip Countdown". |
 | 13 | Auto-Join at Countdown End | Toggle | Off | When enabled and a video meeting link is detected, automatically open the meeting link when the countdown reaches zero. |
+| 13b | Continue Countdown After Joining | Toggle | Off | When enabled, clicking Join Now (or an inline Join button for simultaneous meetings) keeps the countdown window open instead of closing it. |
 | 14 | Volume | Slider | 100% | Master volume for countdown audio playback. Range: 0–100%. |
 | 15 | Audio Output Device | Dropdown | System Default | Select audio output device. Options: "System Default" (follows macOS system output) or any currently available audio output device. List is refreshed when the dropdown is opened. |
 

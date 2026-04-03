@@ -225,6 +225,9 @@ class SettingsWindow(QDialog):
 
         self._auto_join = QCheckBox("Automatically open meeting link at countdown end")
         gl.addRow(self._auto_join)
+
+        self._continue_after_join = QCheckBox("Continue countdown after joining")
+        gl.addRow(self._continue_after_join)
         layout.addWidget(group)
 
         # Organization
@@ -469,6 +472,7 @@ class SettingsWindow(QDialog):
         self._duration_spin.setValue(s.countdown_duration)
         self._video_only.setChecked(s.video_calls_only)
         self._auto_join.setChecked(s.auto_join)
+        self._continue_after_join.setChecked(s.continue_after_join)
         self._internal_domain.setText(s.internal_domain)
         self._include_tentative.setChecked(s.include_tentative)
         self._include_allday.setChecked(s.include_all_day)
@@ -527,6 +531,7 @@ class SettingsWindow(QDialog):
         s.countdown_duration = self._duration_spin.value()
         s.video_calls_only = self._video_only.isChecked()
         s.auto_join = self._auto_join.isChecked()
+        s.continue_after_join = self._continue_after_join.isChecked()
         s.internal_domain = self._internal_domain.text().strip()
         s.include_tentative = self._include_tentative.isChecked()
         s.include_all_day = self._include_allday.isChecked()

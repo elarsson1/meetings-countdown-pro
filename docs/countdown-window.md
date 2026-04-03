@@ -32,7 +32,7 @@ If no Internal Email Domain is configured, all attendees appear in a single flat
 ### Right Panel — Countdown & Join
 
 - **Countdown timer** — large, bold seconds display (e.g., `83`). Always whole seconds, no MM:SS format.
-- **Join Now button** — opens the meeting link in your default browser. Supports Zoom, Microsoft Teams, and Google Meet links. The button only appears when a video link is detected in the calendar event.
+- **Join Now button** — opens the meeting link in your default browser and closes the countdown window. Supports Zoom, Microsoft Teams, and Google Meet links. Only appears when a video link is detected. If you'd rather bring the drama with you into the meeting and watch the full animation play out, enable [Continue countdown after joining](settings-general.md#continue-countdown-after-joining) in Settings.
 - **Mute toggle** (bottom-right) — mutes/unmutes audio without stopping playback, so timing stays in sync. Only visible when audio is actually playing (hidden in Silent mode or when no sound file is configured).
 
 ## Simultaneous Meetings
@@ -41,6 +41,7 @@ When two or more meetings start at the same time, all meetings are listed in the
 
 - The right-side Join Now button is hidden (use each meeting's inline button instead).
 - **Auto-join is disabled** — you choose which meeting to join.
+- Clicking any inline Join button opens the link and closes the countdown window.
 - The countdown clock still counts down to the shared start time.
 
 ## End-of-Countdown Sequence
@@ -55,7 +56,7 @@ The countdown area transitions to a movie clapperboard with "ACTION!" text. The 
 
 ### Phase 2 — LIVE (persists)
 
-The clapperboard transitions to a red pulsing "LIVE" badge, styled like a broadcast studio tally light. The window stays open until you close it, so you can still use the Join Now button.
+The clapperboard transitions to a red pulsing "LIVE" badge, styled like a broadcast studio tally light. The window stays open until you close it or click Join Now.
 
 ![LIVE](images/live.png)
 

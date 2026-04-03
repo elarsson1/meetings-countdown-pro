@@ -17,14 +17,14 @@ pytest -v
 | Test file | Tests | What it covers |
 |-----------|-------|----------------|
 | `test_meeting.py` | 44 | Attendee parsing, video link regex (Zoom/Meet/Teams), classify attendees, summary, JSON serialization, notification key |
-| `test_settings.py` | 21 | Validation clamping (duration, offset, volume, enums), save/load round-trip, corrupt/missing file handling |
+| `test_settings.py` | 22 | Validation clamping (duration, offset, volume, enums), save/load round-trip, corrupt/missing file handling, continue_after_join default |
 | `test_notification_state.py` | 9 | Mark/check, persistence across instances, 24h pruning, corrupt file recovery |
 | `test_agent_launcher.py` | 15 | JSON building, command assembly, shell escaping, script writing, launch orchestration |
 | `test_filters.py` | 18 | Full filter matrix (canceled, declined, tentative, all-day, free, video-only, combinations) |
 | `test_audio_sync.py` | 8 | Audio sync math: seek position + delay for all D vs C scenarios including late start |
-| `test_countdown_window.py` | 20 | Phase transitions, join/mute button visibility, close signals, color transitions, multi-meeting rendering |
+| `test_countdown_window.py` | 25 | Phase transitions, join/mute button visibility, close signals, color transitions, multi-meeting rendering, join-closes-window behavior |
 | `test_app.py` | 20 | Polling, scheduling, dedup, back-to-back handling (skip/silent/default), mode toggle, one-at-a-time |
-| **Total** | **165** | **~1 second runtime** |
+| **Total** | **172** | **~1 second runtime** |
 
 The manual checklist below covers everything that the automated tests do not: visual appearance, real audio playback, live EventKit integration, macOS system behavior, and end-to-end workflows.
 
@@ -129,12 +129,17 @@ The manual checklist below covers everything that the automated tests do not: vi
 - [ ] Each domain group shows favicon + domain name
 - [ ] Left pane scrollable when attendee list is long
 
-#### 5.4 Video Link
+#### 5.4 Video Link & Join Behavior
 - [ ] "Join Now" opens link in system default browser
+- [ ] "Join Now" closes countdown window (default behavior)
+- [ ] With "Continue countdown after joining" enabled, window stays open after joining
+- [ ] Window close after join emits closed signal (audio stops, poll resumes)
 
 #### 5.5 Simultaneous Meetings
 - [ ] Auto-join is disabled for simultaneous meetings
 - [ ] Countdown still counts down to the shared start time
+- [ ] Clicking any inline "Join" button closes the countdown window (default)
+- [ ] With "Continue countdown after joining" enabled, inline join keeps window open
 
 #### 5.6 Favicon Handling
 - [ ] Favicons fetched and displayed for external attendee domains
@@ -233,6 +238,7 @@ The manual checklist below covers everything that the automated tests do not: vi
 - [ ] Include Free Events toggle
 - [ ] Include All-Day Events toggle
 - [ ] Auto-Join at Countdown End toggle
+- [ ] Continue Countdown After Joining toggle (default unchecked)
 - [ ] Internal Email Domain text field
 
 #### 11.2 Calendars Tab

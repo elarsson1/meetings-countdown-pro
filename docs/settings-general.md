@@ -37,6 +37,12 @@ When enabled and a video meeting link is detected, the link is automatically ope
 
 **Default:** Off
 
+### Continue countdown after joining
+
+By default, clicking **Join Now** (or an inline Join button for simultaneous meetings) opens the meeting link and **closes the countdown window**. Enable this option to bring the drama with you into the meeting — the countdown window stays open so you can watch the full ACTION! clapperboard and LIVE animation play out while your colleagues wonder why you look so excited to be here.
+
+**Default:** Off
+
 ## Organization
 
 ### Internal Email Domain
