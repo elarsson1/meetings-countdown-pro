@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import logging
 import math
 import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
+
+log = logging.getLogger(__name__)
 
 from PyQt6.QtCore import (
     QEasingCurve,
@@ -188,6 +191,7 @@ class CountdownWindow(QWidget):
         # State
         self._seconds_remaining = 0
         self._phase = "countdown"  # countdown | action | live
+        self._audio_correction_s = 0.0  # seconds, set by audio pipeline
         self._drag_pos: Optional[QPoint] = None
 
         # Window setup
@@ -205,6 +209,9 @@ class CountdownWindow(QWidget):
 
         # Connect favicon updates
         self._favicons.favicon_ready.connect(self._on_favicon_ready)
+
+        # Audio correction for tick/beat alignment
+        self._audio.audio_correction_ready.connect(self._on_audio_correction)
 
         # Request favicons for external domains
         for meeting in meetings:
@@ -647,6 +654,10 @@ class CountdownWindow(QWidget):
         # Negative offsets wrap: -500ms → ticks 500ms earlier → 500ms delay from
         # the previous whole-second boundary, equivalent to 1000 - 500 = 500ms.
         offset_ms = self._settings.clock_offset % 1000
+        log.debug(
+            "Scheduling tick timer: clock_offset=%dms, effective_offset=%dms",
+            self._settings.clock_offset, offset_ms,
+        )
         if offset_ms > 0:
             QTimer.singleShot(offset_ms, self._start_tick_timer)
         else:
@@ -659,22 +670,41 @@ class CountdownWindow(QWidget):
         self._tick_timer.setSingleShot(True)
         self._tick_timer.timeout.connect(self._tick)
         self._tick_timer.start(1000)
+        log.debug(
+            "Tick timer started: epoch=%.3f, audio_correction=%.1fms",
+            self._tick_epoch, self._audio_correction_s * 1000,
+        )
 
     def _tick(self) -> None:
         now = datetime.now(timezone.utc)
         remaining = (self._target_time - now).total_seconds()
         self._seconds_remaining = max(0, int(math.ceil(remaining)))
 
-        # Schedule next tick anchored to the epoch to prevent drift
+        # Schedule next tick anchored to the epoch to prevent drift.
+        # audio_correction_s shifts ticks to align with actual audio beats.
         self._tick_count += 1
-        next_tick_at = self._tick_epoch + self._tick_count * 1.0
+        next_tick_at = (
+            self._tick_epoch + self._tick_count * 1.0 + self._audio_correction_s
+        )
         delay_ms = max(1, int((next_tick_at - time.monotonic()) * 1000))
         self._tick_timer.start(delay_ms)
+        log.debug(
+            "Tick #%d: remaining=%ds, next_in=%dms, correction=%.1fms",
+            self._tick_count, self._seconds_remaining, delay_ms,
+            self._audio_correction_s * 1000,
+        )
 
         if self._seconds_remaining <= 2 and self._phase == "countdown":
             self._enter_action_phase()
         else:
             self._update_display()
+
+    def _on_audio_correction(self, correction_ms: int) -> None:
+        self._audio_correction_s = correction_ms / 1000.0
+        log.info(
+            "Audio correction applied: %dms (ticks shifted by %.1fms)",
+            correction_ms, self._audio_correction_s * 1000,
+        )
 
     def _update_display(self) -> None:
         s = self._seconds_remaining

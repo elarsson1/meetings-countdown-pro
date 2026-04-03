@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import time
 from pathlib import Path
 from typing import Optional
 
@@ -30,6 +31,7 @@ class AudioPlayer(QObject):
     """Manages countdown audio playback with sync to countdown timing."""
 
     duration_detected = pyqtSignal(float)  # seconds
+    audio_correction_ready = pyqtSignal(int)  # correction in ms
 
     def __init__(self, parent: Optional[QObject] = None) -> None:
         super().__init__(parent)
@@ -38,6 +40,7 @@ class AudioPlayer(QObject):
         self._sound_file: str = ""
         self._play_on_load: bool = False
         self._pending_seek: int = 0
+        self._expected_play_time: Optional[float] = None  # monotonic timestamp
         self._preferred_device_id: str = ""
         self._active_real_device_id: Optional[str] = None  # actual device ID wired up
         self._volume: float = 1.0
@@ -60,6 +63,7 @@ class AudioPlayer(QObject):
         audio_output.setVolume(self._volume)
         audio_output.setMuted(self._muted)
         player.mediaStatusChanged.connect(self._on_media_status)
+        player.playbackStateChanged.connect(self._on_playback_state)
         player.errorOccurred.connect(self._on_error)
         return player, audio_output
 
@@ -212,6 +216,7 @@ class AudioPlayer(QObject):
 
         if delay > 0:
             self._pending_seek = 0
+            self._expected_play_time = time.monotonic() + delay
             log.debug("Audio shorter than countdown — delaying %.1fs", delay)
             return delay
 
@@ -220,6 +225,7 @@ class AudioPlayer(QObject):
             log.debug("Audio longer than countdown — seeking to %dms", seek_ms)
         else:
             log.debug("Duration unknown or equal — playing from start")
+        self._expected_play_time = time.monotonic()
         self._ensure_source_and_play()
         return 0.0
 
@@ -304,6 +310,22 @@ class AudioPlayer(QObject):
                 log.debug("LoadedMedia but play_on_load is False — not auto-playing")
         elif status == QMediaPlayer.MediaStatus.EndOfMedia:
             log.debug("Audio playback reached end of media")
+
+    def _on_playback_state(self, state: QMediaPlayer.PlaybackState) -> None:
+        if (
+            state == QMediaPlayer.PlaybackState.PlayingState
+            and self._expected_play_time is not None
+        ):
+            actual = time.monotonic()
+            delta_ms = (actual - self._expected_play_time) * 1000
+            correction_ms = int(delta_ms) % 1000
+            log.info(
+                "Audio playback started: expected=%.3f, actual=%.3f, "
+                "delta=%.1fms, correction=%dms",
+                self._expected_play_time, actual, delta_ms, correction_ms,
+            )
+            self._expected_play_time = None
+            self.audio_correction_ready.emit(correction_ms)
 
     def _on_error(self, error: QMediaPlayer.Error, message: str) -> None:
         log.warning("Audio player error: %s — %s", error, message)

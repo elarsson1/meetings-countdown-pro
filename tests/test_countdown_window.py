@@ -21,6 +21,7 @@ from meetings_countdown_pro.settings import Settings
 
 class StubAudioPlayer(QObject):
     duration_detected = pyqtSignal(float)
+    audio_correction_ready = pyqtSignal(int)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -301,6 +302,27 @@ class TestCountdownDisplay:
         win._update_display()
         style = win._countdown_label.styleSheet()
         assert "ef4444" in style.lower()  # red
+
+
+# ===================================================================
+# Audio correction
+# ===================================================================
+
+class TestAudioCorrection:
+    def test_correction_defaults_to_zero(self, qtbot):
+        win, _ = _make_window(qtbot, [_meeting()])
+        assert win._audio_correction_s == 0.0
+
+    def test_correction_applied_from_signal(self, qtbot):
+        win, audio = _make_window(qtbot, [_meeting()])
+        audio.audio_correction_ready.emit(150)
+        assert win._audio_correction_s == pytest.approx(0.150)
+
+    def test_correction_mod_1000(self, qtbot):
+        """Correction from AudioPlayer is already mod 1000, verify it's stored as-is."""
+        win, audio = _make_window(qtbot, [_meeting()])
+        audio.audio_correction_ready.emit(750)
+        assert win._audio_correction_s == pytest.approx(0.750)
 
 
 # ===================================================================
