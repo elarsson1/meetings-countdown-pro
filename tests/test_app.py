@@ -123,11 +123,23 @@ class TestPolling:
         app, _ = mock_app(meetings=[])
         assert app._next_meeting is None
 
-    def test_poll_mode_off_skips(self, mock_app):
+    def test_poll_mode_off_still_shows_next_meeting(self, mock_app):
         m = _future_meeting(120)
         app, cal = mock_app(meetings=[m], mode="off")
-        # When mode is off, _poll sets _next_meeting to None
-        assert app._next_meeting is None
+        # Mode off should still populate next meeting for display
+        assert app._next_meeting is not None
+        assert app._next_meeting.uid == "uid-001"
+
+    def test_poll_mode_off_shows_next_meeting_display(self, mock_app):
+        m = _future_meeting(120)
+        app, _ = mock_app(meetings=[m], mode="off")
+        assert "Next:" in app._next_meeting_action.text()
+
+    def test_poll_mode_off_no_trigger_timer(self, mock_app):
+        m = _future_meeting(120)
+        app, _ = mock_app(meetings=[m], mode="off")
+        # No countdown should be scheduled when mode is off
+        assert app._trigger_timer is None or not app._trigger_timer.isActive()
 
     def test_poll_timer_interval(self, mock_app):
         app, _ = mock_app()
@@ -164,6 +176,13 @@ class TestNextMeetingDisplay:
         app, _ = mock_app(meetings=[m])
         text = app._next_meeting_action.text()
         assert "Next:" in text
+
+    def test_mode_off_still_shows_meeting(self, mock_app):
+        m = _future_meeting(120, title="Standup")
+        app, _ = mock_app(meetings=[m], mode="off")
+        text = app._next_meeting_action.text()
+        assert "Next:" in text
+        assert "Standup" in text
 
 
 # ===================================================================

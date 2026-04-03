@@ -190,10 +190,6 @@ class App:
     def _poll(self) -> None:
         """Poll for upcoming meetings and schedule the next countdown."""
         log.debug("Polling for upcoming meetings (mode=%s)", self._settings.mode)
-        if self._settings.mode == "off":
-            self._next_meeting = None
-            self._update_next_meeting_display()
-            return
 
         meetings = self._calendar.fetch_upcoming(self._settings)
         log.info("Poll: %d meeting(s) found today", len(meetings))
@@ -230,6 +226,9 @@ class App:
         self._next_meeting = primary
         self._update_next_meeting_display()
         log.info("Next meeting: %s at %s", primary.title, primary.start.astimezone().strftime("%H:%M"))
+
+        if self._settings.mode == "off":
+            return
 
         # Calculate trigger time
         trigger_time = primary.start - timedelta(seconds=self._settings.countdown_duration)
