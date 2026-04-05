@@ -203,59 +203,243 @@ class SettingsWindow(QDialog):
         layout.setContentsMargins(28, 24, 28, 24)
         layout.setSpacing(16)
 
-        # Startup
+        # Row 1: Startup (left) + Organization (right)
+        top_row = QHBoxLayout()
+        top_row.setSpacing(16)
+
         group = QGroupBox("Startup")
         gl = QFormLayout(group)
         self._launch_login = QCheckBox("Launch at Login")
         gl.addRow(self._launch_login)
-        layout.addWidget(group)
+        top_row.addWidget(group, 1)
+
+        group = QGroupBox("Organization")
+        gl = QVBoxLayout(group)
+        gl.addWidget(QLabel("Internal Email Domain"))
+        self._internal_domain = QLineEdit()
+        self._internal_domain.setPlaceholderText("example.com")
+        gl.addWidget(self._internal_domain)
+        top_row.addWidget(group, 1)
+
+        layout.addLayout(top_row)
+
+        # Row 2: Countdown (left) + Meeting Filters (right)
+        mid_row = QHBoxLayout()
+        mid_row.setSpacing(16)
 
         # Countdown
         group = QGroupBox("Countdown")
-        gl = QFormLayout(group)
+        gl = QVBoxLayout(group)
+        gl.setSpacing(6)
 
+        dur_row = QHBoxLayout()
+        dur_row.addWidget(QLabel("Countdown Duration"))
         self._duration_spin = QSpinBox()
         self._duration_spin.setRange(10, 300)
         self._duration_spin.setSuffix(" sec")
         self._duration_spin.setMaximumWidth(120)
-        gl.addRow("Countdown Duration", self._duration_spin)
+        dur_row.addWidget(self._duration_spin)
+        dur_row.addStretch()
+        gl.addLayout(dur_row)
 
-        self._video_only = QCheckBox("Only countdown for meetings with video links")
-        gl.addRow(self._video_only)
+        self._video_only = QCheckBox("Only for video meetings")
+        gl.addWidget(self._video_only)
 
-        self._auto_join = QCheckBox("Automatically open meeting link at countdown end")
-        gl.addRow(self._auto_join)
+        self._auto_join = QCheckBox("Auto-open link when done")
+        gl.addWidget(self._auto_join)
 
-        self._continue_after_join = QCheckBox("Continue countdown after joining")
-        gl.addRow(self._continue_after_join)
-        layout.addWidget(group)
+        self._continue_after_join = QCheckBox("Continue after joining")
+        gl.addWidget(self._continue_after_join)
 
-        # Organization
-        group = QGroupBox("Organization")
-        gl = QFormLayout(group)
-        self._internal_domain = QLineEdit()
-        self._internal_domain.setPlaceholderText("example.com")
-        self._internal_domain.setMaximumWidth(200)
-        gl.addRow("Internal Email Domain", self._internal_domain)
-        layout.addWidget(group)
+        b2b_row = QHBoxLayout()
+        b2b_row.addWidget(QLabel("Back-to-Back"))
+        self._back_to_back = QComboBox()
+        self._back_to_back.addItems(["Default", "Silent", "Skip"])
+        b2b_row.addWidget(self._back_to_back)
+        b2b_row.addStretch()
+        gl.addLayout(b2b_row)
+
+        mid_row.addWidget(group, 1)
 
         # Meeting Filters
         group = QGroupBox("Meeting Filters")
-        gl = QFormLayout(group)
-        self._include_tentative = QCheckBox("Include Tentatively Accepted")
-        gl.addRow(self._include_tentative)
+        gl = QVBoxLayout(group)
+        gl.setSpacing(6)
+        self._include_tentative = QCheckBox("Include Tentative")
+        gl.addWidget(self._include_tentative)
         self._include_free = QCheckBox("Include Free Events")
-        gl.addRow(self._include_free)
+        gl.addWidget(self._include_free)
         self._include_allday = QCheckBox("Include All-Day Events")
-        gl.addRow(self._include_allday)
+        gl.addWidget(self._include_allday)
+        gl.addStretch()
+        mid_row.addWidget(group, 1)
 
-        self._back_to_back = QComboBox()
-        self._back_to_back.addItems(["Use Default Behavior", "Silent Countdown", "Skip Countdown"])
-        gl.addRow("Back-to-Back Meetings", self._back_to_back)
+        layout.addLayout(mid_row)
+
+        # Working Hours
+        group = QGroupBox("Working Hours")
+        gl = QFormLayout(group)
+
+        self._wh_enabled = QCheckBox("Only start countdowns during working hours")
+        self._wh_enabled.toggled.connect(self._toggle_working_hours)
+        gl.addRow(self._wh_enabled)
+
+        # Day toggle buttons (Sun=6, Mon=0, Tue=1, ... Sat=5 in Python weekday())
+        day_row = QHBoxLayout()
+        day_row.setSpacing(4)
+        self._wh_day_buttons: list[QPushButton] = []
+        # Display order: Sun, Mon, Tue, Wed, Thu, Fri, Sat
+        # Python weekday():  6,   0,   1,   2,   3,   4,   5
+        self._wh_day_order = [6, 0, 1, 2, 3, 4, 5]
+        day_labels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+        for label in day_labels:
+            btn = QPushButton(label)
+            btn.setCheckable(True)
+            btn.setFixedSize(42, 26)
+            btn.setStyleSheet(self._day_button_style())
+            btn.toggled.connect(lambda _: self._update_day_button_styles())
+            day_row.addWidget(btn)
+            self._wh_day_buttons.append(btn)
+        day_row.addStretch()
+        self._wh_days_label = QLabel("Days")
+        gl.addRow(self._wh_days_label, day_row)
+
+        # Time range inputs
+        time_row = QHBoxLayout()
+        time_row.setSpacing(6)
+        self._wh_start_time = QLineEdit()
+        self._wh_start_time.setMaximumWidth(90)
+        self._wh_start_time.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self._wh_start_time.editingFinished.connect(
+            lambda: self._validate_time_input(self._wh_start_time)
+        )
+        time_row.addWidget(self._wh_start_time)
+        self._wh_to_label = QLabel("to")
+        time_row.addWidget(self._wh_to_label)
+        self._wh_end_time = QLineEdit()
+        self._wh_end_time.setMaximumWidth(90)
+        self._wh_end_time.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self._wh_end_time.editingFinished.connect(
+            lambda: self._validate_time_input(self._wh_end_time)
+        )
+        time_row.addWidget(self._wh_end_time)
+        time_row.addStretch()
+        self._wh_hours_label = QLabel("Hours")
+        gl.addRow(self._wh_hours_label, time_row)
+
+        self._wh_time_error = QLabel("")
+        self._wh_time_error.setStyleSheet("color: #e53e3e; font-size: 11px;")
+        gl.addRow("", self._wh_time_error)
+
         layout.addWidget(group)
 
         layout.addStretch()
         return page
+
+    @staticmethod
+    def _day_button_style() -> str:
+        return (
+            "QPushButton { font-size: 11px; font-weight: 500; border-radius: 13px;"
+            "  border: 1px solid #ccc; background: white; color: #999; }"
+            "QPushButton:checked { background: #0066ff; border-color: #0066ff; color: white; }"
+            "QPushButton:hover:!checked { background: #f0f0f0; color: #666; }"
+            "QPushButton:disabled { opacity: 0.5; }"
+            "QPushButton:checked:disabled { background: #a0c4ff; border-color: #a0c4ff; color: white; }"
+        )
+
+    def _update_day_button_styles(self) -> None:
+        for btn in self._wh_day_buttons:
+            btn.setStyleSheet(self._day_button_style())
+
+    def _toggle_working_hours(self, enabled: bool) -> None:
+        for btn in self._wh_day_buttons:
+            btn.setEnabled(enabled)
+        self._wh_start_time.setEnabled(enabled)
+        self._wh_end_time.setEnabled(enabled)
+        self._wh_days_label.setEnabled(enabled)
+        self._wh_hours_label.setEnabled(enabled)
+        self._wh_to_label.setEnabled(enabled)
+
+    _TIME_INPUT_NORMAL = "QLineEdit { }"
+    _TIME_INPUT_ERROR = (
+        "QLineEdit { border: 1.5px solid #e53e3e; background: #fff5f5; }"
+    )
+
+    def _validate_time_input(self, field: QLineEdit) -> None:
+        """Normalize valid time input on focus-out, or show error styling."""
+        text = field.text().strip()
+        if not text:
+            field.setStyleSheet(self._TIME_INPUT_NORMAL)
+            self._update_time_error()
+            return
+        parsed = self._parse_time_to_24h(text)
+        if parsed is not None:
+            field.setText(self._format_time_12h(parsed))
+            field.setStyleSheet(self._TIME_INPUT_NORMAL)
+        else:
+            field.setStyleSheet(self._TIME_INPUT_ERROR)
+        self._update_time_error()
+
+    def _update_time_error(self) -> None:
+        """Show or clear the time error label based on current field styles."""
+        has_error = (
+            self._wh_start_time.styleSheet() == self._TIME_INPUT_ERROR
+            or self._wh_end_time.styleSheet() == self._TIME_INPUT_ERROR
+        )
+        if has_error:
+            self._wh_time_error.setText('Use a format like "9:00 AM" or "14:30"')
+        else:
+            self._wh_time_error.setText("")
+
+    @staticmethod
+    def _format_time_12h(time_24h: str) -> str:
+        """Convert 'HH:MM' 24h to '9:00 AM' style display."""
+        try:
+            h, m = map(int, time_24h.split(":"))
+            suffix = "AM" if h < 12 else "PM"
+            h12 = h % 12 or 12
+            return f"{h12}:{m:02d} {suffix}"
+        except (ValueError, AttributeError):
+            return time_24h
+
+    @staticmethod
+    def _parse_time_to_24h(text: str) -> str | None:
+        """Parse user time input to 'HH:MM' 24h format.
+
+        Accepts: '9:00 AM', '9:00AM', '9am', '14:30', '2:30 PM', etc.
+        Returns None if unparseable.
+        """
+        import re
+        text = text.strip().upper()
+        # Try HH:MM with optional AM/PM
+        m = re.fullmatch(r"(\d{1,2}):(\d{2})\s*(AM|PM)?", text)
+        if m:
+            h, mins, period = int(m.group(1)), int(m.group(2)), m.group(3)
+            if period == "PM" and h != 12:
+                h += 12
+            elif period == "AM" and h == 12:
+                h = 0
+            if 0 <= h <= 23 and 0 <= mins <= 59:
+                return f"{h:02d}:{mins:02d}"
+            return None
+        # Try bare number with AM/PM, e.g. '9AM', '5pm'
+        m = re.fullmatch(r"(\d{1,2})\s*(AM|PM)", text)
+        if m:
+            h, period = int(m.group(1)), m.group(2)
+            if period == "PM" and h != 12:
+                h += 12
+            elif period == "AM" and h == 12:
+                h = 0
+            if 0 <= h <= 23:
+                return f"{h:02d}:00"
+            return None
+        # Try plain 24h, e.g. '14:30'
+        m = re.fullmatch(r"(\d{1,2}):(\d{2})", text)
+        if m:
+            h, mins = int(m.group(1)), int(m.group(2))
+            if 0 <= h <= 23 and 0 <= mins <= 59:
+                return f"{h:02d}:{mins:02d}"
+        return None
 
     # ------------------------------------------------------------------
     # Calendars tab
@@ -481,6 +665,14 @@ class SettingsWindow(QDialog):
         b2b_map = {"default": 0, "countdown_music": 0, "silent": 1, "skip": 2}
         self._back_to_back.setCurrentIndex(b2b_map.get(s.back_to_back, 0))
 
+        # Working hours
+        self._wh_enabled.setChecked(s.working_hours_enabled)
+        for i, weekday in enumerate(self._wh_day_order):
+            self._wh_day_buttons[i].setChecked(weekday in s.working_hours_days)
+        self._wh_start_time.setText(self._format_time_12h(s.working_hours_start))
+        self._wh_end_time.setText(self._format_time_12h(s.working_hours_end))
+        self._toggle_working_hours(s.working_hours_enabled)
+
         # Calendars — check/uncheck based on selected_calendars
         if s.selected_calendars:
             for i in range(self._cal_tree.topLevelItemCount()):
@@ -539,6 +731,16 @@ class SettingsWindow(QDialog):
 
         b2b_map = {0: "default", 1: "silent", 2: "skip"}
         s.back_to_back = b2b_map.get(self._back_to_back.currentIndex(), "default")
+
+        # Working hours
+        s.working_hours_enabled = self._wh_enabled.isChecked()
+        s.working_hours_days = [
+            self._wh_day_order[i]
+            for i, btn in enumerate(self._wh_day_buttons)
+            if btn.isChecked()
+        ]
+        s.working_hours_start = self._parse_time_to_24h(self._wh_start_time.text()) or "09:00"
+        s.working_hours_end = self._parse_time_to_24h(self._wh_end_time.text()) or "17:00"
 
         # Calendars
         selected: dict[str, list[str]] = {}

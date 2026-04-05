@@ -399,6 +399,82 @@
     line-height: 1.4;
   }
 
+  /* ── Two-Column Layout ── */
+  .two-col {
+    display: flex;
+    gap: 16px;
+  }
+  .two-col .col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+  }
+  /* Let group boxes in columns stretch to fill */
+  .two-col .group-box {
+    flex: 0 0 auto;
+  }
+
+  /* ── Day Pill Toggle ── */
+  .day-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    height: 24px;
+    padding: 0 6px;
+    font-size: 11px;
+    font-weight: 500;
+    border-radius: 13px;
+    border: 1px solid #ccc;
+    background: white;
+    color: #999;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.15s;
+  }
+  .day-pill:hover:not(.active):not(.active-disabled) {
+    background: #f0f0f0;
+    color: #666;
+  }
+  .day-pill.active {
+    background: #0066ff;
+    border-color: #0066ff;
+    color: white;
+  }
+  /* Active but parent is disabled */
+  .day-pill.active-disabled {
+    background: #a0c4ff;
+    border-color: #a0c4ff;
+    color: white;
+    cursor: default;
+    opacity: 0.6;
+  }
+  .disabled .day-pill:not(.active-disabled) {
+    opacity: 0.5;
+    cursor: default;
+  }
+  .wh-fields.disabled {
+    opacity: 0.85;
+  }
+
+  /* ── Time Input ── */
+  .time-input {
+    width: 90px !important;
+    min-width: 90px;
+    text-align: center;
+  }
+  .time-input:disabled {
+    background: #f0f0f0;
+    color: #aaa;
+  }
+
+  /* ── Disabled row ── */
+  .form-row.disabled .form-label {
+    color: #aaa;
+  }
+
   /* ── Button Bar ── */
   .button-bar {
     display: flex;
@@ -489,77 +565,122 @@
 
   <div class="settings-content">
 
-    <!-- Startup -->
-    <div class="group-box">
-      <div class="group-box-title">Startup</div>
-      <div class="group-box-content">
-        <div class="checkbox-row">
-          <div class="checkbox checked">&#10003;</div>
-          Launch at Login
-        </div>
-      </div>
-    </div>
-
-    <!-- Countdown -->
-    <div class="group-box">
-      <div class="group-box-title">Countdown</div>
-      <div class="group-box-content">
-        <div class="form-row">
-          <span class="form-label">Countdown Duration</span>
-          <div class="spinbox">
-            <span class="spinbox-value">60</span>
-            <span class="spinbox-suffix">sec</span>
-            <div class="spinbox-arrows">
-              <div class="spinbox-arrow">&#9650;</div>
-              <div class="spinbox-arrow">&#9660;</div>
+    <!-- Row 1: Startup (left) + Organization (right) -->
+    <div class="two-col">
+      <div class="col">
+        <div class="group-box">
+          <div class="group-box-title">Startup</div>
+          <div class="group-box-content">
+            <div class="checkbox-row">
+              <div class="checkbox checked">&#10003;</div>
+              Launch at Login
             </div>
           </div>
         </div>
-        <div class="checkbox-row">
-          <div class="checkbox"></div>
-          Only countdown for meetings with video links
-        </div>
-        <div class="checkbox-row">
-          <div class="checkbox"></div>
-          Automatically open meeting link at countdown end
+      </div>
+      <div class="col">
+        <div class="group-box">
+          <div class="group-box-title">Organization</div>
+          <div class="group-box-content">
+            <div class="form-row" style="flex-direction:column; align-items:flex-start; gap:4px;">
+              <span class="form-label" style="min-width:auto;">Internal Email Domain</span>
+              <input class="text-input" type="text" placeholder="example.com" value="acme.com" style="width:100%;">
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Organization -->
-    <div class="group-box">
-      <div class="group-box-title">Organization</div>
-      <div class="group-box-content">
-        <div class="form-row">
-          <span class="form-label">Internal Email Domain</span>
-          <input class="text-input" type="text" placeholder="example.com" value="acme.com">
+    <!-- Row 2: Countdown (left) + Meeting Filters (right) -->
+    <div class="two-col">
+      <div class="col">
+        <div class="group-box">
+          <div class="group-box-title">Countdown</div>
+          <div class="group-box-content" style="gap:6px;">
+            <div class="form-row">
+              <span class="form-label" style="min-width:auto;">Countdown Duration</span>
+              <div class="spinbox">
+                <span class="spinbox-value">60</span>
+                <span class="spinbox-suffix">sec</span>
+                <div class="spinbox-arrows">
+                  <div class="spinbox-arrow">&#9650;</div>
+                  <div class="spinbox-arrow">&#9660;</div>
+                </div>
+              </div>
+            </div>
+            <div class="checkbox-row">
+              <div class="checkbox"></div>
+              Only for video meetings
+            </div>
+            <div class="checkbox-row">
+              <div class="checkbox"></div>
+              Auto-open link when done
+            </div>
+            <div class="checkbox-row">
+              <div class="checkbox"></div>
+              Continue after joining
+            </div>
+            <div class="form-row">
+              <span class="form-label" style="min-width:auto;">Back-to-Back</span>
+              <select class="dropdown">
+                <option>Default</option>
+                <option>Silent</option>
+                <option>Skip</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="group-box">
+          <div class="group-box-title">Meeting Filters</div>
+          <div class="group-box-content" style="gap:6px;">
+            <div class="checkbox-row">
+              <div class="checkbox"></div>
+              Include Tentative
+            </div>
+            <div class="checkbox-row">
+              <div class="checkbox"></div>
+              Include Free Events
+            </div>
+            <div class="checkbox-row">
+              <div class="checkbox"></div>
+              Include All-Day Events
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Meeting Filters -->
+    <!-- Working Hours -->
     <div class="group-box">
-      <div class="group-box-title">Meeting Filters</div>
+      <div class="group-box-title">Working Hours</div>
       <div class="group-box-content">
         <div class="checkbox-row">
           <div class="checkbox"></div>
-          Include Tentatively Accepted
+          Only start countdowns during working hours
         </div>
-        <div class="checkbox-row">
-          <div class="checkbox"></div>
-          Include Free Events
-        </div>
-        <div class="checkbox-row">
-          <div class="checkbox"></div>
-          Include All-Day Events
-        </div>
-        <div class="form-row">
-          <span class="form-label">Back-to-Back Meetings</span>
-          <select class="dropdown">
-            <option>Use Default Behavior</option>
-            <option>Silent Countdown</option>
-            <option>Skip Countdown</option>
-          </select>
+        <div class="wh-fields disabled" style="margin-top:4px;">
+          <div class="form-row disabled">
+            <span class="form-label">Days</span>
+            <div class="form-value" style="gap:3px; flex-wrap:wrap;">
+              <span class="day-pill">Sun</span>
+              <span class="day-pill active-disabled">Mon</span>
+              <span class="day-pill active-disabled">Tue</span>
+              <span class="day-pill active-disabled">Wed</span>
+              <span class="day-pill active-disabled">Thu</span>
+              <span class="day-pill active-disabled">Fri</span>
+              <span class="day-pill">Sat</span>
+            </div>
+          </div>
+          <div class="form-row disabled">
+            <span class="form-label">Hours</span>
+            <div class="form-value" style="gap:6px;">
+              <input class="text-input time-input" type="text" value="9:00 AM" disabled>
+              <span style="font-size:13px; color:#aaa;">to</span>
+              <input class="text-input time-input" type="text" value="5:00 PM" disabled>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -179,7 +179,7 @@ pyinstaller MeetingsCountdownPro.spec --noconfirm && codesign --force --deep -s 
 
 ## Testing
 
-The project has an automated test suite (165 tests) and a manual test checklist. See [TESTING.md](./TESTING.md) for full details.
+The project has an automated test suite (211 tests) and a manual test checklist. See [TESTING.md](./TESTING.md) for full details.
 
 ### Running Automated Tests
 

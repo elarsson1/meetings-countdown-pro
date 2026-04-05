@@ -1,6 +1,6 @@
 # General Settings
 
-The General tab contains startup, countdown, organization, and meeting filter settings.
+The General tab contains startup, countdown, organization, meeting filter, and working hours settings.
 
 ![General Settings](images/prefs_general.png)
 
@@ -82,8 +82,33 @@ Controls what happens when a new meeting's countdown would fire while a previous
 
 | Option | Behavior |
 |---|---|
-| **Use Default Behavior** | Use whatever your current countdown mode is (Countdown + Music, Silent, or Off) — no override. |
-| **Silent Countdown** | Countdown window appears but audio is suppressed — useful if you're already on a call. |
-| **Skip Countdown** | No countdown window at all. The meeting is still marked as notified. |
+| **Default** | Use whatever your current countdown mode is (Countdown + Music, Silent, or Off) — no override. |
+| **Silent** | Countdown window appears but audio is suppressed — useful if you're already on a call. |
+| **Skip** | No countdown window at all. The meeting is still marked as notified. |
 
-**Default:** Use Default Behavior
+**Default:** Default
+
+## Working Hours
+
+### Only start countdowns during working hours
+
+When enabled, countdowns are suppressed outside of your configured working days and hours — the same behavior as setting the mode to "Off." Meetings outside working hours still appear in the menu bar so you can see what's coming up, but no countdown window will fire.
+
+This is useful if your calendar spans multiple time zones or includes weekend events you don't need a dramatic entrance for.
+
+**Default:** Off
+
+### Days
+
+Select which days of the week are considered working days. Days are displayed Sunday through Saturday as toggle buttons — click a day to include or exclude it.
+
+**Default:** Monday–Friday
+
+### Hours
+
+Set the start and end times for your working hours window. Meetings starting at or after the start time and before the end time will trigger countdowns. The end time is exclusive — a meeting starting exactly at 5:00 PM with a 5:00 PM end time will not trigger.
+
+The time inputs accept flexible formats: `9:00 AM`, `9AM`, `14:30`, `2:30 PM`, etc. The value normalizes to a standard display (e.g., `9:00 AM`) when you tab out of the field. Invalid input is highlighted with a red border and an error message.
+
+- **Start default:** 9:00 AM
+- **End default:** 5:00 PM

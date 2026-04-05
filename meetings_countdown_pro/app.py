@@ -230,6 +230,10 @@ class App:
         if self._settings.mode == "off":
             return
 
+        if not self._is_within_working_hours(primary.start):
+            log.info("Outside working hours — skipping countdown")
+            return
+
         # Calculate trigger time
         trigger_time = primary.start - timedelta(seconds=self._settings.countdown_duration)
         delay_ms = int((trigger_time - now).total_seconds() * 1000)
@@ -247,6 +251,24 @@ class App:
             self._trigger_timer.setSingleShot(True)
             self._trigger_timer.timeout.connect(lambda ms=simultaneous: self._trigger_countdown(ms))
             self._trigger_timer.start(delay_ms)
+
+    def _is_within_working_hours(self, meeting_start: datetime) -> bool:
+        """Return True if countdown should fire based on working hours settings.
+
+        When working_hours_enabled is False, always returns True.
+        """
+        s = self._settings
+        if not s.working_hours_enabled:
+            return True
+        local = meeting_start.astimezone()
+        if local.weekday() not in s.working_hours_days:
+            return False
+        h_start, m_start = map(int, s.working_hours_start.split(":"))
+        h_end, m_end = map(int, s.working_hours_end.split(":"))
+        start_minutes = h_start * 60 + m_start
+        end_minutes = h_end * 60 + m_end
+        meeting_minutes = local.hour * 60 + local.minute
+        return start_minutes <= meeting_minutes < end_minutes
 
     def _trigger_countdown(self, meetings: list[Meeting]) -> None:
         """Open the countdown window for the given meeting(s)."""

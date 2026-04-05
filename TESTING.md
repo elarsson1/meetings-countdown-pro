@@ -240,6 +240,13 @@ The manual checklist below covers everything that the automated tests do not: vi
 - [ ] Auto-Join at Countdown End toggle
 - [ ] Continue Countdown After Joining toggle (default unchecked)
 - [ ] Internal Email Domain text field
+- [ ] Back-to-Back Meetings dropdown (Default / Silent / Skip)
+- [ ] Working Hours toggle (default unchecked)
+- [ ] Working Hours day/time controls disabled when toggle unchecked, enabled when checked
+- [ ] Working Hours day pills Sun–Sat, Mon–Fri selected by default
+- [ ] Working Hours time inputs accept 12h ("9:00 AM") and 24h ("09:00") formats
+- [ ] Countdown suppressed outside configured working hours (meeting still shown in menu bar)
+- [ ] Countdown fires normally within configured working hours
 
 #### 11.2 Calendars Tab
 - [ ] Lists all accounts with nested calendars

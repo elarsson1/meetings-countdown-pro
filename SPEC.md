@@ -64,6 +64,7 @@ The application runs as a background process with a macOS menu bar presence, pol
 - Query window: now → end of local day (23:59:59). This ensures the menu bar always shows the next upcoming meeting regardless of how far away it is.
 - Results are filtered per user configuration (calendar selection, video-only, tentative/accepted, all-day exclusion, free-event exclusion). Canceled events (EKEventStatusCanceled) are always excluded.
 - The next eligible meeting is identified and a one-shot `QTimer` is scheduled to trigger the countdown window at exactly `meeting_start - countdown_seconds`.
+- If **Working Hours** is enabled, countdowns are suppressed (same as "Off" mode) when the meeting start time falls outside the configured days and hours. The meeting still appears in the menu bar.
 
 ### 3.3 State Persistence
 
@@ -381,11 +382,15 @@ A macOS System Preferences-style window with a centered icon toolbar at the top.
 | 9 | Include Tentative | Toggle | No | Whether to include meetings the user has tentatively accepted. |
 | 10 | Include All-Day Events | Toggle | No | Whether to include all-day/multi-day events in countdown triggers. Off by default (all-day events are skipped). |
 | 11 | Include Free Events | Toggle | No | Whether to include events marked "Show As: Free" (focus time, OOO placeholders, FYI blocks). Off by default (free events are skipped). |
-| 12 | Back-to-Back Handling | Dropdown | Use Default Behavior | What to do when the previous meeting is still in progress at notification time. Options: "Use Default Behavior", "Silent Countdown", "Skip Countdown". |
+| 12 | Back-to-Back Handling | Dropdown | Default | What to do when the previous meeting is still in progress at notification time. Options: "Default", "Silent", "Skip". |
 | 13 | Auto-Join at Countdown End | Toggle | Off | When enabled and a video meeting link is detected, automatically open the meeting link when the countdown reaches zero. |
 | 13b | Continue Countdown After Joining | Toggle | Off | When enabled, clicking Join Now (or an inline Join button for simultaneous meetings) keeps the countdown window open instead of closing it. |
 | 14 | Volume | Slider | 100% | Master volume for countdown audio playback. Range: 0–100%. |
 | 15 | Audio Output Device | Dropdown | System Default | Select audio output device. Options: "System Default" (follows macOS system output) or any currently available audio output device. List is refreshed when the dropdown is opened. |
+| 16 | Working Hours Enabled | Toggle | Off | When enabled, countdowns only fire when the meeting start time falls within the configured working days and hours. Meetings outside working hours still appear in the menu bar but do not trigger a countdown (same behavior as "Off" mode). |
+| 16a | Working Hours Days | Day toggles | Mon–Fri | Which days of the week are considered working days. Displayed as Sun–Sat toggle pills. |
+| 16b | Working Hours Start | Time input | 9:00 AM | Start of the working hours window (inclusive). Free-form text input accepting 12h/24h formats (e.g. "9:00 AM", "9am", "14:30"). On focus-out, valid input is normalized to standard 12h display (e.g. "9am" → "9:00 AM"). Invalid input is highlighted with a red border and an inline error message; the value is not silently defaulted until save. |
+| 16c | Working Hours End | Time input | 5:00 PM | End of the working hours window (exclusive). Same validation behavior as Working Hours Start. |
 
 ### 9.3 Test Mode
 
@@ -449,9 +454,9 @@ When the countdown for Meeting B would fire while Meeting A is still in progress
 
 1. Check if any monitored meeting is currently in progress (start ≤ now < end). This check applies the same filters as the normal meeting detection (calendar selection, acceptance status, all-day, free, video-only) so that non-qualifying events do not trigger back-to-back behavior.
 2. If yes, apply the user's "Back-to-Back Handling" setting:
-   - **Use Default Behavior:** Use the current countdown mode (Countdown + Music, Silent, or Off) — no override.
-   - **Silent Countdown:** Open the countdown window but suppress audio.
-   - **Skip Countdown:** Do not open the countdown window. Still mark the meeting as notified.
+   - **Default:** Use the current countdown mode (Countdown + Music, Silent, or Off) — no override.
+   - **Silent:** Open the countdown window but suppress audio.
+   - **Skip:** Do not open the countdown window. Still mark the meeting as notified.
 
 ---
 

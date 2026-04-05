@@ -44,6 +44,12 @@ class Settings:
     # Calendar selection: {account_name: [calendar_names]} or empty = all
     selected_calendars: dict[str, list[str]] = field(default_factory=dict)
 
+    # Working hours
+    working_hours_enabled: bool = False
+    working_hours_days: list[int] = field(default_factory=lambda: [0, 1, 2, 3, 4])  # Mon–Fri (weekday())
+    working_hours_start: str = "09:00"  # HH:MM 24h
+    working_hours_end: str = "17:00"  # HH:MM 24h
+
     # AI Agent integration
     agent_enabled: bool = False
     agent_terminal: str = "terminal"  # terminal | iterm2
@@ -87,3 +93,14 @@ class Settings:
             self.mode = "countdown_music"
         if self.agent_terminal not in ("terminal", "iterm2"):
             self.agent_terminal = "terminal"
+        # Working hours: clamp days to valid weekday ints
+        self.working_hours_days = sorted(
+            set(d for d in self.working_hours_days if isinstance(d, int) and 0 <= d <= 6)
+        )
+        # Validate time strings (HH:MM, 00:00–23:59)
+        import re
+        time_re = r"(?:[01]?\d|2[0-3]):[0-5]\d"
+        if not re.fullmatch(time_re, self.working_hours_start):
+            self.working_hours_start = "09:00"
+        if not re.fullmatch(time_re, self.working_hours_end):
+            self.working_hours_end = "17:00"
