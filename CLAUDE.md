@@ -2,6 +2,11 @@
 
 macOS menu-bar app (Python + PyQt6) that plays a broadcast-style countdown before calendar meetings.
 
+## Included Documentation
+
+@README.md
+@CONTRIBUTING.md
+
 ## Key References
 
 - **Product spec:** read [SPEC.md](./SPEC.md) before making feature decisions
