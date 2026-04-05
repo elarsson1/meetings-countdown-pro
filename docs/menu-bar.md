@@ -1,9 +1,13 @@
 # Menu Bar
 
-Meetings Countdown Pro lives in your macOS menu bar. The icon has two visual states:
+Meetings Countdown Pro lives in your macOS menu bar. The icon updates dynamically to reflect the current mode and working hours status:
 
-- **Active:** Full-color icon — the app is monitoring your calendar.
-- **Disabled:** Greyed-out icon — countdowns are turned off (mode set to Off).
+| Icon State | Meaning |
+|---|---|
+| **Full-opacity clock** | Countdown + Music mode — the full experience is active. |
+| **Dimmed clock** | Silent mode — countdowns will appear but without audio. |
+| **Dimmed clock with strike-through** | Off mode — no countdowns will fire. |
+| **Orange badge dot** | Working hours are enabled and the current time is outside the configured window. Countdowns are suppressed until working hours resume. The dot appears alongside whichever mode icon is active. |
 
 ## Dropdown Menu
 

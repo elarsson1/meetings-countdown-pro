@@ -86,6 +86,16 @@ The manual checklist below covers everything that the automated tests do not: vi
 - [ ] "Settings..." opens the Settings window
 - [ ] "Quit Meetings Countdown Pro" exits the app
 
+#### 3.1 Icon States
+- [ ] Countdown + Music mode: full-opacity clock icon
+- [ ] Silent mode: dimmed clock icon
+- [ ] Off mode: dimmed clock with strike-through line
+- [ ] Icon updates immediately when mode is changed
+- [ ] Working Hours enabled + currently outside hours: orange badge dot visible
+- [ ] Working Hours enabled + currently inside hours: no badge dot
+- [ ] Working Hours disabled: no badge dot regardless of time
+- [ ] Badge dot appears/disappears as time crosses working hours boundary (within 30s poll interval)
+
 ---
 
 ### 4. Calendar Polling & Event Detection

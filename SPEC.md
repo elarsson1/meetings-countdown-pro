@@ -81,9 +81,12 @@ Two files in `~/.config/meetings-countdown-pro/`:
 
 ### 4.1 Icon
 
-A small clock/countdown-themed icon in the macOS menu bar. The icon should have two visual states:
-- **Active (enabled):** Full-color icon
-- **Disabled:** Greyed-out icon
+A small clock/countdown-themed icon in the macOS menu bar. The icon is rendered dynamically to reflect the current mode and working hours status:
+
+- **Countdown + Music:** Full-opacity white clock icon.
+- **Silent:** Dimmed clock icon (70% opacity).
+- **Off:** Dimmed clock icon with a diagonal strike-through line.
+- **Outside working hours:** When the Working Hours setting is enabled and the current time falls outside the configured window, a small orange badge dot appears in the bottom-right corner of the icon. This is independent of the mode indicator above — e.g. a full-opacity clock with an orange dot means "Countdown + Music mode, but currently outside working hours."
 
 ### 4.2 Drop-down Menu
 

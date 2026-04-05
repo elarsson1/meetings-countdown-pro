@@ -8,8 +8,9 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
 
-from PyQt6.QtCore import QTimer, Qt
-from PyQt6.QtGui import QAction, QActionGroup, QIcon
+from PyQt6.QtCore import QByteArray, QTimer, Qt
+from PyQt6.QtGui import QAction, QActionGroup, QColor, QIcon, QImage, QPainter, QPen, QPixmap
+from PyQt6.QtSvg import QSvgRenderer
 from PyQt6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
 
 from meetings_countdown_pro.agent_launcher import launch_agent
@@ -66,9 +67,8 @@ class App:
     # ------------------------------------------------------------------
 
     def _setup_tray(self) -> None:
-        icon_path = ASSETS / "menubar_icon.svg"
-        icon = QIcon(str(icon_path)) if icon_path.exists() else QIcon()
-        self._tray = QSystemTrayIcon(icon, self._qapp)
+        self._tray = QSystemTrayIcon(QIcon(), self._qapp)
+        self._update_tray_icon()
 
         self._menu = QMenu()
 
@@ -127,10 +127,74 @@ class App:
         self._settings.mode = mode
         self._mode_actions[mode].setChecked(True)
         self._settings.save()
+        self._update_tray_icon()
 
     def _toggle_agent(self, checked: bool) -> None:
         self._settings.agent_enabled = checked
         self._settings.save()
+
+    # ------------------------------------------------------------------
+    # Tray icon rendering
+    # ------------------------------------------------------------------
+
+    _CLOCK_SVG = (
+        '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">'
+        '<circle cx="9" cy="9" r="7.5" fill="none" stroke="{color}" stroke-width="1.5" opacity="{opacity}"/>'
+        '<line x1="9" y1="9" x2="9" y2="4.5" stroke="{color}" stroke-width="1.5" stroke-linecap="round" opacity="{opacity}"/>'
+        '<line x1="9" y1="9" x2="12.5" y2="9" stroke="{color}" stroke-width="1.5" stroke-linecap="round" opacity="{opacity}"/>'
+        '<line x1="9" y1="1" x2="9" y2="2" stroke="{color}" stroke-width="1.2" stroke-linecap="round" opacity="{opacity}"/>'
+        '{extras}'
+        '</svg>'
+    )
+
+    _STRIKE_LINE = (
+        '<line x1="3" y1="15" x2="15" y2="3" stroke="{color}" stroke-width="1.5" stroke-linecap="round"/>'
+    )
+
+    def _is_currently_outside_working_hours(self) -> bool:
+        """Check if right now is outside configured working hours."""
+        s = self._settings
+        if not s.working_hours_enabled:
+            return False
+        now = datetime.now().astimezone()
+        if now.weekday() not in s.working_hours_days:
+            return True
+        h_start, m_start = map(int, s.working_hours_start.split(":"))
+        h_end, m_end = map(int, s.working_hours_end.split(":"))
+        now_minutes = now.hour * 60 + now.minute
+        return not (h_start * 60 + m_start <= now_minutes < h_end * 60 + m_end)
+
+    def _update_tray_icon(self) -> None:
+        """Render and set the menu bar icon based on mode and working hours."""
+        mode = self._settings.mode
+        color = "#ffffff"
+        extras = ""
+
+        if mode == "off":
+            opacity = "0.7"
+            extras = self._STRIKE_LINE.format(color=color)
+        elif mode == "silent":
+            opacity = "0.7"
+        else:
+            opacity = "1"
+
+        # Working hours badge dot
+        if self._is_currently_outside_working_hours():
+            extras += (
+                '<circle cx="14.5" cy="14.5" r="2.5" fill="#f59e0b" stroke="#000000" stroke-width="0.5"/>'
+            )
+
+        svg = self._CLOCK_SVG.format(color=color, opacity=opacity, extras=extras)
+
+        renderer = QSvgRenderer(QByteArray(svg.encode()))
+        pm = QPixmap(36, 36)  # 2x for retina
+        pm.fill(QColor(0, 0, 0, 0))
+        painter = QPainter(pm)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        renderer.render(painter)
+        painter.end()
+
+        self._tray.setIcon(QIcon(pm))
 
     def _update_next_meeting_display(self) -> None:
         if not self._calendar.is_authorized:
@@ -189,6 +253,7 @@ class App:
 
     def _poll(self) -> None:
         """Poll for upcoming meetings and schedule the next countdown."""
+        self._update_tray_icon()
         log.debug("Polling for upcoming meetings (mode=%s)", self._settings.mode)
 
         meetings = self._calendar.fetch_upcoming(self._settings)

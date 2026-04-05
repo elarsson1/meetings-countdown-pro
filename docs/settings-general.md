@@ -92,7 +92,7 @@ Controls what happens when a new meeting's countdown would fire while a previous
 
 ### Only start countdowns during working hours
 
-When enabled, countdowns are suppressed outside of your configured working days and hours — the same behavior as setting the mode to "Off." Meetings outside working hours still appear in the menu bar so you can see what's coming up, but no countdown window will fire.
+When enabled, countdowns are suppressed outside of your configured working days and hours — the same behavior as setting the mode to "Off." Meetings outside working hours still appear in the menu bar so you can see what's coming up, but no countdown window will fire. A small orange badge dot appears on the menu bar icon when you are currently outside working hours.
 
 This is useful if your calendar spans multiple time zones or includes weekend events you don't need a dramatic entrance for.
 
