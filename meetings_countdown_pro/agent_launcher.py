@@ -8,6 +8,7 @@ import os
 import shlex
 import stat
 import subprocess
+import time
 
 from meetings_countdown_pro.meeting import Meeting
 from meetings_countdown_pro.settings import CONFIG_DIR, Settings
@@ -76,6 +77,18 @@ def launch_in_terminal(command: str, working_dir: str, terminal: str) -> None:
         # 'create window' can fire before iTerm2 is ready to accept
         # scripting commands, silently failing. We retry the create call
         # until it succeeds (up to 5 seconds).
+        # Ensure iTerm2 is running before sending AppleScript commands.
+        # We check and launch from Python rather than AppleScript to avoid
+        # System Events automation permission issues.
+        iterm_running = subprocess.run(
+            ["pgrep", "-x", "iTerm2"],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        ).returncode == 0
+        if not iterm_running:
+            log.debug("iTerm2 not running, launching with open -a iTerm")
+            subprocess.run(["open", "-a", "iTerm"], check=False)
+            time.sleep(1)
+
         applescript = f'''
             tell application "iTerm2"
                 activate
