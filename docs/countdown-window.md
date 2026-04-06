@@ -32,7 +32,7 @@ If no Internal Email Domain is configured, all attendees appear in a single flat
 ### Right Panel — Countdown & Join
 
 - **Countdown timer** — large, bold seconds display (e.g., `83`). Always whole seconds, no MM:SS format.
-- **Join Now button** — opens the meeting link in your default browser and closes the countdown window. Supports Zoom, Microsoft Teams, and Google Meet links. Only appears when a video link is detected. If you'd rather bring the drama with you into the meeting and watch the full animation play out, enable [Continue countdown after joining](settings-general.md#continue-countdown-after-joining) in Settings.
+- **Join Now button** — opens the meeting link in your default browser and closes the countdown window. Supports Zoom, Microsoft Teams, and Google Meet links. Only appears when a video link is detected. If you'd rather bring the drama with you into the meeting and watch the full animation play out, enable [Continue after joining](settings-general.md#continue-after-joining) in Settings.
 - **Mute toggle** (bottom-right) — mutes/unmutes audio without stopping playback, so timing stays in sync. Only visible when audio is actually playing (hidden in Silent mode or when no sound file is configured).
 
 ## Simultaneous Meetings

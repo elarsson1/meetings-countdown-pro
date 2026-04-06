@@ -12,23 +12,23 @@ On first launch, macOS will ask you to grant calendar access. Click **Allow** �
 
 Click the menu bar icon and select **Settings...** to open the preferences window.
 
-## 3. Select Your Calendars
+## 3. Set Your Internal Email Domain
 
-Go to the **Calendars** tab. You'll see all of your macOS Calendar accounts listed in a tree view with their individual calendars nested below.
-
-![Calendars Settings](images/prefs_cal.png)
-
-Check the calendars you want monitored. Most people will want their work calendar enabled and personal calendars disabled — unless you want a dramatic countdown before your dentist appointment (no judgment).
-
-## 4. Set Your Internal Email Domain
-
-Back on the **General** tab, find the **Internal Email Domain** field under Organization.
+On the **General** tab, find the **Internal Email Domain** field under Organization.
 
 ![General Settings](images/prefs_general.png)
 
 Enter your company's email domain (e.g., `acme.com`). This is how the app knows who's internal to your organization and who's external. The countdown window groups attendees by internal vs. external, so you can see at a glance whether you need to be on your best behavior.
 
 If you leave this blank, all attendees are shown in a single flat list.
+
+## 4. Select Your Calendars
+
+Switch to the **Calendars** tab. You'll see all of your macOS Calendar accounts listed in a tree view with their individual calendars nested below.
+
+![Calendars Settings](images/prefs_cal.png)
+
+Check the calendars you want monitored. Most people will want their work calendar enabled and personal calendars disabled — unless you want a dramatic countdown before your dentist appointment (no judgment).
 
 ## 5. Choose Your Audio
 
@@ -53,7 +53,7 @@ Or, if you're impatient (understandable), click **Test Countdown** at the bottom
 
 ## 7. Join Your Meeting
 
-When the countdown appears, you'll see the meeting title, time, and attendee list on the left, with the countdown timer on the right. Click **Join Now** at any point to open the meeting link and close the countdown window. Or enable **Auto-Join** in General settings to have the link open automatically when the countdown ends. If you'd rather bring the drama with you into the meeting, enable **Continue countdown after joining** in **Settings** to keep the window open while you join.
+When the countdown appears, you'll see the meeting title, time, and attendee list on the left, with the countdown timer on the right. Click **Join Now** at any point to open the meeting link and close the countdown window. Or enable **Auto-open link when done** in General settings to have the link open automatically when the countdown ends. If you'd rather bring the drama with you into the meeting, enable **Continue after joining** in **Settings** to keep the window open while you join.
 
 ![Countdown](images/countdown.png)
 
