@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 # Import version from the package so there's a single source of truth
-sys.path.insert(0, os.path.dirname(os.path.abspath(SPECPATH)))
+sys.path.insert(0, SPECPATH)
 from meetings_countdown_pro import __version__
 
 block_cipher = None
