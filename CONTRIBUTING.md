@@ -47,6 +47,7 @@ meetings-countdown-pro/
 │   ├── __init__.py
 │   ├── __main__.py                # python -m support
 │   ├── app.py                     # QApplication, menu bar, polling loop
+│   ├── about_window.py            # About dialog, update check
 │   ├── calendar_service.py        # EventKit integration (pyobjc)
 │   ├── countdown_window.py        # Countdown window UI + animations
 │   ├── audio_player.py            # QMediaPlayer wrapper, audio sync
@@ -56,7 +57,7 @@ meetings-countdown-pro/
 │   ├── favicon_cache.py           # Async favicon fetching + disk cache
 │   ├── notification_state.py      # Dedup state (notified.json)
 │   ├── agent_launcher.py          # AI Integration: terminal launch
-│   └── assets/                    # SVG icons
+│   └── assets/                    # SVG icons (includes icon.svg for About dialog)
 ├── assets/                        # App icon (SVG source + .icns)
 ├── tests/                         # Automated test suite (pytest + pytest-qt)
 ├── mockups/                       # HTML/CSS design mockups
@@ -84,6 +85,7 @@ This sets the log level to `DEBUG` (default is `INFO`). Log output goes to stder
 
 | Module | What it logs |
 |---|---|
+| `about_window.py` | Update check requests and results |
 | `app.py` | Calendar access status, poll results, meeting scheduling, countdown triggers, back-to-back decisions, launch agent install/remove |
 | `calendar_service.py` | EventKit queries, attendee parsing, meeting filtering |
 | `audio_player.py` | Audio load/play/stop, device selection, sync timing |
@@ -179,7 +181,7 @@ pyinstaller MeetingsCountdownPro.spec --noconfirm && codesign --force --deep -s 
 
 ## Testing
 
-The project has an automated test suite (211 tests) and a manual test checklist. See [TESTING.md](./TESTING.md) for full details.
+The project has an automated test suite (228 tests) and a manual test checklist. See [TESTING.md](./TESTING.md) for full details.
 
 ### Running Automated Tests
 
@@ -210,6 +212,56 @@ Any change to the codebase should include the corresponding test updates:
    - Verify any manual test items from [TESTING.md](./TESTING.md) that relate to your change.
    - If you changed packaging or assets, do a full build and verify the `.app` launches.
 4. Open a pull request against `main` with a clear description of what changed and why.
+
+## Version Metadata
+
+All release-visible strings are centralized in `meetings_countdown_pro/__init__.py`:
+
+```python
+__version__ = "1.0.0"
+__app_name__ = "Meetings Countdown Pro"
+__author__ = "Axel Larsson"
+__author_email__ = "axel@axeltech.com"
+__copyright_years__ = "2025–2026"
+__license__ = "MIT"
+__tagline__ = "Start every meeting like you're about to announce election results."
+__repo_url__ = "https://github.com/elarsson1/meetings-countdown-pro"
+```
+
+These are used by the About dialog, the PyInstaller spec (bundle version, Info.plist), and the update check feature. To bump the version for a release, update `__version__` in this single file — the spec and About dialog pick it up automatically.
+
+## Publishing a Release
+
+1. **Update the version** in `meetings_countdown_pro/__init__.py`. Follow [semver](https://semver.org/): bump major for breaking changes, minor for new features, patch for bug fixes.
+
+2. **Update `__copyright_years__`** if the release crosses into a new calendar year.
+
+3. **Run the test suite** and confirm all tests pass:
+   ```bash
+   pytest -v
+   ```
+
+4. **Build and sign the app bundle:**
+   ```bash
+   pyinstaller MeetingsCountdownPro.spec --noconfirm && codesign --force --deep -s - "dist/Meetings Countdown Pro.app"
+   ```
+
+5. **Verify the build** — launch the `.app` from `dist/`, open About, and confirm the version string is correct.
+
+6. **Zip the app bundle** for distribution:
+   ```bash
+   cd dist && zip -yr "Meetings Countdown Pro.zip" "Meetings Countdown Pro.app" && cd ..
+   ```
+
+7. **Create the GitHub release:**
+   ```bash
+   gh release create v<VERSION> "dist/Meetings Countdown Pro.zip" \
+     --title "v<VERSION>" \
+     --notes "Release notes here"
+   ```
+   Replace `<VERSION>` with the version string (e.g., `1.0.0`). Tag with a `v` prefix (e.g., `v1.0.0`) — the update checker strips the `v` when comparing versions.
+
+8. **Verify the update check** — open the About dialog in a previous version and click "Check for Updates" to confirm it detects the new release.
 
 ## Configuration Files
 

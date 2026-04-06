@@ -1,12 +1,12 @@
 # Meetings Countdown Pro — Testing Plan
 
-Testing plan covering all functionality defined in SPEC.md v0.5.
+Testing plan covering all functionality defined in SPEC.md v1.0.
 
 ---
 
 ## Automated Tests
 
-165 automated tests cover business logic, filter logic, audio sync math, countdown window state, and the App controller. Run them with:
+228 automated tests cover business logic, filter logic, audio sync math, countdown window state, the App controller, and the About dialog. Run them with:
 
 ```bash
 source venv/bin/activate
@@ -17,14 +17,16 @@ pytest -v
 | Test file | Tests | What it covers |
 |-----------|-------|----------------|
 | `test_meeting.py` | 44 | Attendee parsing, video link regex (Zoom/Meet/Teams), classify attendees, summary, JSON serialization, notification key |
-| `test_settings.py` | 22 | Validation clamping (duration, offset, volume, enums), save/load round-trip, corrupt/missing file handling, continue_after_join default |
-| `test_notification_state.py` | 9 | Mark/check, persistence across instances, 24h pruning, corrupt file recovery |
-| `test_agent_launcher.py` | 15 | JSON building, command assembly, shell escaping, script writing, launch orchestration |
+| `test_settings.py` | 32 | Validation clamping (duration, offset, volume, enums), save/load round-trip, corrupt/missing file handling, continue_after_join default |
+| `test_countdown_window.py` | 28 | Phase transitions, join/mute button visibility, close signals, color transitions, multi-meeting rendering, join-closes-window behavior |
+| `test_working_hours.py` | 27 | Day/time filtering, combined day+time, settings validation (invalid days, times, dedup) |
+| `test_app.py` | 25 | Menu structure, polling, scheduling, dedup, back-to-back handling (skip/silent/default), mode toggle, one-at-a-time |
 | `test_filters.py` | 18 | Full filter matrix (canceled, declined, tentative, all-day, free, video-only, combinations) |
-| `test_audio_sync.py` | 8 | Audio sync math: seek position + delay for all D vs C scenarios including late start |
-| `test_countdown_window.py` | 25 | Phase transitions, join/mute button visibility, close signals, color transitions, multi-meeting rendering, join-closes-window behavior |
-| `test_app.py` | 20 | Polling, scheduling, dedup, back-to-back handling (skip/silent/default), mode toggle, one-at-a-time |
-| **Total** | **172** | **~1 second runtime** |
+| `test_audio_sync.py` | 15 | Audio sync math: seek position + delay for all D vs C scenarios including late start |
+| `test_agent_launcher.py` | 15 | JSON building, command assembly, shell escaping, script writing, launch orchestration |
+| `test_about_window.py` | 15 | Dialog rendering, version/copyright display, OK button, update check button, semver comparison, update result states (up to date, new version, error) |
+| `test_notification_state.py` | 9 | Mark/check, persistence across instances, 24h pruning, corrupt file recovery |
+| **Total** | **228** | **~1.5 second runtime** |
 
 The manual checklist below covers everything that the automated tests do not: visual appearance, real audio playback, live EventKit integration, macOS system behavior, and end-to-end workflows.
 
@@ -84,6 +86,7 @@ The manual checklist below covers everything that the automated tests do not: vi
 - [ ] Shows "(now)" when meeting is starting
 - [ ] Detects meetings across the entire day, not just the next few minutes
 - [ ] "Settings..." opens the Settings window
+- [ ] "About Meetings Countdown Pro" opens the About dialog
 - [ ] "Quit Meetings Countdown Pro" exits the app
 
 #### 3.1 Icon States
@@ -319,7 +322,15 @@ The manual checklist below covers everything that the automated tests do not: vi
 
 ---
 
-### 13. Error Handling
+### 13. About Dialog
+
+- [ ] Dialog renders correctly (icon, wordmark, version, copyright, repo link, OK button)
+- [ ] "Check for Updates" returns a result (up to date or new version available) without crashing
+- [ ] Update check with no network shows an error message and re-enables the button
+
+---
+
+### 14. Error Handling
 
 - [ ] Sound file missing/moved: countdown proceeds silently
 - [ ] Sound file corrupt/unreadable: countdown proceeds silently
@@ -330,7 +341,7 @@ The manual checklist below covers everything that the automated tests do not: vi
 
 ---
 
-### 14. macOS Integration
+### 15. macOS Integration
 
 - [ ] Calendar permission prompt on first launch
 - [ ] LaunchAgent plist correctly formatted and functional (will need update for PyInstaller packaging)
@@ -343,7 +354,7 @@ The manual checklist below covers everything that the automated tests do not: vi
 
 ---
 
-### 15. Edge Cases
+### 16. Edge Cases
 
 - [ ] No calendars configured on macOS: graceful handling
 - [ ] Meeting with no title: shows "Untitled"

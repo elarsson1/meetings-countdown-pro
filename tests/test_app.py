@@ -109,6 +109,29 @@ def _future_meeting(seconds_ahead=120, **kw):
 
 
 # ===================================================================
+# Menu structure
+# ===================================================================
+
+class TestMenu:
+    def test_about_action_exists(self, mock_app):
+        app, _ = mock_app()
+        actions = [a.text() for a in app._menu.actions()]
+        assert "About Meetings Countdown Pro" in actions
+
+    def test_about_action_between_settings_and_quit(self, mock_app):
+        app, _ = mock_app()
+        actions = [a.text() for a in app._menu.actions() if a.text()]
+        # Settings, About, Quit should be the last three non-separator items
+        assert "Settings..." in actions
+        assert "About Meetings Countdown Pro" in actions
+        assert "Quit Meetings Countdown Pro" in actions
+        si = actions.index("Settings...")
+        ai = actions.index("About Meetings Countdown Pro")
+        qi = actions.index("Quit Meetings Countdown Pro")
+        assert si < ai < qi
+
+
+# ===================================================================
 # Polling & scheduling
 # ===================================================================
 

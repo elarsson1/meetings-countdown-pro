@@ -13,6 +13,7 @@ from PyQt6.QtGui import QAction, QActionGroup, QColor, QIcon, QImage, QPainter, 
 from PyQt6.QtSvg import QSvgRenderer
 from PyQt6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
 
+from meetings_countdown_pro.about_window import AboutWindow
 from meetings_countdown_pro.agent_launcher import launch_agent
 from meetings_countdown_pro.audio_player import AudioPlayer
 from meetings_countdown_pro.calendar_service import CalendarService
@@ -47,6 +48,7 @@ class App:
 
         self._countdown_window: Optional[CountdownWindow] = None
         self._settings_window: Optional[SettingsWindow] = None
+        self._about_window: Optional[AboutWindow] = None
         self._next_meeting: Optional[Meeting] = None
         self._trigger_timer: Optional[QTimer] = None
 
@@ -112,6 +114,11 @@ class App:
         settings_action = QAction("Settings...", self._menu)
         settings_action.triggered.connect(self._open_settings)
         self._menu.addAction(settings_action)
+
+        # About
+        about_action = QAction("About Meetings Countdown Pro", self._menu)
+        about_action.triggered.connect(self._open_about)
+        self._menu.addAction(about_action)
 
         self._menu.addSeparator()
 
@@ -400,6 +407,16 @@ class App:
     # ------------------------------------------------------------------
     # Settings
     # ------------------------------------------------------------------
+
+    def _open_about(self) -> None:
+        if self._about_window and self._about_window.isVisible():
+            self._about_window.raise_()
+            self._about_window.activateWindow()
+            return
+        self._about_window = AboutWindow()
+        self._about_window.show()
+        self._about_window.raise_()
+        self._about_window.activateWindow()
 
     def _open_settings(self) -> None:
         if self._settings_window and self._settings_window.isVisible():

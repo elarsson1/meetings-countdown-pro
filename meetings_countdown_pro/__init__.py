@@ -1,3 +1,10 @@
 """Meetings Countdown Pro — broadcast-style countdown for calendar meetings."""
 
-__version__ = "0.1.0"
+__version__ = "1.0.0"
+__app_name__ = "Meetings Countdown Pro"
+__author__ = "Axel Larsson"
+__author_email__ = "axel@axeltech.com"
+__copyright_years__ = "2025\u20132026"
+__license__ = "MIT"
+__tagline__ = "Start every meeting like you\u2019re about to announce election results."
+__repo_url__ = "https://github.com/elarsson1/meetings-countdown-pro"

@@ -39,6 +39,10 @@ A checkbox toggle that enables or disables the [AI Integration](ai-integration.m
 
 Opens the [Settings window](settings-general.md).
 
+### About
+
+Shows the About dialog with the app version, copyright, and license information. Includes a **Check for Updates** button that compares your installed version against the latest GitHub release and links you to the download page if a newer version is available.
+
 ### Quit
 
 Exits the application. Any active countdown window is closed.

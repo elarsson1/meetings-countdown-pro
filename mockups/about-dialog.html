@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meetings Countdown Pro — About Dialog Mockup</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+    background: #e8e8e8;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    gap: 40px;
+  }
+  h1 {
+    font-size: 14px;
+    font-weight: 500;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  /* ── About Dialog ── */
+  .about-dialog {
+    width: 520px;
+    background: #f6f6f6;
+    border-radius: 10px;
+    box-shadow:
+      0 20px 60px rgba(0,0,0,0.15),
+      0 0 0 0.5px rgba(0,0,0,0.15);
+    overflow: hidden;
+  }
+
+  /* ── Title Bar ── */
+  .title-bar {
+    height: 38px;
+    background: linear-gradient(180deg, #e8e8e8, #d4d4d4);
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    gap: 8px;
+    border-bottom: 1px solid #bbb;
+    position: relative;
+  }
+  .traffic-light {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 0.5px solid rgba(0,0,0,0.15);
+  }
+  .tl-close { background: #ff5f57; }
+  .tl-minimize { background: #ffbd2e; }
+  .tl-maximize { background: #28c840; }
+  .title-text {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  /* ── Content ── */
+  .about-content {
+    padding: 32px 36px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  /* ── Logo Row ── */
+  .logo-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .logo-icon {
+    width: 96px;
+    height: 96px;
+    flex-shrink: 0;
+    filter: drop-shadow(0 4px 12px rgba(59, 59, 120, 0.35));
+  }
+  .logo-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .logo-text-meetings {
+    font-size: 26px;
+    font-weight: 300;
+    color: #3b3b78;
+    letter-spacing: 0.5px;
+    line-height: 1.15;
+  }
+  .logo-text-countdown {
+    font-size: 26px;
+    font-weight: 700;
+    color: #3b3b78;
+    letter-spacing: 0.5px;
+    line-height: 1.15;
+  }
+  .logo-text-pro {
+    font-size: 13px;
+    font-weight: 600;
+    color: #ff6b6b;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  /* ── Divider ── */
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: #d4d4d4;
+  }
+
+  /* ── Info Section ── */
+  .info-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .version {
+    font-size: 13px;
+    font-weight: 500;
+    color: #555;
+  }
+  .tagline {
+    font-size: 12px;
+    font-weight: 400;
+    color: #888;
+    font-style: italic;
+    text-align: center;
+    max-width: 360px;
+    line-height: 1.4;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+  }
+  .copyright {
+    font-size: 11px;
+    color: #999;
+  }
+  .license {
+    font-size: 11px;
+    color: #999;
+  }
+  .license a {
+    color: #6366f1;
+    text-decoration: none;
+  }
+  .license a:hover {
+    text-decoration: underline;
+  }
+
+  /* ── Update Check ── */
+  .update-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .update-btn {
+    font-size: 12px;
+    color: #555;
+    background: transparent;
+    border: 1px solid #999;
+    border-radius: 4px;
+    padding: 3px 12px;
+    cursor: pointer;
+  }
+  .update-btn:hover {
+    border-color: #6366f1;
+    color: #6366f1;
+  }
+  .update-result {
+    font-size: 12px;
+    color: #059669;
+  }
+
+  /* ── Repo Link ── */
+  .repo-link {
+    font-size: 11px;
+  }
+  .repo-link a {
+    color: #6366f1;
+    text-decoration: none;
+  }
+  .repo-link a:hover {
+    text-decoration: underline;
+  }
+
+  /* ── OK Button ── */
+  .ok-btn {
+    margin-top: 4px;
+    padding: 5px 32px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #fff;
+    background: linear-gradient(180deg, #6366f1, #4f46e5);
+    border: 1px solid #4338ca;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  }
+  .ok-btn:hover {
+    background: linear-gradient(180deg, #7c7ff7, #6366f1);
+  }
+</style>
+</head>
+<body>
+
+<h1>About Dialog</h1>
+
+<div class="about-dialog">
+  <!-- Title bar -->
+  <div class="title-bar">
+    <div class="traffic-light tl-close"></div>
+    <div class="traffic-light tl-minimize"></div>
+    <div class="traffic-light tl-maximize"></div>
+    <span class="title-text">About Meetings Countdown Pro</span>
+  </div>
+
+  <!-- Content -->
+  <div class="about-content">
+
+    <!-- Logo: icon + stylized text -->
+    <div class="logo-row">
+      <svg class="logo-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+        <defs>
+          <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#3b3b78"/>
+            <stop offset="100%" stop-color="#2a2a60"/>
+          </linearGradient>
+          <linearGradient id="clockFace" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#32326a"/>
+            <stop offset="100%" stop-color="#282858"/>
+          </linearGradient>
+          <radialGradient id="redGlow" cx="0.5" cy="0.5" r="0.5">
+            <stop offset="0%" stop-color="#ff6b6b" stop-opacity="0.8"/>
+            <stop offset="100%" stop-color="#ff6b6b" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="tealGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#5eead4"/>
+            <stop offset="100%" stop-color="#2dd4bf"/>
+          </linearGradient>
+        </defs>
+        <rect width="1024" height="1024" rx="228" ry="228" fill="url(#bg)"/>
+        <rect x="8" y="8" width="1008" height="1008" rx="222" ry="222"
+              fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="2"/>
+        <rect x="180" y="300" width="664" height="460" rx="48" ry="48"
+              fill="none" stroke="#c0c0e0" stroke-width="8"/>
+        <rect x="360" y="248" width="160" height="64" rx="12" ry="12"
+              fill="none" stroke="#c0c0e0" stroke-width="7"/>
+        <circle cx="776" cy="348" r="24" fill="url(#redGlow)"/>
+        <circle cx="776" cy="348" r="13" fill="#ff6b6b"/>
+        <circle cx="512" cy="530" r="190" fill="url(#clockFace)"
+                stroke="#a5b4fc" stroke-width="9"/>
+        <circle cx="512" cy="530" r="208" fill="none"
+                stroke="rgba(165,180,252,0.5)" stroke-width="4"/>
+        <g stroke="#ffffff" stroke-width="6" stroke-linecap="round">
+          <line x1="512" y1="350" x2="512" y2="378"/>
+          <line x1="602" y1="365" x2="593" y2="383"/>
+          <line x1="677" y1="440" x2="659" y2="449"/>
+          <line x1="692" y1="530" x2="664" y2="530"/>
+          <line x1="677" y1="620" x2="659" y2="611"/>
+          <line x1="602" y1="695" x2="593" y2="677"/>
+          <line x1="512" y1="710" x2="512" y2="682"/>
+          <line x1="422" y1="695" x2="431" y2="677"/>
+          <line x1="347" y1="620" x2="365" y2="611"/>
+          <line x1="332" y1="530" x2="360" y2="530"/>
+          <line x1="347" y1="440" x2="365" y2="449"/>
+          <line x1="422" y1="365" x2="431" y2="383"/>
+        </g>
+        <line x1="512" y1="530" x2="448" y2="385"
+              stroke="#ffffff" stroke-width="10" stroke-linecap="round"/>
+        <line x1="512" y1="530" x2="590" y2="450"
+              stroke="#ffffff" stroke-width="12" stroke-linecap="round"/>
+        <circle cx="512" cy="530" r="12" fill="#a5b4fc"/>
+        <path d="M 512 340 A 190 190 0 1 1 385 688"
+              fill="none" stroke="url(#tealGrad)" stroke-width="10"
+              stroke-linecap="round"/>
+        <g fill="none" stroke="#ff6b6b" stroke-width="7" stroke-linecap="round">
+          <path d="M 780 220 A 60 60 0 0 1 820 280"/>
+          <path d="M 795 195 A 100 100 0 0 1 855 295"/>
+          <path d="M 810 170 A 140 140 0 0 1 890 310"/>
+        </g>
+      </svg>
+
+      <div class="logo-text">
+        <span class="logo-text-meetings">Meetings</span>
+        <span class="logo-text-countdown">Countdown</span>
+        <span class="logo-text-pro">Pro</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Version + tagline -->
+    <div class="info-section">
+      <span class="version">Version 1.0.0</span>
+      <span class="tagline">Start every meeting like you're about to announce election results.</span>
+    </div>
+
+    <!-- Update check -->
+    <div class="update-row">
+      <button class="update-btn">Check for Updates</button>
+      <span class="update-result">&#10003; You are already up to date</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Copyright + license -->
+    <div class="footer">
+      <span class="copyright">&copy; 2025&ndash;2026 Axel Larsson &middot; axel@axeltech.com</span>
+      <span class="license">Licensed under the MIT License</span>
+      <span class="repo-link"><a href="https://github.com/elarsson1/meetings-countdown-pro">github.com/elarsson1/meetings-countdown-pro</a></span>
+    </div>
+
+    <!-- OK button -->
+    <button class="ok-btn">OK</button>
+  </div>
+</div>
+
+</body>
+</html>

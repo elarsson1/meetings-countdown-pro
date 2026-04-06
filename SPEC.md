@@ -1,8 +1,8 @@
 # Meetings Countdown Pro - Product Specification
 
-**Version:** 0.5
-**Date:** 2026-03-28
-**Status:** Under Review
+**Version:** 1.0
+**Date:** 2026-04-05
+**Status:** Final
 
 ---
 
@@ -101,6 +101,7 @@ A small clock/countdown-themed icon in the macOS menu bar. The icon is rendered 
 │  ☑ Enable AI Integration            │
 │  ─────────────────────────────────── │
 │  Settings...                         │
+│  About Meetings Countdown Pro        │
 │  ─────────────────────────────────── │
 │  Quit Meetings Countdown Pro         │
 └──────────────────────────────────────┘
@@ -113,7 +114,26 @@ A small clock/countdown-themed icon in the macOS menu bar. The icon is rendered 
   - **Off** — countdowns disabled entirely; app remains in menu bar for quick re-enable
 - **Enable AI Integration:** Checkbox toggle, synced with the AI Integration settings tab. See Section 7.
 - **Settings...** — opens the Settings window
+- **About Meetings Countdown Pro** — opens the About dialog (see Section 4.3)
 - **Quit** — exits the application
+
+### 4.3 About Dialog
+
+A modal-style dialog opened from the menu bar dropdown. Contains:
+
+- **Logo:** App icon (rendered from SVG) alongside a stylized "Meetings Countdown Pro" wordmark.
+- **Version:** Current version string (e.g., "Version 1.0.0"), sourced from `meetings_countdown_pro.__version__`.
+- **Tagline:** The app's one-liner.
+- **Check for Updates:** A button that queries the GitHub Releases API (`/repos/{owner}/{repo}/releases/latest`) on a background thread. Compares the latest release tag (semver) against the running version.
+  - **Up to date:** Shows "You are already up to date" in green.
+  - **Update available:** Shows "New version X.X.X available" with a clickable "Download" link to the GitHub release page.
+  - **Error (offline, API failure):** Shows the error message inline. The button re-enables so the user can retry.
+- **Copyright:** Year range, author name, and email.
+- **License:** "Licensed under the MIT License" (plain text, no link).
+- **Repository link:** Clickable link to the GitHub repository, derived from `meetings_countdown_pro.__repo_url__`.
+- **OK button:** Closes the dialog.
+
+All display strings (version, copyright years, author, email, tagline, repo URL) are defined as module-level constants in `meetings_countdown_pro/__init__.py` so they can be updated in a single location for each release.
 
 ---
 
@@ -497,6 +517,7 @@ When the countdown for Meeting B would fire while Meeting A is still in progress
 | App crash recovery | On relaunch, check `notified.json` — don't re-fire countdowns for already-notified meetings. |
 | AI Integration terminal launch fails | Log warning; countdown proceeds normally without agent. |
 | AI Integration command not found (e.g., `claude` not in PATH) | Terminal session shows shell error; app is unaffected. |
+| Update check fails (offline, API error) | Error message shown inline in the About dialog. Button re-enables for retry. App functionality is unaffected. |
 
 ---
 
@@ -532,6 +553,7 @@ meetings-countdown-pro/
 │   ├── __init__.py
 │   ├── __main__.py            # Allows `python -m meetings_countdown_pro`
 │   ├── app.py                 # QApplication setup, menu bar
+│   ├── about_window.py        # About dialog, update check
 │   ├── calendar_service.py    # EventKit integration via pyobjc
 │   ├── countdown_window.py    # Countdown window UI
 │   ├── audio_player.py        # QMediaPlayer wrapper, sync logic
@@ -542,6 +564,7 @@ meetings-countdown-pro/
 │   ├── notification_state.py  # notified.json management
 │   ├── agent_launcher.py     # AI Integration: command assembly + terminal launch
 │   └── assets/                # SVG icons, placeholder images
+│       ├── icon.svg
 │       ├── menubar_icon.svg
 │       ├── clapperboard.svg
 │       ├── live_badge.svg

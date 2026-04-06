@@ -5,6 +5,10 @@ import os
 import sys
 from pathlib import Path
 
+# Import version from the package so there's a single source of truth
+sys.path.insert(0, os.path.dirname(os.path.abspath(SPECPATH)))
+from meetings_countdown_pro import __version__
+
 block_cipher = None
 
 ROOT = Path(SPECPATH)
@@ -74,12 +78,12 @@ app = BUNDLE(
     name="Meetings Countdown Pro.app",
     icon=str(ROOT / "assets" / "AppIcon.icns"),
     bundle_identifier="com.axeltech.meetings-countdown-pro",
-    version="0.1.0",
+    version=__version__,
     info_plist={
         "CFBundleName": "Meetings Countdown Pro",
         "CFBundleDisplayName": "Meetings Countdown Pro",
-        "CFBundleShortVersionString": "0.1.0",
-        "CFBundleVersion": "0.1.0",
+        "CFBundleShortVersionString": __version__,
+        "CFBundleVersion": __version__,
         "LSMinimumSystemVersion": "12.0",
         "LSUIElement": True,            # Menu-bar app — no Dock icon
         "NSCalendarsUsageDescription":
