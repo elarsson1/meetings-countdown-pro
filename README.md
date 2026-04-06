@@ -1,4 +1,4 @@
-# Meetings Countdown Pro
+![Meetings Countdown Pro](docs/images/logo.png)
 
 ### Start every meeting like you're about to announce election results.
 
