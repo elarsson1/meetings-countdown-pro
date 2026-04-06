@@ -72,10 +72,26 @@ def launch_in_terminal(command: str, working_dir: str, terminal: str) -> None:
         # Use the 'command' parameter on create window — this runs the
         # command as the session's shell process directly, avoiding the
         # unreliable 'write text' approach which simulates typing.
+        # When iTerm2 is not already running, 'activate' starts it but
+        # 'create window' can fire before iTerm2 is ready to accept
+        # scripting commands, silently failing. We retry the create call
+        # until it succeeds (up to 5 seconds).
         applescript = f'''
             tell application "iTerm2"
                 activate
-                create window with default profile command "{zsh_cmd}"
+                set launched to false
+                repeat 50 times
+                    try
+                        create window with default profile command "{zsh_cmd}"
+                        set launched to true
+                        exit repeat
+                    on error
+                        delay 0.1
+                    end try
+                end repeat
+                if not launched then
+                    error "iTerm2 did not become ready within 5 seconds"
+                end if
             end tell
         '''
     else:
