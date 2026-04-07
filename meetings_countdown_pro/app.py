@@ -158,19 +158,6 @@ class App:
         '<line x1="3" y1="15" x2="15" y2="3" stroke="{color}" stroke-width="1.5" stroke-linecap="round"/>'
     )
 
-    def _is_currently_outside_working_hours(self) -> bool:
-        """Check if right now is outside configured working hours."""
-        s = self._settings
-        if not s.working_hours_enabled:
-            return False
-        now = datetime.now().astimezone()
-        if now.weekday() not in s.working_hours_days:
-            return True
-        h_start, m_start = map(int, s.working_hours_start.split(":"))
-        h_end, m_end = map(int, s.working_hours_end.split(":"))
-        now_minutes = now.hour * 60 + now.minute
-        return not (h_start * 60 + m_start <= now_minutes < h_end * 60 + m_end)
-
     def _update_tray_icon(self) -> None:
         """Render and set the menu bar icon based on mode and working hours."""
         mode = self._settings.mode
@@ -186,7 +173,7 @@ class App:
             opacity = "1"
 
         # Working hours badge dot
-        if self._is_currently_outside_working_hours():
+        if not self._is_within_working_hours():
             extras += (
                 '<circle cx="14.5" cy="14.5" r="2.5" fill="#f59e0b" stroke="#000000" stroke-width="0.5"/>'
             )
@@ -324,23 +311,25 @@ class App:
             self._trigger_timer.timeout.connect(lambda ms=simultaneous: self._trigger_countdown(ms))
             self._trigger_timer.start(delay_ms)
 
-    def _is_within_working_hours(self, meeting_start: datetime) -> bool:
-        """Return True if countdown should fire based on working hours settings.
+    def _is_within_working_hours(self, when: datetime | None = None) -> bool:
+        """Return True if the given time (default: now) is within working hours.
 
         When working_hours_enabled is False, always returns True.
         """
         s = self._settings
         if not s.working_hours_enabled:
             return True
-        local = meeting_start.astimezone()
+        if when is None:
+            when = datetime.now().astimezone()
+        local = when.astimezone()
         if local.weekday() not in s.working_hours_days:
             return False
         h_start, m_start = map(int, s.working_hours_start.split(":"))
         h_end, m_end = map(int, s.working_hours_end.split(":"))
         start_minutes = h_start * 60 + m_start
         end_minutes = h_end * 60 + m_end
-        meeting_minutes = local.hour * 60 + local.minute
-        return start_minutes <= meeting_minutes < end_minutes
+        local_minutes = local.hour * 60 + local.minute
+        return start_minutes <= local_minutes < end_minutes
 
     def _trigger_countdown(self, meetings: list[Meeting]) -> None:
         """Open the countdown window for the given meeting(s)."""
