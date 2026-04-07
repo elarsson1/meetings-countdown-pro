@@ -38,8 +38,8 @@ Which terminal app to open for the agent session:
 | Option | Notes |
 |---|---|
 | **Terminal.app** | Built-in macOS terminal. Always available. |
-| **iTerm2** | Popular third-party terminal. Must be installed separately. |
-| **Ghostty** | Modern GPU-accelerated terminal. Requires Ghostty 1.3 or later (for AppleScript support). Must be installed separately. |
+| **[iTerm2](https://iterm2.com/)** | Popular third-party terminal. Must be installed separately. |
+| **[Ghostty](https://ghostty.org/)** | Modern GPU-accelerated terminal. Requires Ghostty 1.3 or later (for AppleScript support). Must be installed separately. |
 
 The app uses AppleScript to create a new window in the selected terminal. The command runs as a login shell (`zsh -l`), so your login profile is loaded. See [Troubleshooting](#iterm2-a-session-ended-very-soon-after-starting) if your agent CLI isn't found — there's a common gotcha with iTerm2 and where PATH is configured.
 
