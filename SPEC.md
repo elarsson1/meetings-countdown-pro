@@ -1,6 +1,6 @@
 # Meetings Countdown Pro - Product Specification
 
-**Version:** 1.0
+**Version:** 1.1
 **Date:** 2026-04-05
 **Status:** Final
 
@@ -309,7 +309,7 @@ Configuration is in the **AI Integration** tab of the Settings window:
 | # | Setting | Type | Default | Description |
 |---|---|---|---|---|
 | 15 | Enable AI Integration | Checkbox | Off | Master toggle. Also controllable from the menu bar. |
-| 16 | Terminal Application | Dropdown | Terminal.app | "Terminal.app" or "iTerm2". Both use AppleScript for window creation. |
+| 16 | Terminal Application | Dropdown | Terminal.app | "Terminal.app", "iTerm2", or "Ghostty" (1.3+). All use AppleScript for window creation. |
 | 17 | Working Directory | Directory picker + text field | `~` | The directory the agent starts in (e.g., where meeting notes are organized). |
 | 18 | Command Template | Text field | `claude {Prompt}` | Shell command to execute. `{Prompt}` is replaced with the shell-escaped prompt. Users should **not** add quotes around `{Prompt}`. |
 | 19 | Prompt Template | Multi-line text area | `Please help me prep for this meeting: {MeetingData}` | The prompt text. `{MeetingData}` is replaced with a JSON object containing meeting context. |
@@ -357,6 +357,7 @@ The assembled command is written to a launch script and executed via AppleScript
 
 - **Terminal.app:** `do script "zsh -l /path/to/script"` — runs the script in a new Terminal window.
 - **iTerm2:** `create window with default profile command "zsh -l /path/to/script"` — creates a new iTerm2 window with the script as the session command.
+- **Ghostty:** `new window with configuration {command:"zsh -l /path/to/script", wait after command:false}` — uses Ghostty 1.3+'s native AppleScript dictionary. Note: Ghostty currently shows a "Process exited. Press any key to close the terminal." prompt for command-launched surfaces regardless of the `wait after command` property; this is a Ghostty quirk we accept.
 
 The `-l` flag ensures zsh runs as a login shell, sourcing the user's profile so tools like `claude` are in PATH.
 
@@ -644,7 +645,7 @@ The following are explicitly **not** in the initial version:
 | 12 | Python version | Python 3.14+ from python.org framework installer recommended (system Python 3.9 is EOL and incompatible with pyobjc) |
 | 13 | Packaging tool | PyInstaller (over py2app) — better maintained, handles PyQt6 and code signing well |
 | 14 | AI Integration data format | Single `{MeetingData}` JSON variable — avoids many template variables, handles simultaneous meetings cleanly |
-| 15 | AI Integration terminal support | Terminal.app + iTerm2 only (AppleScript). No auto-detection of installed terminals. |
+| 15 | AI Integration terminal support | Terminal.app, iTerm2, and Ghostty 1.3+ (all via AppleScript). No auto-detection of installed terminals. |
 | 16 | AI Integration command passing | Temp launch script (`agent-launch.sh`) executed via `zsh -l` — avoids AppleScript escaping issues with long JSON payloads |
 | 17 | AI Integration command template | Flexible user-defined template (not an agent picker) — supports Claude Code, Kiro, shell scripts, or any terminal command |
 

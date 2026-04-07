@@ -1,6 +1,6 @@
 """Meetings Countdown Pro — broadcast-style countdown for calendar meetings."""
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 __app_name__ = "Meetings Countdown Pro"
 __author__ = "Axel Larsson"
 __author_email__ = "axel@axeltech.com"

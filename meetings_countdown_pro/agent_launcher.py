@@ -63,7 +63,7 @@ def _write_launch_script(command: str, working_dir: str) -> str:
 def launch_in_terminal(command: str, working_dir: str, terminal: str) -> None:
     """Launch a command in a new terminal window via AppleScript.
 
-    Supports 'terminal' (Terminal.app) and 'iterm2' (iTerm2).
+    Supports 'terminal' (Terminal.app), 'iterm2' (iTerm2), and 'ghostty' (Ghostty 1.3+).
     The command is written to a temp script to avoid AppleScript escaping issues.
     """
     script_file = _write_launch_script(command, working_dir)
@@ -105,6 +105,19 @@ def launch_in_terminal(command: str, working_dir: str, terminal: str) -> None:
                 if not launched then
                     error "iTerm2 did not become ready within 5 seconds"
                 end if
+            end tell
+        '''
+    elif terminal == "ghostty":
+        # Ghostty 1.3+ exposes a native AppleScript dictionary. We create a
+        # surface configuration with the script as its `command` and open a
+        # new window from it. Unlike iTerm2, Ghostty handles cold-start
+        # cleanly: `activate` blocks until the app is ready to receive
+        # further commands. The window closes when the command exits, to
+        # match the behavior of the Terminal.app and iTerm2 branches.
+        applescript = f'''
+            tell application "Ghostty"
+                activate
+                new window with configuration {{command:"{zsh_cmd}", wait after command:false}}
             end tell
         '''
     else:

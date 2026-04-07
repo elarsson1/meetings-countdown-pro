@@ -47,6 +47,7 @@ class TestValidate:
         ("mode", "off", "off"),
         ("agent_terminal", "invalid", "terminal"),
         ("agent_terminal", "iterm2", "iterm2"),
+        ("agent_terminal", "ghostty", "ghostty"),
     ])
     def test_enum_clamping(self, field, input_val, expected):
         s = Settings(**{field: input_val})

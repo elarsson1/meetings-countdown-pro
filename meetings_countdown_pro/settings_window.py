@@ -584,6 +584,7 @@ class SettingsWindow(QDialog):
         self._agent_terminal = QComboBox()
         self._agent_terminal.addItem("Terminal.app", "terminal")
         self._agent_terminal.addItem("iTerm2", "iterm2")
+        self._agent_terminal.addItem("Ghostty", "ghostty")
         gl.addRow("Application", self._agent_terminal)
         layout.addWidget(group)
 

@@ -52,7 +52,7 @@ class Settings:
 
     # AI Agent integration
     agent_enabled: bool = False
-    agent_terminal: str = "terminal"  # terminal | iterm2
+    agent_terminal: str = "terminal"  # terminal | iterm2 | ghostty
     agent_working_dir: str = "~"
     agent_command_template: str = "claude {Prompt}"
     agent_prompt_template: str = "Please help me prep for this meeting: {MeetingData}"
@@ -91,7 +91,7 @@ class Settings:
             self.back_to_back = "default"
         if self.mode not in ("countdown_music", "silent", "off"):
             self.mode = "countdown_music"
-        if self.agent_terminal not in ("terminal", "iterm2"):
+        if self.agent_terminal not in ("terminal", "iterm2", "ghostty"):
             self.agent_terminal = "terminal"
         # Working hours: clamp days to valid weekday ints
         self.working_hours_days = sorted(

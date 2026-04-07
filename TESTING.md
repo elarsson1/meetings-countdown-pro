@@ -307,6 +307,7 @@ The manual checklist below covers everything that the automated tests do not: vi
 - [ ] AI enabled + real countdown triggers: terminal window opens with agent command
 - [ ] Terminal.app: new window created via AppleScript with `zsh -l` login shell
 - [ ] iTerm2: new window created via AppleScript with `zsh -l` login shell
+- [ ] Ghostty (1.3+): new window created via AppleScript with `zsh -l` login shell (verify cold-start works when Ghostty is not already running)
 - [ ] Working directory is respected (agent starts in configured directory)
 - [ ] Agent session persists after countdown ends (normal interactive terminal)
 

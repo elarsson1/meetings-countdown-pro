@@ -157,3 +157,41 @@ class TestLaunchAgent:
         assert "Standup" in launched[0][0]
         assert launched[0][1] == "~/Code"
         assert launched[0][2] == "iterm2"
+
+
+# ===================================================================
+# launch_in_terminal — AppleScript dispatch per terminal
+# ===================================================================
+
+class TestLaunchInTerminal:
+    @pytest.mark.parametrize("terminal,expected_app", [
+        ("terminal", "Terminal"),
+        ("iterm2", "iTerm2"),
+        ("ghostty", "Ghostty"),
+    ])
+    def test_dispatch(self, config_dir, monkeypatch, terminal, expected_app):
+        from meetings_countdown_pro import agent_launcher
+
+        calls = []
+
+        class FakeProc:
+            pid = 1234
+
+        def fake_popen(args, **kwargs):
+            calls.append(args)
+            return FakeProc()
+
+        # Pretend iTerm2 is already running so we skip the open -a branch.
+        def fake_run(args, **kwargs):
+            class R: returncode = 0
+            return R()
+
+        monkeypatch.setattr(agent_launcher.subprocess, "Popen", fake_popen)
+        monkeypatch.setattr(agent_launcher.subprocess, "run", fake_run)
+
+        agent_launcher.launch_in_terminal("echo hi", "~", terminal)
+
+        assert len(calls) == 1
+        assert calls[0][0] == "osascript"
+        applescript = calls[0][2]
+        assert expected_app in applescript

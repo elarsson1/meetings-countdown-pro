@@ -39,6 +39,7 @@ Which terminal app to open for the agent session:
 |---|---|
 | **Terminal.app** | Built-in macOS terminal. Always available. |
 | **iTerm2** | Popular third-party terminal. Must be installed separately. |
+| **Ghostty** | Modern GPU-accelerated terminal. Requires Ghostty 1.3 or later (for AppleScript support). Must be installed separately. |
 
 The app uses AppleScript to create a new window in the selected terminal. The command runs as a login shell (`zsh -l`), so your login profile is loaded. See [Troubleshooting](#iterm2-a-session-ended-very-soon-after-starting) if your agent CLI isn't found — there's a common gotcha with iTerm2 and where PATH is configured.
 
@@ -209,7 +210,7 @@ See [Test Mode](test-mode.md) for details.
 
 | Problem | Solution |
 |---|---|
-| Terminal window doesn't open | Check that the selected terminal app (Terminal.app or iTerm2) is installed and can be controlled via AppleScript. For iTerm2, you may need to allow automation in **System Settings → Privacy & Security → Automation**. |
+| Terminal window doesn't open | Check that the selected terminal app (Terminal.app, iTerm2, or Ghostty) is installed and can be controlled via AppleScript. For iTerm2, you may need to allow automation in **System Settings → Privacy & Security → Automation**. |
 | iTerm2: "A session ended very soon after starting" | See [iTerm2 PATH issue](#iterm2-a-session-ended-very-soon-after-starting) below. |
 | `command not found` in terminal | Your agent CLI tool (e.g., `claude`) isn't in your PATH for non-interactive shells. See [iTerm2 PATH issue](#iterm2-a-session-ended-very-soon-after-starting) below. |
 | Prompt looks wrong or is truncated | Make sure you're not wrapping `{Prompt}` in quotes in your command template. The app handles escaping automatically. |
