@@ -1,5 +1,9 @@
 # Plan: Employee Directory Links + Settings Reorganization
 
+**Status:** Shipped
+**Date:** 2026-04-07
+**Shipped in:** commit `610e0d4` · release `v1.2.0`
+
 ## Goal
 
 1. **New feature:** Make internal attendee names in the countdown window clickable links that open a configurable employee-directory URL.
