@@ -22,7 +22,7 @@ The left side shows everything you need to know about who you're about to meet:
 - **Time range** (start – end).
 - **Attendee summary line** — e.g., "8 attendees · 8 external from 3 orgs". This is always visible, even if the full list is long.
 - **Attendee list**, grouped into:
-  - **Internal attendees** — people whose email domain matches your configured [Internal Email Domain](settings-general.md#internal-email-domain). Listed alphabetically.
+  - **Internal attendees** — people whose email domain matches your configured [Internal Email Domain](settings-attendees.md#internal-email-domain). Listed alphabetically. If you've also set a [Directory URL Template](settings-attendees.md#directory-url-template), each internal name renders as a clickable link that opens the rendered URL in your default browser.
   - **External attendees** — grouped by organization (email domain), with each group headed by the organization's favicon and domain name. Sorted alphabetically within each group.
 
 The entire left panel scrolls if the attendee list is long.

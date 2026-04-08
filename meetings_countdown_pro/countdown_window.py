@@ -491,8 +491,14 @@ class CountdownWindow(QWidget):
                 internal, external = meeting.classify_attendees(self._settings.internal_domain)
                 if internal:
                     self._add_section_header("Internal", COLOR_INTERNAL_ACCENT)
+                    from meetings_countdown_pro.attendee_links import build_directory_url
                     for att in internal:
-                        self._add_attendee(att.effective_name, COLOR_INTERNAL_ACCENT)
+                        url = build_directory_url(
+                            self._settings.directory_url_template, att.email
+                        )
+                        self._add_attendee(
+                            att.effective_name, COLOR_INTERNAL_ACCENT, link_url=url
+                        )
 
                 if external:
                     self._add_section_header("External", COLOR_EXTERNAL_ACCENT, top_margin=10)
@@ -560,7 +566,13 @@ class CountdownWindow(QWidget):
         self._left_layout.addWidget(label)
         self._left_layout.addSpacing(4)
 
-    def _add_attendee(self, name: str, dot_color: QColor, indent: int = 0) -> None:
+    def _add_attendee(
+        self,
+        name: str,
+        dot_color: QColor,
+        indent: int = 0,
+        link_url: str | None = None,
+    ) -> None:
         row = QHBoxLayout()
         row.setContentsMargins(indent, 0, 0, 0)
         row.setSpacing(6)
@@ -574,7 +586,20 @@ class CountdownWindow(QWidget):
 
         label = QLabel(name)
         label.setFont(self._make_font(13))
-        label.setStyleSheet("color: #c8c8e0; background: transparent;")
+        if link_url:
+            label.setStyleSheet(
+                "QLabel { color: #c8c8e0; background: transparent; }"
+                "QLabel:hover { text-decoration: underline; }"
+            )
+            label.setCursor(Qt.CursorShape.PointingHandCursor)
+            label.setProperty("directoryUrl", link_url)
+
+            def _open(_event, url=link_url):
+                QDesktopServices.openUrl(QUrl(url))
+
+            label.mousePressEvent = _open  # type: ignore[method-assign]
+        else:
+            label.setStyleSheet("color: #c8c8e0; background: transparent;")
         row.addWidget(label, 1)
 
         wrapper = QWidget()

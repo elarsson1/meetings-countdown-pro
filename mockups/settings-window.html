@@ -548,6 +548,14 @@
     <div class="pref-tab">
       <div class="pref-tab-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+      <span class="pref-tab-label">Attendees</span>
+    </div>
+    <div class="pref-tab">
+      <div class="pref-tab-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
         </svg>
       </div>
@@ -565,89 +573,47 @@
 
   <div class="settings-content">
 
-    <!-- Row 1: Startup (left) + Organization (right) -->
-    <div class="two-col">
-      <div class="col">
-        <div class="group-box">
-          <div class="group-box-title">Startup</div>
-          <div class="group-box-content">
-            <div class="checkbox-row">
-              <div class="checkbox checked">&#10003;</div>
-              Launch at Login
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col">
-        <div class="group-box">
-          <div class="group-box-title">Organization</div>
-          <div class="group-box-content">
-            <div class="form-row" style="flex-direction:column; align-items:flex-start; gap:4px;">
-              <span class="form-label" style="min-width:auto;">Internal Email Domain</span>
-              <input class="text-input" type="text" placeholder="example.com" value="acme.com" style="width:100%;">
-            </div>
-          </div>
+    <!-- Startup -->
+    <div class="group-box">
+      <div class="group-box-title">Startup</div>
+      <div class="group-box-content">
+        <div class="checkbox-row">
+          <div class="checkbox checked">&#10003;</div>
+          Launch at Login
         </div>
       </div>
     </div>
 
-    <!-- Row 2: Countdown (left) + Meeting Filters (right) -->
-    <div class="two-col">
-      <div class="col">
-        <div class="group-box">
-          <div class="group-box-title">Countdown</div>
-          <div class="group-box-content" style="gap:6px;">
-            <div class="form-row">
-              <span class="form-label" style="min-width:auto;">Countdown Duration</span>
-              <div class="spinbox">
-                <span class="spinbox-value">60</span>
-                <span class="spinbox-suffix">sec</span>
-                <div class="spinbox-arrows">
-                  <div class="spinbox-arrow">&#9650;</div>
-                  <div class="spinbox-arrow">&#9660;</div>
-                </div>
-              </div>
-            </div>
-            <div class="checkbox-row">
-              <div class="checkbox"></div>
-              Only for video meetings
-            </div>
-            <div class="checkbox-row">
-              <div class="checkbox"></div>
-              Auto-open link when done
-            </div>
-            <div class="checkbox-row">
-              <div class="checkbox"></div>
-              Continue after joining
-            </div>
-            <div class="form-row">
-              <span class="form-label" style="min-width:auto;">Back-to-Back</span>
-              <select class="dropdown">
-                <option>Default</option>
-                <option>Silent</option>
-                <option>Skip</option>
-              </select>
+    <!-- Countdown -->
+    <div class="group-box">
+      <div class="group-box-title">Countdown</div>
+      <div class="group-box-content">
+        <div class="form-row">
+          <span class="form-label">Countdown Duration</span>
+          <div class="spinbox">
+            <span class="spinbox-value">60</span>
+            <span class="spinbox-suffix">sec</span>
+            <div class="spinbox-arrows">
+              <div class="spinbox-arrow">&#9650;</div>
+              <div class="spinbox-arrow">&#9660;</div>
             </div>
           </div>
         </div>
-      </div>
-      <div class="col">
-        <div class="group-box">
-          <div class="group-box-title">Meeting Filters</div>
-          <div class="group-box-content" style="gap:6px;">
-            <div class="checkbox-row">
-              <div class="checkbox"></div>
-              Include Tentative
-            </div>
-            <div class="checkbox-row">
-              <div class="checkbox"></div>
-              Include Free Events
-            </div>
-            <div class="checkbox-row">
-              <div class="checkbox"></div>
-              Include All-Day Events
-            </div>
-          </div>
+        <div class="checkbox-row">
+          <div class="checkbox checked">&#10003;</div>
+          Automatically open meeting link at countdown end
+        </div>
+        <div class="checkbox-row">
+          <div class="checkbox"></div>
+          Continue countdown after joining
+        </div>
+        <div class="form-row">
+          <span class="form-label">Back-to-Back Meetings</span>
+          <select class="dropdown">
+            <option>Use Default Behavior</option>
+            <option>Silent Countdown</option>
+            <option>Skip Countdown</option>
+          </select>
         </div>
       </div>
     </div>
@@ -729,6 +695,14 @@
     <div class="pref-tab">
       <div class="pref-tab-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+      <span class="pref-tab-label">Attendees</span>
+    </div>
+    <div class="pref-tab">
+      <div class="pref-tab-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
         </svg>
       </div>
@@ -798,6 +772,130 @@
         Shared &mdash; Sales Team
       </div>
     </div>
+
+    <!-- Meeting Filters -->
+    <div class="group-box">
+      <div class="group-box-title">Meeting Filters</div>
+      <div class="group-box-content">
+        <div class="checkbox-row">
+          <div class="checkbox"></div>
+          Only meetings with video links
+        </div>
+        <div class="checkbox-row">
+          <div class="checkbox"></div>
+          Include Tentatively Accepted
+        </div>
+        <div class="checkbox-row">
+          <div class="checkbox"></div>
+          Include Free Events
+        </div>
+        <div class="checkbox-row">
+          <div class="checkbox"></div>
+          Include All-Day Events
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="button-bar">
+    <div class="btn-group">
+      <button class="btn test">&#9654; Test Countdown</button>
+      <button class="btn" style="font-size:11px; color:#888; border-color:#ddd;">Quick Test (10s)</button>
+    </div>
+    <div class="btn-group">
+      <button class="btn primary">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ -->
+<!-- Attendees Tab                   -->
+<!-- ════════════════════════════════ -->
+<div class="settings-window">
+  <div class="title-bar">
+    <div class="traffic-light tl-close"></div>
+    <div class="traffic-light tl-minimize"></div>
+    <div class="traffic-light tl-maximize"></div>
+    <span class="title-text">Settings</span>
+  </div>
+
+  <div class="pref-toolbar">
+    <div class="pref-tab">
+      <div class="pref-tab-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </div>
+      <span class="pref-tab-label">General</span>
+    </div>
+    <div class="pref-tab">
+      <div class="pref-tab-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+      </div>
+      <span class="pref-tab-label">Calendars</span>
+    </div>
+    <div class="pref-tab active">
+      <div class="pref-tab-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+      <span class="pref-tab-label">Attendees</span>
+    </div>
+    <div class="pref-tab">
+      <div class="pref-tab-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+        </svg>
+      </div>
+      <span class="pref-tab-label">Audio</span>
+    </div>
+    <div class="pref-tab">
+      <div class="pref-tab-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5V5a1 1 0 0 0 1 1h1.5A2.5 2.5 0 0 1 17 8.5V9a1 1 0 0 1-1 1h-1"/><path d="M8 10H7a1 1 0 0 1-1-1V8.5A2.5 2.5 0 0 1 8.5 6H9"/><rect x="6" y="10" width="12" height="10" rx="2"/><circle cx="10" cy="15" r="1" fill="#555"/><circle cx="14" cy="15" r="1" fill="#555"/><path d="M10 18h4"/>
+        </svg>
+      </div>
+      <span class="pref-tab-label">AI Integration</span>
+    </div>
+  </div>
+
+  <div class="settings-content">
+
+    <!-- Organization -->
+    <div class="group-box">
+      <div class="group-box-title">Organization</div>
+      <div class="group-box-content">
+        <div class="form-row">
+          <span class="form-label">Internal Email Domain</span>
+          <input class="text-input" type="text" placeholder="example.com" value="acme.com" style="flex:1;">
+        </div>
+        <span class="hint">Attendees with this domain are grouped as &ldquo;Internal&rdquo; in the countdown window.</span>
+      </div>
+    </div>
+
+    <!-- Employee Directory -->
+    <div class="group-box">
+      <div class="group-box-title">Employee Directory</div>
+      <div class="group-box-content">
+        <div class="form-row">
+          <span class="form-label">Directory URL Template</span>
+          <input class="text-input" type="text" placeholder="https://directory.acme.com/u/{Username}" value="https://directory.acme.com/u/{Username}" style="flex:1;">
+        </div>
+        <span class="hint">
+          When set, internal attendee names in the countdown window become clickable links that open this URL. Leave blank to disable.
+        </span>
+        <span class="hint" style="margin-top:4px;">
+          Variables:
+          <code>{Email}</code> &rarr; jane.doe@acme.com &nbsp;&middot;&nbsp;
+          <code>{Username}</code> &rarr; jane.doe &nbsp;&middot;&nbsp;
+          <code>{Domain}</code> &rarr; acme.com
+        </span>
+      </div>
+    </div>
+
   </div>
 
   <div class="button-bar">
@@ -838,6 +936,14 @@
         </svg>
       </div>
       <span class="pref-tab-label">Calendars</span>
+    </div>
+    <div class="pref-tab">
+      <div class="pref-tab-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+      <span class="pref-tab-label">Attendees</span>
     </div>
     <div class="pref-tab active">
       <div class="pref-tab-icon">
@@ -976,6 +1082,14 @@
     <div class="pref-tab">
       <div class="pref-tab-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+      <span class="pref-tab-label">Attendees</span>
+    </div>
+    <div class="pref-tab">
+      <div class="pref-tab-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
         </svg>
       </div>
@@ -1008,6 +1122,7 @@
           <select class="dropdown">
             <option selected>Terminal.app</option>
             <option>iTerm2</option>
+            <option>Ghostty</option>
           </select>
         </div>
       </div>

@@ -73,7 +73,7 @@ For detailed configuration, setup guides, and all the settings explained: **[Use
 - [Quick Start](docs/quick-start.md) — get configured in 5 minutes
 - [Menu Bar](docs/menu-bar.md) — modes and quick toggles
 - [Countdown Window](docs/countdown-window.md) — the main event
-- Settings: [General](docs/settings-general.md) · [Calendars](docs/settings-calendars.md) · [Audio](docs/settings-audio.md) · [AI Integration](docs/ai-integration.md)
+- Settings: [General](docs/settings-general.md) · [Calendars](docs/settings-calendars.md) · [Attendees](docs/settings-attendees.md) · [Audio](docs/settings-audio.md) · [AI Integration](docs/ai-integration.md)
 - [Test Mode](docs/test-mode.md) — preview and calibrate without waiting for a meeting
 
 ## Contributing

@@ -14,13 +14,13 @@ Click the menu bar icon and select **Settings...** to open the preferences windo
 
 ## 3. Set Your Internal Email Domain
 
-On the **General** tab, find the **Internal Email Domain** field under Organization.
+Switch to the **Attendees** tab and enter your company's email domain (e.g., `acme.com`) in the **Internal Email Domain** field.
 
-![General Settings](images/prefs_general.png)
-
-Enter your company's email domain (e.g., `acme.com`). This is how the app knows who's internal to your organization and who's external. The countdown window groups attendees by internal vs. external, so you can see at a glance whether you need to be on your best behavior.
+This is how the app knows who's internal to your organization and who's external. The countdown window groups attendees by internal vs. external, so you can see at a glance whether you need to be on your best behavior.
 
 If you leave this blank, all attendees are shown in a single flat list.
+
+> **Optional:** You can also paste your employee directory URL in the **Directory URL Template** field on the same tab to make internal attendee names clickable.
 
 ## 4. Select Your Calendars
 
@@ -53,7 +53,7 @@ Or, if you're impatient (understandable), click **Test Countdown** at the bottom
 
 ## 7. Join Your Meeting
 
-When the countdown appears, you'll see the meeting title, time, and attendee list on the left, with the countdown timer on the right. Click **Join Now** at any point to open the meeting link and close the countdown window. Or enable **Auto-open link when done** in General settings to have the link open automatically when the countdown ends. If you'd rather bring the drama with you into the meeting, enable **Continue after joining** in **Settings** to keep the window open while you join.
+When the countdown appears, you'll see the meeting title, time, and attendee list on the left, with the countdown timer on the right. Click **Join Now** at any point to open the meeting link and close the countdown window. Or enable **Automatically open meeting link at countdown end** in General settings to have the link open automatically when the countdown ends. If you'd rather bring the drama with you into the meeting, enable **Continue countdown after joining** in **Settings** to keep the window open while you join.
 
 ![Countdown](images/countdown.png)
 

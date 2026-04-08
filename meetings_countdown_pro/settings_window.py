@@ -33,7 +33,7 @@ from meetings_countdown_pro.settings import Settings
 
 
 class SettingsWindow(QDialog):
-    """4-tab settings dialog: General, Calendars, Audio, Agent."""
+    """5-tab settings dialog: General, Calendars, Attendees, Audio, Agent."""
 
     settings_saved = pyqtSignal(Settings)
     test_countdown_requested = pyqtSignal(int)  # duration in seconds
@@ -128,6 +128,10 @@ class SettingsWindow(QDialog):
             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
         </svg>'''
 
+        users_svg = '''<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>'''
+
         ai_svg = '''<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5V5a1 1 0 0 0 1 1h1.5A2.5 2.5 0 0 1 17 8.5V9a1 1 0 0 1-1 1h-1"/><path d="M8 10H7a1 1 0 0 1-1-1V8.5A2.5 2.5 0 0 1 8.5 6H9"/><rect x="6" y="10" width="12" height="10" rx="2"/><circle cx="10" cy="15" r="1" fill="#555"/><circle cx="14" cy="15" r="1" fill="#555"/><path d="M10 18h4"/>
         </svg>'''
@@ -135,6 +139,7 @@ class SettingsWindow(QDialog):
         tab_pages = [
             ("General", gear_svg, self._build_general_tab()),
             ("Calendars", calendar_svg, self._build_calendars_tab()),
+            ("Attendees", users_svg, self._build_attendees_tab()),
             ("Audio", speaker_svg, self._build_audio_tab()),
             ("AI Integration", ai_svg, self._build_agent_tab()),
         ]
@@ -203,29 +208,12 @@ class SettingsWindow(QDialog):
         layout.setContentsMargins(28, 24, 28, 24)
         layout.setSpacing(16)
 
-        # Row 1: Startup (left) + Organization (right)
-        top_row = QHBoxLayout()
-        top_row.setSpacing(16)
-
+        # Startup
         group = QGroupBox("Startup")
         gl = QFormLayout(group)
         self._launch_login = QCheckBox("Launch at Login")
         gl.addRow(self._launch_login)
-        top_row.addWidget(group, 1)
-
-        group = QGroupBox("Organization")
-        gl = QVBoxLayout(group)
-        gl.addWidget(QLabel("Internal Email Domain"))
-        self._internal_domain = QLineEdit()
-        self._internal_domain.setPlaceholderText("example.com")
-        gl.addWidget(self._internal_domain)
-        top_row.addWidget(group, 1)
-
-        layout.addLayout(top_row)
-
-        # Row 2: Countdown (left) + Meeting Filters (right)
-        mid_row = QHBoxLayout()
-        mid_row.setSpacing(16)
+        layout.addWidget(group)
 
         # Countdown
         group = QGroupBox("Countdown")
@@ -242,39 +230,23 @@ class SettingsWindow(QDialog):
         dur_row.addStretch()
         gl.addLayout(dur_row)
 
-        self._video_only = QCheckBox("Only for video meetings")
-        gl.addWidget(self._video_only)
-
-        self._auto_join = QCheckBox("Auto-open link when done")
+        self._auto_join = QCheckBox("Automatically open meeting link at countdown end")
         gl.addWidget(self._auto_join)
 
-        self._continue_after_join = QCheckBox("Continue after joining")
+        self._continue_after_join = QCheckBox("Continue countdown after joining")
         gl.addWidget(self._continue_after_join)
 
         b2b_row = QHBoxLayout()
-        b2b_row.addWidget(QLabel("Back-to-Back"))
+        b2b_row.addWidget(QLabel("Back-to-Back Meetings"))
         self._back_to_back = QComboBox()
-        self._back_to_back.addItems(["Default", "Silent", "Skip"])
+        self._back_to_back.addItems(
+            ["Use Default Behavior", "Silent Countdown", "Skip Countdown"]
+        )
         b2b_row.addWidget(self._back_to_back)
         b2b_row.addStretch()
         gl.addLayout(b2b_row)
 
-        mid_row.addWidget(group, 1)
-
-        # Meeting Filters
-        group = QGroupBox("Meeting Filters")
-        gl = QVBoxLayout(group)
-        gl.setSpacing(6)
-        self._include_tentative = QCheckBox("Include Tentative")
-        gl.addWidget(self._include_tentative)
-        self._include_free = QCheckBox("Include Free Events")
-        gl.addWidget(self._include_free)
-        self._include_allday = QCheckBox("Include All-Day Events")
-        gl.addWidget(self._include_allday)
-        gl.addStretch()
-        mid_row.addWidget(group, 1)
-
-        layout.addLayout(mid_row)
+        layout.addWidget(group)
 
         # Working Hours
         group = QGroupBox("Working Hours")
@@ -470,6 +442,80 @@ class SettingsWindow(QDialog):
             account_item.setExpanded(True)
 
         layout.addWidget(self._cal_tree, 1)
+
+        # Meeting Filters
+        group = QGroupBox("Meeting Filters")
+        gl = QVBoxLayout(group)
+        gl.setSpacing(6)
+        self._video_only = QCheckBox("Only meetings with video links")
+        gl.addWidget(self._video_only)
+        self._include_tentative = QCheckBox("Include Tentatively Accepted")
+        gl.addWidget(self._include_tentative)
+        self._include_free = QCheckBox("Include Free Events")
+        gl.addWidget(self._include_free)
+        self._include_allday = QCheckBox("Include All-Day Events")
+        gl.addWidget(self._include_allday)
+        layout.addWidget(group)
+
+        return page
+
+    # ------------------------------------------------------------------
+    # Attendees tab
+    # ------------------------------------------------------------------
+
+    def _build_attendees_tab(self) -> QWidget:
+        page = QWidget()
+        layout = QVBoxLayout(page)
+        layout.setContentsMargins(28, 24, 28, 24)
+        layout.setSpacing(16)
+
+        # Organization
+        group = QGroupBox("Organization")
+        gl = QVBoxLayout(group)
+        gl.setSpacing(6)
+        row = QHBoxLayout()
+        row.addWidget(QLabel("Internal Email Domain"))
+        self._internal_domain = QLineEdit()
+        self._internal_domain.setPlaceholderText("example.com")
+        row.addWidget(self._internal_domain, 1)
+        gl.addLayout(row)
+        hint = QLabel(
+            'Attendees with this domain are grouped as "Internal" in the countdown window.'
+        )
+        hint.setWordWrap(True)
+        hint.setStyleSheet("color: #888; font-size: 11px;")
+        gl.addWidget(hint)
+        layout.addWidget(group)
+
+        # Employee Directory
+        group = QGroupBox("Employee Directory")
+        gl = QVBoxLayout(group)
+        gl.setSpacing(6)
+        row = QHBoxLayout()
+        row.addWidget(QLabel("Directory URL Template"))
+        self._directory_url_template = QLineEdit()
+        self._directory_url_template.setPlaceholderText(
+            "https://directory.acme.com/u/{Username}"
+        )
+        row.addWidget(self._directory_url_template, 1)
+        gl.addLayout(row)
+        hint = QLabel(
+            "When set, internal attendee names in the countdown window become "
+            "clickable links that open this URL. Leave blank to disable."
+        )
+        hint.setWordWrap(True)
+        hint.setStyleSheet("color: #888; font-size: 11px;")
+        gl.addWidget(hint)
+        vars_hint = QLabel(
+            "Variables: {Email} \u2192 jane.doe@acme.com  \u00b7  "
+            "{Username} \u2192 jane.doe  \u00b7  {Domain} \u2192 acme.com"
+        )
+        vars_hint.setWordWrap(True)
+        vars_hint.setStyleSheet("color: #888; font-size: 11px;")
+        gl.addWidget(vars_hint)
+        layout.addWidget(group)
+
+        layout.addStretch()
         return page
 
     # ------------------------------------------------------------------
@@ -659,6 +705,7 @@ class SettingsWindow(QDialog):
         self._auto_join.setChecked(s.auto_join)
         self._continue_after_join.setChecked(s.continue_after_join)
         self._internal_domain.setText(s.internal_domain)
+        self._directory_url_template.setText(s.directory_url_template)
         self._include_tentative.setChecked(s.include_tentative)
         self._include_allday.setChecked(s.include_all_day)
         self._include_free.setChecked(s.include_free)
@@ -726,6 +773,7 @@ class SettingsWindow(QDialog):
         s.auto_join = self._auto_join.isChecked()
         s.continue_after_join = self._continue_after_join.isChecked()
         s.internal_domain = self._internal_domain.text().strip()
+        s.directory_url_template = self._directory_url_template.text().strip()
         s.include_tentative = self._include_tentative.isChecked()
         s.include_all_day = self._include_allday.isChecked()
         s.include_free = self._include_free.isChecked()

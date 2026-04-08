@@ -15,8 +15,9 @@ Welcome to the documentation for Meetings Countdown Pro, the macOS menu bar app 
 
 ### Settings Reference
 
-- **[General Settings](settings-general.md)** — Startup, countdown duration, video-only filtering, internal domain, meeting filters, back-to-back handling, and working hours.
-- **[Calendars Settings](settings-calendars.md)** — Selecting which calendar accounts and individual calendars to monitor.
+- **[General Settings](settings-general.md)** — Startup, countdown duration, auto-join, back-to-back handling, and working hours.
+- **[Calendars Settings](settings-calendars.md)** — Selecting which calendar accounts and individual calendars to monitor, and the meeting filters that decide which events count.
+- **[Attendees Settings](settings-attendees.md)** — Internal email domain and the optional Employee Directory URL template that makes internal attendee names clickable.
 - **[Audio Settings](settings-audio.md)** — Sound file, volume, output device, duration override, and clock offset calibration.
 - **[AI Integration](ai-integration.md)** — Launch a coding agent, shell script, or any terminal command with full meeting context when a countdown starts. The feature that Marketing made us write a whole page about.
 

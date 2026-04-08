@@ -246,14 +246,9 @@ The manual checklist below covers everything that the automated tests do not: vi
 #### 11.1 General Tab
 - [ ] Launch at Login toggle creates/removes LaunchAgent plist
 - [ ] LaunchAgent plist at `~/Library/LaunchAgents/com.axeltech.meetingscountdownpro.plist`
-- [ ] Video Calls Only toggle
-- [ ] Include Tentative toggle
-- [ ] Include Free Events toggle
-- [ ] Include All-Day Events toggle
-- [ ] Auto-Join at Countdown End toggle
-- [ ] Continue Countdown After Joining toggle (default unchecked)
-- [ ] Internal Email Domain text field
-- [ ] Back-to-Back Meetings dropdown (Default / Silent / Skip)
+- [ ] "Automatically open meeting link at countdown end" toggle
+- [ ] "Continue countdown after joining" toggle (default unchecked)
+- [ ] Back-to-Back Meetings dropdown (Use Default Behavior / Silent Countdown / Skip Countdown)
 - [ ] Working Hours toggle (default unchecked)
 - [ ] Working Hours day/time controls disabled when toggle unchecked, enabled when checked
 - [ ] Working Hours day pills Sun–Sat, Mon–Fri selected by default
@@ -266,8 +261,24 @@ The manual checklist below covers everything that the automated tests do not: vi
 - [ ] Checkboxes for individual calendar selection
 - [ ] Select All / Deselect All functionality (if implemented)
 - [ ] Reflects current macOS Calendar accounts
+- [ ] Meeting Filters group present below calendar tree
+- [ ] "Only meetings with video links" toggle (also affects Next Meeting display in menu bar)
+- [ ] "Include Tentatively Accepted" toggle
+- [ ] "Include Free Events" toggle
+- [ ] "Include All-Day Events" toggle
 
-#### 11.3 Audio Tab
+#### 11.3 Attendees Tab
+- [ ] Tab present between Calendars and Audio with "users" icon
+- [ ] Internal Email Domain text field present (relocated from General)
+- [ ] Changing the internal domain affects internal/external grouping in the next countdown
+- [ ] Directory URL Template text field present
+- [ ] Empty template → internal attendee names render as plain labels (not clickable)
+- [ ] Template set with `{Username}` → internal names show pointing-hand cursor and underline on hover
+- [ ] Clicking an internal name opens the rendered URL in the default browser
+- [ ] External attendee names are never clickable, even when a template is set
+- [ ] Variable substitutions URL-encode special characters (e.g. `+` → `%2B`)
+
+#### 11.4 Audio Tab
 - [ ] Sound file picker (accepts MP3, WAV, FLAC, AAC)
 - [ ] Clear button removes selected sound file
 - [ ] File name and detected duration displayed when file selected
@@ -276,7 +287,7 @@ The manual checklist below covers everything that the automated tests do not: vi
 - [ ] Audio output device dropdown
 - [ ] Device list refreshed when dropdown opened
 
-#### 11.4 Test Mode
+#### 11.5 Test Mode
 - [ ] "Test Countdown" button launches full countdown with mock data
 - [ ] Mock meeting has sample subject, attendees (internal + external)
 - [ ] Uses current settings (duration, sound file, offset)

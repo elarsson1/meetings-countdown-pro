@@ -27,6 +27,7 @@ class Settings:
 
     # Organization
     internal_domain: str = ""
+    directory_url_template: str = ""
 
     # Meeting filters
     include_tentative: bool = False

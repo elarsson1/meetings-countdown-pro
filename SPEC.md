@@ -193,7 +193,7 @@ The entire left pane is a single scrollable area containing meeting details and 
 - **Time:** Start – End time in the user's local timezone.
 - **Attendee summary line:** Always shown below the time. Format: "{N} attendees · {X} internal, {Y} external from {Z} orgs". If no internal domain is configured, just "{N} attendees". This gives at-a-glance context even if the full list is long.
 - **Attendee list:**
-  - **Internal Attendees:** Listed under an "Internal" header. Sorted alphabetically by display name. Attendees whose email domain matches the configured internal domain.
+  - **Internal Attendees:** Listed under an "Internal" header. Sorted alphabetically by display name. Attendees whose email domain matches the configured internal domain. If a Directory URL Template is configured (Attendees tab), each name is rendered as a clickable link (cursor: pointing hand, underline on hover) that opens the rendered URL in the user's default browser via `QDesktopServices.openUrl`. Substitutions are URL-encoded; templates with no recognized variables pass through unchanged.
   - **External Attendees:** Listed under an "External" header. **Grouped by email domain**, each domain group headed by the domain's favicon (16×16) and the domain name. Within each domain group, sorted alphabetically by display name. Domain groups themselves are sorted alphabetically by domain name.
 **Multiple simultaneous meetings:**
 
@@ -389,7 +389,19 @@ If the application triggers a countdown and the meeting start is **less than `C`
 
 ### 9.1 Settings UI
 
-A macOS System Preferences-style window with a centered icon toolbar at the top. Four pane-selector buttons (General, Calendars, Audio, AI Integration) each display an SVG icon above a label. The active pane is highlighted. Content within each pane is organized into bordered group boxes (`QGroupBox`) with form layouts.
+A macOS System Preferences-style window with a centered icon toolbar at the top. Five pane-selector buttons (General, Calendars, Attendees, Audio, AI Integration) each display an SVG icon above a label. The active pane is highlighted. Content within each pane is organized into bordered group boxes (`QGroupBox`) with form layouts.
+
+**Tab ownership of settings:**
+
+| Tab | Settings |
+|---|---|
+| General | Launch at Login · Countdown Duration · Auto-Join · Continue After Joining · Back-to-Back Meetings · Working Hours |
+| Calendars | Calendar Accounts tree · Meeting Filters (Only meetings with video links, Include Tentative, Include Free, Include All-Day) |
+| Attendees | Internal Email Domain · Directory URL Template |
+| Audio | Sound File · Duration Override · Volume · Output Device · Clock Offset |
+| AI Integration | Enable · Terminal · Working Directory · Command Template · Prompt Template |
+
+The "Only meetings with video links" filter is a true event filter — it also affects which meeting is shown as the "Next Meeting" in the menu bar.
 
 ### 9.2 Settings Reference
 
@@ -403,6 +415,7 @@ A macOS System Preferences-style window with a centered icon toolbar at the top.
 | 6 | Sound Duration | Read-only (auto-detected) + manual override | Auto | Detected when sound file is selected. Manual override available. |
 | 7 | Clock Offset | Numeric input (ms) | 0 ms | Milliseconds to delay the visual countdown tick after audio begins. Range: -2000 to +2000 ms. |
 | 8 | Internal Email Domain | Text field | Empty | e.g., `example.com`. Used to classify attendees as internal vs. external. If empty, all attendees shown in a single list (no internal/external split). |
+| 8a | Directory URL Template | Text field | Empty | Optional employee-directory URL with `{Email}`, `{Username}`, `{Domain}` substitutions (URL-encoded). When set, internal attendee names in the countdown window become clickable links that open the rendered URL in the user's default browser. Empty = feature disabled (no separate enable toggle). External attendees are never clickable. Malformed emails (no `@`) fall back to a non-clickable label. |
 | 9 | Include Tentative | Toggle | No | Whether to include meetings the user has tentatively accepted. |
 | 10 | Include All-Day Events | Toggle | No | Whether to include all-day/multi-day events in countdown triggers. Off by default (all-day events are skipped). |
 | 11 | Include Free Events | Toggle | No | Whether to include events marked "Show As: Free" (focus time, OOO placeholders, FYI blocks). Off by default (free events are skipped). |

@@ -67,12 +67,14 @@ class TestPersistence:
         assert loaded.countdown_duration == s.countdown_duration
         assert loaded.mode == s.mode
         assert loaded.volume == s.volume
+        assert loaded.directory_url_template == ""
 
     def test_round_trip_non_defaults(self, config_dir):
         s = Settings(
             countdown_duration=120,
             video_calls_only=True,
             internal_domain="corp.com",
+            directory_url_template="https://d.corp.com/u/{Username}",
             mode="silent",
             volume=42,
             clock_offset=-500,
@@ -86,6 +88,7 @@ class TestPersistence:
         assert loaded.countdown_duration == 120
         assert loaded.video_calls_only is True
         assert loaded.internal_domain == "corp.com"
+        assert loaded.directory_url_template == "https://d.corp.com/u/{Username}"
         assert loaded.mode == "silent"
         assert loaded.volume == 42
         assert loaded.clock_offset == -500

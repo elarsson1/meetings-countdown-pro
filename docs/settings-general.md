@@ -1,6 +1,6 @@
 # General Settings
 
-The General tab is organized into five group boxes arranged in a two-column layout: Startup and Organization on the top row, Countdown and Meeting Filters on the second row, and Working Hours spanning the full width at the bottom.
+The General tab is organized into three group boxes arranged in a single column: Startup, Countdown, and Working Hours.
 
 ![General Settings](images/prefs_general.png)
 
@@ -11,19 +11,6 @@ The General tab is organized into five group boxes arranged in a two-column layo
 When enabled, the app starts automatically when you log in to your Mac. This creates a macOS LaunchAgent in `~/Library/LaunchAgents/`. Disabling it removes the LaunchAgent.
 
 **Default:** Off
-
-## Organization
-
-### Internal Email Domain
-
-Your company's email domain (e.g., `acme.com`). This tells the app how to classify meeting attendees:
-
-- **Internal attendees** — email addresses matching this domain.
-- **External attendees** — everyone else, grouped by their email domain with organization favicons.
-
-The countdown window's attendee summary line (e.g., "8 attendees · 5 internal, 3 external from 2 orgs") depends on this being set. If left blank, all attendees appear in a single flat list without internal/external classification.
-
-**Default:** Empty
 
 ## Countdown
 
@@ -36,57 +23,31 @@ How many seconds before the meeting start time the countdown window appears. Thi
 
 If you have a custom audio file, you may want to match this to your audio duration for a perfect sync. See [Audio Synchronization](settings-audio.md#how-audio-sync-works) for details on how the app handles mismatches.
 
-### Only for video meetings
-
-When enabled, the app only fires countdowns for calendar events that contain a detected video call link (Zoom, Microsoft Teams, or Google Meet). Events without a video link are ignored.
-
-When disabled, all eligible meetings trigger a countdown — even that "Lunch with Dave" event that's just a calendar block.
-
-**Default:** Off
-
-### Auto-open link when done
+### Automatically open meeting link at countdown end
 
 When enabled and a video meeting link is detected, the link is automatically opened in your default browser when the countdown reaches zero. The Join Now button is still available for manual use at any time during the countdown.
 
 **Default:** Off
 
-### Continue after joining
+### Continue countdown after joining
 
 By default, clicking **Join Now** (or an inline Join button for simultaneous meetings) opens the meeting link and **closes the countdown window**. Enable this option to bring the drama with you into the meeting — the countdown window stays open so you can watch the full ACTION! clapperboard and LIVE animation play out while your colleagues wonder why you look so excited to be here.
 
 **Default:** Off
 
-### Back-to-Back
+### Back-to-Back Meetings
 
 Controls what happens when a new meeting's countdown would fire while a previous meeting is still in progress:
 
 | Option | Behavior |
 |---|---|
-| **Default** | Use whatever your current countdown mode is (Countdown + Music, Silent, or Off) — no override. |
-| **Silent** | Countdown window appears but audio is suppressed — useful if you're already on a call. |
-| **Skip** | No countdown window at all. The meeting is still marked as notified. |
+| **Use Default Behavior** | Use whatever your current countdown mode is (Countdown + Music, Silent, or Off) — no override. |
+| **Silent Countdown** | Countdown window appears but audio is suppressed — useful if you're already on a call. |
+| **Skip Countdown** | No countdown window at all. The meeting is still marked as notified. |
 
-**Default:** Default
+**Default:** Use Default Behavior
 
-## Meeting Filters
-
-### Include Tentative
-
-When enabled, meetings you've tentatively accepted — or marked "Show As: Tentative" — will trigger countdowns. When disabled, only confirmed/accepted meetings are included.
-
-**Default:** Off
-
-### Include Free Events
-
-When enabled, events marked "Show As: Free" in your calendar (focus time, OOO placeholders, FYI blocks) will trigger countdowns. When disabled, these events are silently skipped.
-
-**Default:** Off
-
-### Include All-Day Events
-
-When enabled, all-day and multi-day events are included in countdown triggers. These are usually things like "Company Holiday" or "Sprint 47" that don't need a broadcast-style entrance.
-
-**Default:** Off
+> **Looking for the Internal Email Domain or Meeting Filters?** Internal Email Domain has moved to the [Attendees](settings-attendees.md) tab. Meeting Filters (including "Only meetings with video links") have moved to the [Calendars](settings-calendars.md#meeting-filters) tab.
 
 ## Working Hours
 
