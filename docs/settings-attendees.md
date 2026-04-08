@@ -2,6 +2,8 @@
 
 The Attendees tab controls how meeting participants are classified and displayed in the countdown window.
 
+![Attendees Settings](images/prefs_attendees.png)
+
 ## Organization
 
 ### Internal Email Domain
