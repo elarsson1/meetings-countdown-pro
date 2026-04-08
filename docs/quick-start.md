@@ -12,23 +12,25 @@ On first launch, macOS will ask you to grant calendar access. Click **Allow** �
 
 Click the menu bar icon and select **Settings...** to open the preferences window.
 
-## 3. Set Your Internal Email Domain
-
-Switch to the **Attendees** tab and enter your company's email domain (e.g., `acme.com`) in the **Internal Email Domain** field.
-
-This is how the app knows who's internal to your organization and who's external. The countdown window groups attendees by internal vs. external, so you can see at a glance whether you need to be on your best behavior.
-
-If you leave this blank, all attendees are shown in a single flat list.
-
-> **Optional:** You can also paste your employee directory URL in the **Directory URL Template** field on the same tab to make internal attendee names clickable.
-
-## 4. Select Your Calendars
+## 3. Select Your Calendars
 
 Switch to the **Calendars** tab. You'll see all of your macOS Calendar accounts listed in a tree view with their individual calendars nested below.
 
 ![Calendars Settings](images/prefs_cal.png)
 
 Check the calendars you want monitored. Most people will want their work calendar enabled and personal calendars disabled — unless you want a dramatic countdown before your dentist appointment (no judgment).
+
+## 4. Set Your Internal Email Domain
+
+Switch to the **Attendees** tab and enter your company's email domain (e.g., `acme.com`) in the **Internal Email Domain** field.
+
+![Attendees Settings](images/prefs_attendees.png)
+
+This is how the app knows who's internal to your organization and who's external. The countdown window groups attendees by internal vs. external, so you can see at a glance whether you need to be on your best behavior.
+
+If you leave this blank, all attendees are shown in a single flat list.
+
+> **Optional:** You can also paste your employee directory URL in the **Directory URL Template** field on the same tab to make internal attendee names clickable.
 
 ## 5. Choose Your Audio
 
@@ -67,5 +69,6 @@ When the timer hits zero, you'll see the ACTION! clapperboard animation followed
 
 - **[Menu Bar](menu-bar.md)** — Learn about the different modes (Countdown + Music, Silent, Off)
 - **[Audio Settings](settings-audio.md)** — Fine-tune your audio sync with clock offset calibration
+- **[Attendees Settings](settings-attendees.md)** — Wire up your employee directory to make internal attendee names clickable
 - **[AI Integration](ai-integration.md)** — Automatically launch an AI coding agent with meeting context when countdowns start
 - **[Test Mode](test-mode.md)** — Use Test Countdown and Quick Test to dial in your setup
