@@ -586,21 +586,35 @@ class CountdownWindow(QWidget):
 
         label = QLabel(name)
         label.setFont(self._make_font(13))
+        label.setStyleSheet("color: #c8c8e0; background: transparent;")
         if link_url:
-            label.setStyleSheet(
-                "QLabel { color: #c8c8e0; background: transparent; }"
-                "QLabel:hover { text-decoration: underline; }"
-            )
             label.setCursor(Qt.CursorShape.PointingHandCursor)
             label.setProperty("directoryUrl", link_url)
+            # Shrink-wrap so hover/click area matches the text width, not the
+            # full left pane.
+            from PyQt6.QtWidgets import QSizePolicy
+            label.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Preferred)
+
+            base_font = label.font()
+            hover_font = QFont(base_font)
+            hover_font.setUnderline(True)
+
+            def _enter(_event, lbl=label, f=hover_font):
+                lbl.setFont(f)
+
+            def _leave(_event, lbl=label, f=base_font):
+                lbl.setFont(f)
 
             def _open(_event, url=link_url):
                 QDesktopServices.openUrl(QUrl(url))
 
+            label.enterEvent = _enter  # type: ignore[method-assign]
+            label.leaveEvent = _leave  # type: ignore[method-assign]
             label.mousePressEvent = _open  # type: ignore[method-assign]
+            row.addWidget(label)
+            row.addStretch(1)
         else:
-            label.setStyleSheet("color: #c8c8e0; background: transparent;")
-        row.addWidget(label, 1)
+            row.addWidget(label, 1)
 
         wrapper = QWidget()
         wrapper.setStyleSheet("background: transparent;")
