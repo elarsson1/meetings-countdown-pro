@@ -1,6 +1,6 @@
 # Meetings Countdown Pro - Product Specification
 
-**Version:** 1.1
+**Version:** 1.2
 **Date:** 2026-04-05
 **Status:** Final
 
